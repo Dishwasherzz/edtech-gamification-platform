@@ -1,0 +1,13 @@
+.git
+.idea
+.vs
+**/bin
+**/obj
+.env
+.env.*
+.data-protection-keys
+work
+artifacts
+**/TestResults
+*.pfx
+*.p12

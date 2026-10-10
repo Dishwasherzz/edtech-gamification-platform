@@ -1,0 +1,5 @@
+# Add this file when running the database in Docker and the API in Rider.
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"

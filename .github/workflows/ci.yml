@@ -1,0 +1,38 @@
+name: Backend CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: edtech_test
+          POSTGRES_PASSWORD: ci_test_only
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U edtech_test -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_CONNECTION_STRING: Host=localhost;Port=5432;Database=postgres;Username=edtech_test;Password=ci_test_only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore EducationGamePlatform.sln --locked-mode
+      - run: dotnet tool restore
+      - run: dotnet build EducationGamePlatform.sln -c Release --no-restore
+      - run: dotnet ef migrations has-pending-model-changes --project EducationGamePlatform.csproj
+      - run: dotnet test EducationGamePlatform.sln -c Release --no-build --logger "trx;LogFileName=integration.trx"
+      - run: docker compose --env-file .env.example --profile app config --quiet
+      - run: docker build -t edtech-api:ci .

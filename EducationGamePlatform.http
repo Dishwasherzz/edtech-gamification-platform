@@ -1,0 +1,62 @@
+@baseUrl = http://localhost:5244
+@courseId = 10000000-0000-4000-8000-000000000001
+@topicId = 20000000-0000-4000-8000-000000000001
+@lessonId = 30000000-0000-4000-8000-000000000001
+@email = student@example.test
+@password = Development123!
+
+### Get CSRF token; Rider preserves response cookies.
+GET {{baseUrl}}/api/auth/csrf
+
+> {% client.global.set("csrfToken", response.body.token); %}
+
+### Register (run once, or change the example email).
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{"email":"{{email}}","password":"{{password}}","displayName":"Студент"}
+
+### Login.
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{"email":"{{email}}","password":"{{password}}"}
+
+### Refresh CSRF after login.
+GET {{baseUrl}}/api/auth/csrf
+
+> {% client.global.set("csrfToken", response.body.token); %}
+
+### My profile.
+GET {{baseUrl}}/api/me
+
+### Published courses.
+GET {{baseUrl}}/api/courses
+
+### Topics.
+GET {{baseUrl}}/api/courses/{{courseId}}/topics
+
+### Topic details.
+GET {{baseUrl}}/api/topics/{{topicId}}
+
+### Lesson.
+GET {{baseUrl}}/api/lessons/{{lessonId}}
+
+### Mark as read (repeat returns the same timestamp).
+PUT {{baseUrl}}/api/me/lessons/{{lessonId}}/completion
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{}
+
+### Logout; get a new token before logging in again.
+POST {{baseUrl}}/api/auth/logout
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{}
+
+### Readiness.
+GET {{baseUrl}}/health/ready

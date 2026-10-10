@@ -1,0 +1,53 @@
+name: edtech-gamification
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-edtech}
+      POSTGRES_USER: ${POSTGRES_USER:-edtech}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    profiles: ["app"]
+    build: .
+    image: edtech-api:local
+    command: ["--migrate"]
+    environment:
+      ConnectionStrings__Database: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-edtech};Username=${POSTGRES_USER:-edtech};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      Database__SeedDemoData: ${SEED_DEMO_DATA:-false}
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+    volumes:
+      - data-protection-keys:/app/keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    profiles: ["app"]
+    build: .
+    image: edtech-api:local
+    environment:
+      ConnectionStrings__Database: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-edtech};Username=${POSTGRES_USER:-edtech};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+    ports:
+      - "127.0.0.1:${API_PORT:-5244}:8080"
+    volumes:
+      - data-protection-keys:/app/keys
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  data-protection-keys:
