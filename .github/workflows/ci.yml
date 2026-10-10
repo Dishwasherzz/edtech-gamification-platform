@@ -32,7 +32,7 @@ jobs:
       - run: dotnet restore EducationGamePlatform.sln --locked-mode
       - run: dotnet tool restore
       - run: dotnet build EducationGamePlatform.sln -c Release --no-restore
-      - run: dotnet ef migrations has-pending-model-changes --project EducationGamePlatform.csproj
+      - run: dotnet ef migrations has-pending-model-changes --project src/EducationGamePlatform/EducationGamePlatform.csproj
       - run: dotnet test EducationGamePlatform.sln -c Release --no-build --logger "trx;LogFileName=integration.trx"
-      - run: docker compose --env-file .env.example --profile app config --quiet
-      - run: docker build -t edtech-api:ci .
+      - run: docker compose --env-file deploy/.env.example -f deploy/compose.yml --profile app config --quiet
+      - run: docker build -f deploy/Dockerfile -t edtech-api:ci .

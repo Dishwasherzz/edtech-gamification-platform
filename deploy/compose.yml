@@ -18,7 +18,9 @@ services:
 
   migrate:
     profiles: ["app"]
-    build: .
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
     image: edtech-api:local
     command: ["--migrate"]
     environment:
@@ -34,7 +36,9 @@ services:
 
   api:
     profiles: ["app"]
-    build: .
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
     image: edtech-api:local
     environment:
       ConnectionStrings__Database: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-edtech};Username=${POSTGRES_USER:-edtech};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"

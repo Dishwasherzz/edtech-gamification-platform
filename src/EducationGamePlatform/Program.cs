@@ -13,9 +13,17 @@ using Microsoft.EntityFrameworkCore;
 
 var hostArguments = args.Where(argument => argument is not "--migrate" and not "--seed-demo").ToArray();
 var builder = WebApplication.CreateBuilder(hostArguments);
+// This ignored file also works when Rider and a terminal use different user-secrets profiles.
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false);
+    // Explicit deployment/test configuration must still override local settings.
+    builder.Configuration.AddEnvironmentVariables();
+    if (hostArguments.Length > 0) builder.Configuration.AddCommandLine(hostArguments);
+}
 var connectionString = builder.Configuration.GetConnectionString("Database")
     ?? throw new InvalidOperationException(
-        "Set ConnectionStrings:Database using dotnet user-secrets or ConnectionStrings__Database. See README.md.");
+        "Set ConnectionStrings:Database using scripts/Set-LocalDatabase.ps1, dotnet user-secrets or ConnectionStrings__Database. See docs/local-database.md.");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     {

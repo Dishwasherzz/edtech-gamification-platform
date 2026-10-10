@@ -14,7 +14,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <ProjectReference Include="../../EducationGamePlatform.csproj" />
+    <ProjectReference Include="../../src/EducationGamePlatform/EducationGamePlatform.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

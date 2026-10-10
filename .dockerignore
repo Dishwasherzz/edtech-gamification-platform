@@ -5,7 +5,10 @@
 **/obj
 .env
 .env.*
-.data-protection-keys
+**/.data-protection-keys
+**/appsettings.Local.json
+**/.env
+**/.env.*
 work
 artifacts
 **/TestResults
