@@ -1,0 +1,126 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: #17191b;
+  color: #f1f3f5;
+  min-height: 100vh;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 36px;
+  border-bottom: 1px solid #282b30;
+  background-color: #17191b;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #22c55e;
+  border-radius: 6px;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.logo-subtitle {
+  font-size: 0.72rem;
+  color: #6c757d;
+  margin-top: 2px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+}
+
+.nav-links a {
+  color: #adb5bd;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: #ffffff;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-box {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #343a40;
+  background: transparent;
+  border-radius: 8px;
+  color: #adb5bd;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary-green {
+  background-color: #22c55e;
+  color: #0b2914;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 9px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-primary-green:hover {
+  opacity: 0.9;
+}
+
+#app {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.placeholder-card {
+  background-color: #202327;
+  border: 1px solid #2c3136;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 20px;
+}
+
+.skeleton-bar {
+  height: 12px;
+  background: #2b3036;
+  border-radius: 6px;
+  margin: 10px 0;
+}
