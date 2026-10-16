@@ -10,6 +10,15 @@ public sealed class AttemptConfiguration : IEntityTypeConfiguration<Attempt>
     {
         builder.HasAlternateKey(attempt => new { attempt.Id, attempt.AssessmentVersionId });
         builder.HasAlternateKey(attempt => new { attempt.Id, attempt.UserId, attempt.AssessmentId });
+        builder.HasAlternateKey(attempt => new { attempt.Id, attempt.UserId, attempt.TopicId });
+        builder.Property(attempt => attempt.FinishReason).HasMaxLength(40);
+        builder.HasOne(attempt => attempt.Topic).WithMany().HasForeignKey(attempt => attempt.TopicId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Assessment>().WithMany().HasForeignKey(attempt => new { attempt.AssessmentId, attempt.TopicId })
+            .HasPrincipalKey(assessment => new { assessment.Id, assessment.TopicId }).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(attempt => attempt.Scenario).WithMany()
+            .HasForeignKey(attempt => new { attempt.ScenarioId, attempt.AssessmentVersionId })
+            .HasPrincipalKey(scenario => new { scenario.Id, scenario.AssessmentVersionId }).OnDelete(DeleteBehavior.Restrict);
         builder.Property(attempt => attempt.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(attempt => attempt.User).WithMany().HasForeignKey(attempt => attempt.UserId)
             .OnDelete(DeleteBehavior.Restrict);
@@ -19,8 +28,10 @@ public sealed class AttemptConfiguration : IEntityTypeConfiguration<Attempt>
         builder.HasIndex(attempt => new { attempt.UserId, attempt.StartedAt });
         builder.HasIndex(attempt => new { attempt.UserId, attempt.AssessmentId }).IsUnique()
             .HasFilter("\"Status\" = 'Active'");
+        builder.HasIndex(attempt => attempt.UserId).IsUnique().HasFilter("\"Status\" = 'Active'");
+        builder.HasIndex(attempt => new { attempt.Status, attempt.ExpiresAt });
         builder.ToTable("Attempts", table => table.HasCheckConstraint("CK_Attempt_Counts",
-            "\"QuestionCount\" > 0 AND \"CorrectAnswers\" >= 0 AND \"CorrectAnswers\" <= \"QuestionCount\" AND \"BossHpRemaining\" >= 0"));
+            "\"QuestionCount\" > 0 AND \"CorrectAnswers\" >= 0 AND \"CorrectAnswers\" <= \"QuestionCount\" AND \"BossHpRemaining\" >= 0 AND \"ErrorCount\" >= 0"));
     }
 }
 
@@ -29,6 +40,7 @@ public sealed class AttemptQuestionConfiguration : IEntityTypeConfiguration<Atte
     public void Configure(EntityTypeBuilder<AttemptQuestion> builder)
     {
         builder.HasAlternateKey(question => new { question.Id, question.QuestionId });
+        builder.HasAlternateKey(question => new { question.Id, question.AttemptId, question.QuestionId });
         builder.Property(question => question.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(question => question.Attempt).WithMany(attempt => attempt.Questions)
             .HasForeignKey(question => new { question.AttemptId, question.AssessmentVersionId })
@@ -70,8 +82,12 @@ public sealed class RewardGrantConfiguration : IEntityTypeConfiguration<RewardGr
             .OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(reward => reward.User).WithMany().HasForeignKey(reward => reward.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<Attempt>().WithMany()
+            .HasForeignKey(reward => new { reward.AttemptId, reward.UserId, reward.TopicId })
+            .HasPrincipalKey(attempt => new { attempt.Id, attempt.UserId, attempt.TopicId }).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(reward => reward.AttemptId).IsUnique();
-        builder.HasIndex(reward => new { reward.UserId, reward.AssessmentId, reward.Reason }).IsUnique();
+        builder.HasIndex(reward => new { reward.UserId, reward.TopicId }).IsUnique()
+            .HasFilter("\"Reason\" = 'FirstPass'");
         builder.ToTable("RewardGrants", table => table.HasCheckConstraint("CK_RewardGrant_Amounts",
             "\"XpAmount\" >= 0 AND \"CoinsAmount\" >= 0"));
     }

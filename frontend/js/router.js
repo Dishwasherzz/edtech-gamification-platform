@@ -1,24 +1,40 @@
-import { renderDashboard } from './views/Dashboard.js';
-// import { renderTheory } from './views/Theory.js';
-// import { renderBattle } from './views/Battle.js';
-// import { renderEmergency } from './views/Emergency.js';
-import { renderProfile } from './views/Profile.js';
-import { renderAuth } from './views/Auth.js';
+import { renderDashboard } from "./views/dashboard.js";
+import { renderProfile } from "./views/profile.js";
+import { renderAuth } from "./views/auth.js";
+import { renderTopic, renderLesson } from "./views/theory.js";
+import { renderAttempt } from "./views/attempt.js";
+import { renderInstructions } from "./views/instructions.js";
+import { state } from "./state.js";
 
-const routes = {
-  '#/': renderDashboard,
-  // '#/theory': renderTheory,
-  // '#/battle': renderBattle,
-  // '#/emergency': renderEmergency,
-  '#/profile': renderProfile,
-  '#/auth': renderAuth
-};
+let version = 0;
+let dispose = () => {};
 
-export function handleRoute() {
-  const hash = window.location.hash || '#/';
-  const renderView = routes[hash] || renderDashboard;
-  
-  const app = document.getElementById('app');
-  app.innerHTML = '';
-  app.appendChild(renderView());
+export async function handleRoute() {
+  dispose(); dispose = () => {};
+  const currentVersion = ++version;
+  const url = new URL((window.location.hash || "#/").slice(1), window.location.origin);
+  const parts = url.pathname.split("/").filter(Boolean);
+  if (!state.isAuth && parts.length && parts[0] !== "auth") { window.location.hash = "#/auth"; return; }
+  if (parts[0] === "auth" && state.isAuth) { window.location.hash = "#/"; return; }
+  const app = document.getElementById("app");
+  app.setAttribute("aria-busy", "true"); app.textContent = "Загрузка…";
+  try {
+    let view;
+    if (!parts.length) view = await renderDashboard();
+    else if (parts[0] === "auth") view = renderAuth();
+    else if (parts[0] === "profile") view = await renderProfile(Math.max(1, Number(url.searchParams.get("page")) || 1));
+    else if (parts[0] === "topic" && parts[1]) view = await renderTopic(parts[1]);
+    else if (parts[0] === "lesson" && parts[1]) view = await renderLesson(parts[1]);
+    else if (parts[0] === "attempt" && parts[1]) view = await renderAttempt(parts[1]);
+    else if (parts[0] === "instructions") view = await renderInstructions();
+    else throw new Error("Страница не найдена.");
+    if (currentVersion !== version) { view.dispose?.(); return; }
+    app.replaceChildren(view); dispose = () => view.dispose?.();
+  } catch (error) {
+    if (currentVersion !== version) return;
+    const box = document.createElement("div"); box.className = "card";
+    const message = document.createElement("p"); message.className = "error"; message.setAttribute("role", "alert"); message.textContent = error.message;
+    const retry = document.createElement("button"); retry.className = "btn secondary"; retry.textContent = "Повторить"; retry.onclick = handleRoute;
+    box.append(message, retry); app.replaceChildren(box);
+  } finally { if (currentVersion === version) app.removeAttribute("aria-busy"); }
 }

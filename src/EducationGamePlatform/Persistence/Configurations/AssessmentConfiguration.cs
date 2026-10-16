@@ -8,6 +8,7 @@ public sealed class AssessmentConfiguration : IEntityTypeConfiguration<Assessmen
 {
     public void Configure(EntityTypeBuilder<Assessment> builder)
     {
+        builder.HasAlternateKey(assessment => new { assessment.Id, assessment.TopicId });
         builder.Property(assessment => assessment.Title).HasMaxLength(200);
         builder.Property(assessment => assessment.Mode).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(assessment => assessment.Topic).WithMany(topic => topic.Assessments)

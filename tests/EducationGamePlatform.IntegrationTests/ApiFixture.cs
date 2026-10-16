@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using EducationGamePlatform.Features.Auth;
 using EducationGamePlatform.Persistence;
+using EducationGamePlatform.Features.Game;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,7 @@ public sealed class ApiCollection : ICollectionFixture<ApiFixture>;
 
 public sealed class ApiFixture : IAsyncLifetime
 {
+    public AdjustableClock Clock { get; } = new();
     private readonly string databaseName = $"edtech_tests_{Guid.NewGuid():N}";
     private readonly string keysDirectory = Path.Combine(Path.GetTempPath(), "edtech-test-keys", Guid.NewGuid().ToString("N"));
     private string adminConnectionString = null!;
@@ -40,7 +42,11 @@ public sealed class ApiFixture : IAsyncLifetime
         previousKeysPath = Environment.GetEnvironmentVariable("DataProtection__KeysPath");
         Environment.SetEnvironmentVariable("ConnectionStrings__Database", ConnectionString);
         Environment.SetEnvironmentVariable("DataProtection__KeysPath", keysDirectory);
-        Factory = new WebApplicationFactory<Program>();
+        Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder => builder.ConfigureServices(services =>
+        {
+            services.AddSingleton<TimeProvider>(Clock);
+            services.PostConfigure<GameOptions>(options => options.EnableExpiryWorker = false);
+        }));
         using var scope = Factory.Services.CreateScope();
         var database = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await database.Database.MigrateAsync();
@@ -93,4 +99,11 @@ public sealed class ApiFixture : IAsyncLifetime
         }
         // Leave temporary keys for normal OS temp cleanup; never delete a computed directory recursively.
     }
+}
+
+public sealed class AdjustableClock : TimeProvider
+{
+    private long offsetTicks;
+    public override DateTimeOffset GetUtcNow() => DateTimeOffset.UtcNow.AddTicks(Interlocked.Read(ref offsetTicks));
+    public void Advance(TimeSpan time) => Interlocked.Add(ref offsetTicks, time.Ticks);
 }

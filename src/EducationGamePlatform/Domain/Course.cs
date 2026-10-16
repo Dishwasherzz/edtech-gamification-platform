@@ -39,6 +39,18 @@ public sealed class LessonProgress
     public Guid UserId { get; set; }
     public Guid LessonId { get; set; }
     public DateTimeOffset CompletedAt { get; set; }
+    public int AwardedXp { get; set; }
     public ApplicationUser User { get; set; } = null!;
     public Lesson Lesson { get; set; } = null!;
+}
+
+public sealed class TopicProgress
+{
+    public Guid UserId { get; set; }
+    public Guid TopicId { get; set; }
+    public DateTimeOffset CompletedAt { get; set; }
+    public Guid FirstAttemptId { get; set; }
+    public ApplicationUser User { get; set; } = null!;
+    public Topic Topic { get; set; } = null!;
+    public Attempt FirstAttempt { get; set; } = null!;
 }

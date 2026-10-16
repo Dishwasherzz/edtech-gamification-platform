@@ -42,6 +42,7 @@ public static class DemoData
             });
             await database.SaveChangesAsync(cancellationToken);
         }
+        await DemoGameContent.SeedAsync(database, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
 }

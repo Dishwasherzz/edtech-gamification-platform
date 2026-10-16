@@ -106,10 +106,10 @@ public sealed class ApiTests(ApiFixture fixture)
         Assert.NotNull((await first.GetFromJsonAsync<LessonResponse>($"/api/lessons/{DemoData.LessonId}"))!.CompletedAt);
         Assert.Null((await second.GetFromJsonAsync<LessonResponse>($"/api/lessons/{DemoData.LessonId}"))!.CompletedAt);
         var profile = (await first.GetFromJsonAsync<ProfileResponse>("/api/me"))!;
-        Assert.Equal(0, profile.TotalXp);
+        Assert.Equal(20, profile.TotalXp);
         Assert.Equal(0, profile.CoinsBalance);
         var topics = await first.GetFromJsonAsync<List<TopicResponse>>($"/api/courses/{DemoData.CourseId}/topics");
-        Assert.Equal(1, topics!.Single().CompletedLessons);
+        Assert.Equal(1, topics!.Single(topic => topic.Id == DemoData.TopicId).CompletedLessons);
         await using var database = fixture.CreateDatabase();
         Assert.Equal(1, await database.LessonProgress.CountAsync(progress => progress.UserId == profile.UserId));
     }
@@ -136,7 +136,7 @@ public sealed class ApiTests(ApiFixture fixture)
     }
 
     [Fact]
-    public async Task ReadinessAndOpenApiAreAvailableAndNoGameMutationsAreAdvertised()
+    public async Task ReadinessFrontendAndOpenApiAreAvailable()
     {
         using var client = fixture.CreateClient();
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/health/live")).StatusCode);
@@ -145,7 +145,11 @@ public sealed class ApiTests(ApiFixture fixture)
         var paths = openApi.RootElement.GetProperty("paths");
         Assert.True(paths.TryGetProperty("/api/auth/register", out _));
         Assert.True(paths.TryGetProperty("/api/me", out _));
-        Assert.DoesNotContain(paths.EnumerateObject(), path => path.Name.Contains("/attempts"));
+        Assert.True(paths.TryGetProperty("/api/assessments/{assessmentId}/attempts", out _));
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/js/router.js")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/appsettings.Local.json")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/not-an-endpoint")).StatusCode);
         await using var database = fixture.CreateDatabase();
         Assert.Equal(1, await database.Courses.CountAsync(course => course.Id == DemoData.CourseId));
     }

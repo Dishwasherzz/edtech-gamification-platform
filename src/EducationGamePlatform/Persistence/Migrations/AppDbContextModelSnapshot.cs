@@ -217,17 +217,33 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.Property<Guid>("AssessmentVersionId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTimeOffset?>("BegunAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("BossHpRemaining")
                         .HasColumnType("integer");
 
                     b.Property<int>("CorrectAnswers")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ErrorCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FinishReason")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
                     b.Property<DateTimeOffset?>("FinishedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("QuestionCount")
                         .HasColumnType("integer");
+
+                    b.Property<Guid?>("ScenarioId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("StartedAt")
                         .HasColumnType("timestamp with time zone");
@@ -237,12 +253,27 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<Guid>("TopicId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TopicId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("\"Status\" = 'Active'");
+
+                    b.HasIndex("AssessmentId", "TopicId");
+
                     b.HasIndex("AssessmentVersionId", "AssessmentId");
+
+                    b.HasIndex("ScenarioId", "AssessmentVersionId");
+
+                    b.HasIndex("Status", "ExpiresAt");
 
                     b.HasIndex("UserId", "AssessmentId")
                         .IsUnique()
@@ -252,7 +283,7 @@ namespace EducationGamePlatform.Persistence.Migrations
 
                     b.ToTable("Attempts", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Attempt_Counts", "\"QuestionCount\" > 0 AND \"CorrectAnswers\" >= 0 AND \"CorrectAnswers\" <= \"QuestionCount\" AND \"BossHpRemaining\" >= 0");
+                            t.HasCheckConstraint("CK_Attempt_Counts", "\"QuestionCount\" > 0 AND \"CorrectAnswers\" >= 0 AND \"CorrectAnswers\" <= \"QuestionCount\" AND \"BossHpRemaining\" >= 0 AND \"ErrorCount\" >= 0");
                         });
                 });
 
@@ -281,6 +312,48 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.HasIndex("SelectedOptionId", "QuestionId");
 
                     b.ToTable("AttemptAnswers");
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.AttemptChoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AttemptId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AttemptQuestionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsCorrect")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SelectedOptionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttemptId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("AttemptQuestionId", "SelectedOptionId")
+                        .IsUnique();
+
+                    b.HasIndex("SelectedOptionId", "QuestionId");
+
+                    b.HasIndex("AttemptQuestionId", "AttemptId", "QuestionId");
+
+                    b.ToTable("AttemptChoices");
                 });
 
             modelBuilder.Entity("EducationGamePlatform.Domain.AttemptQuestion", b =>
@@ -362,6 +435,41 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("EducationGamePlatform.Domain.CrisisScenario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AssessmentVersionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("IllustrationKey")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Introduction")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentVersionId", "SortOrder")
+                        .IsUnique();
+
+                    b.ToTable("CrisisScenarios");
+                });
+
             modelBuilder.Entity("EducationGamePlatform.Domain.Lesson", b =>
                 {
                     b.Property<Guid>("Id")
@@ -404,6 +512,9 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.Property<Guid>("LessonId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("AwardedXp")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -411,7 +522,10 @@ namespace EducationGamePlatform.Persistence.Migrations
 
                     b.HasIndex("LessonId");
 
-                    b.ToTable("LessonProgress");
+                    b.ToTable("LessonProgress", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LessonProgress_AwardedXp", "\"AwardedXp\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("EducationGamePlatform.Domain.PlayerProfile", b =>
@@ -464,6 +578,9 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
 
+                    b.Property<Guid?>("ScenarioId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
 
@@ -476,6 +593,8 @@ namespace EducationGamePlatform.Persistence.Migrations
 
                     b.HasIndex("AssessmentVersionId", "SortOrder")
                         .IsUnique();
+
+                    b.HasIndex("ScenarioId", "AssessmentVersionId");
 
                     b.ToTable("Questions");
                 });
@@ -503,6 +622,9 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<Guid>("TopicId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
@@ -514,11 +636,14 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.HasIndex("AttemptId")
                         .IsUnique();
 
+                    b.HasIndex("UserId", "TopicId")
+                        .IsUnique()
+                        .HasFilter("\"Reason\" = 'FirstPass'");
+
                     b.HasIndex("AttemptId", "UserId", "AssessmentId")
                         .IsUnique();
 
-                    b.HasIndex("UserId", "AssessmentId", "Reason")
-                        .IsUnique();
+                    b.HasIndex("AttemptId", "UserId", "TopicId");
 
                     b.ToTable("RewardGrants", null, t =>
                         {
@@ -559,6 +684,29 @@ namespace EducationGamePlatform.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_Topic_Order", "\"SortOrder\" >= 0");
                         });
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.TopicProgress", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TopicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FirstAttemptId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UserId", "TopicId");
+
+                    b.HasIndex("TopicId");
+
+                    b.HasIndex("FirstAttemptId", "UserId", "TopicId");
+
+                    b.ToTable("TopicProgress");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -726,9 +874,22 @@ namespace EducationGamePlatform.Persistence.Migrations
 
             modelBuilder.Entity("EducationGamePlatform.Domain.Attempt", b =>
                 {
+                    b.HasOne("EducationGamePlatform.Domain.Topic", "Topic")
+                        .WithMany()
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("EducationGamePlatform.Domain.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationGamePlatform.Domain.Assessment", null)
+                        .WithMany()
+                        .HasForeignKey("AssessmentId", "TopicId")
+                        .HasPrincipalKey("Id", "TopicId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -739,7 +900,17 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("EducationGamePlatform.Domain.CrisisScenario", "Scenario")
+                        .WithMany()
+                        .HasForeignKey("ScenarioId", "AssessmentVersionId")
+                        .HasPrincipalKey("Id", "AssessmentVersionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("AssessmentVersion");
+
+                    b.Navigation("Scenario");
+
+                    b.Navigation("Topic");
 
                     b.Navigation("User");
                 });
@@ -757,6 +928,27 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("SelectedOptionId", "QuestionId")
                         .HasPrincipalKey("Id", "QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AttemptQuestion");
+
+                    b.Navigation("SelectedOption");
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.AttemptChoice", b =>
+                {
+                    b.HasOne("EducationGamePlatform.Domain.AnswerOption", "SelectedOption")
+                        .WithMany()
+                        .HasForeignKey("SelectedOptionId", "QuestionId")
+                        .HasPrincipalKey("Id", "QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationGamePlatform.Domain.AttemptQuestion", "AttemptQuestion")
+                        .WithMany()
+                        .HasForeignKey("AttemptQuestionId", "AttemptId", "QuestionId")
+                        .HasPrincipalKey("Id", "AttemptId", "QuestionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -784,6 +976,17 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.Navigation("Attempt");
 
                     b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.CrisisScenario", b =>
+                {
+                    b.HasOne("EducationGamePlatform.Domain.AssessmentVersion", "AssessmentVersion")
+                        .WithMany("Scenarios")
+                        .HasForeignKey("AssessmentVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssessmentVersion");
                 });
 
             modelBuilder.Entity("EducationGamePlatform.Domain.Lesson", b =>
@@ -835,7 +1038,15 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("EducationGamePlatform.Domain.CrisisScenario", "Scenario")
+                        .WithMany("Questions")
+                        .HasForeignKey("ScenarioId", "AssessmentVersionId")
+                        .HasPrincipalKey("Id", "AssessmentVersionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("AssessmentVersion");
+
+                    b.Navigation("Scenario");
                 });
 
             modelBuilder.Entity("EducationGamePlatform.Domain.RewardGrant", b =>
@@ -853,6 +1064,13 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("EducationGamePlatform.Domain.Attempt", null)
+                        .WithMany()
+                        .HasForeignKey("AttemptId", "UserId", "TopicId")
+                        .HasPrincipalKey("Id", "UserId", "TopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Attempt");
 
                     b.Navigation("User");
@@ -867,6 +1085,34 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.TopicProgress", b =>
+                {
+                    b.HasOne("EducationGamePlatform.Domain.Topic", "Topic")
+                        .WithMany()
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationGamePlatform.Domain.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationGamePlatform.Domain.Attempt", "FirstAttempt")
+                        .WithMany()
+                        .HasForeignKey("FirstAttemptId", "UserId", "TopicId")
+                        .HasPrincipalKey("Id", "UserId", "TopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FirstAttempt");
+
+                    b.Navigation("Topic");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -933,6 +1179,8 @@ namespace EducationGamePlatform.Persistence.Migrations
             modelBuilder.Entity("EducationGamePlatform.Domain.AssessmentVersion", b =>
                 {
                     b.Navigation("Questions");
+
+                    b.Navigation("Scenarios");
                 });
 
             modelBuilder.Entity("EducationGamePlatform.Domain.Attempt", b =>
@@ -948,6 +1196,11 @@ namespace EducationGamePlatform.Persistence.Migrations
             modelBuilder.Entity("EducationGamePlatform.Domain.Course", b =>
                 {
                     b.Navigation("Topics");
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.CrisisScenario", b =>
+                {
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("EducationGamePlatform.Domain.Question", b =>

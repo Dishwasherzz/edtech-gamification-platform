@@ -21,6 +21,9 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<AttemptQuestion> AttemptQuestions => Set<AttemptQuestion>();
     public DbSet<AttemptAnswer> AttemptAnswers => Set<AttemptAnswer>();
     public DbSet<RewardGrant> RewardGrants => Set<RewardGrant>();
+    public DbSet<TopicProgress> TopicProgress => Set<TopicProgress>();
+    public DbSet<CrisisScenario> CrisisScenarios => Set<CrisisScenario>();
+    public DbSet<AttemptChoice> AttemptChoices => Set<AttemptChoice>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

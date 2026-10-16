@@ -19,16 +19,20 @@
     <nav class="nav-links">
       <a href="#/">Главная</a>
       <a href="#/profile">Прогресс</a>
+      <a href="#/instructions">Правила</a>
     </nav>
 
     <div class="header-actions">
-      <button class="icon-box" title="Настройки">⚙️</button>
+      <span id="header-progress" class="muted" hidden></span>
       <a href="#/auth" class="btn-primary-green" id="auth-btn">Регистрация</a>
+      <button id="logout-btn" class="btn secondary" hidden>Выйти</button>
     </div>
   </header>
 
   <!-- Сюда подставляются экраны -->
   <main id="app"></main>
+  <p id="global-error" class="error" role="alert"></p>
+  <noscript>Для работы учебного модуля включи JavaScript.</noscript>
 
   <script type="module" src="js/main.js"></script>
 </body>

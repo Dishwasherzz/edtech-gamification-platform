@@ -1,27 +1,22 @@
-export const state = {
-  isAuth: true,
-  user: {
-    name: "Студент-Электрик",
-    rank: 1,
-    xp: 0,
-    coins: 50
-  }
-};
+import { api } from "./api.js";
+
+export const state = { isAuth: false, user: null };
 
 export function updateHeaderUI() {
-  const rankEl = document.getElementById('header-rank');
-  const xpEl = document.getElementById('header-xp');
-  const coinsEl = document.getElementById('header-coins');
-  const authBtn = document.getElementById('auth-btn');
-
-  if (rankEl) rankEl.textContent = `Разряд: ${state.user.rank}`;
-  if (xpEl) xpEl.textContent = `XP: ${state.user.xp}`;
-  if (coinsEl) coinsEl.textContent = `${state.user.coins}`;
-  if (authBtn) authBtn.textContent = state.isAuth ? "Профиль" : "Регистрация";
+  const link = document.getElementById("auth-btn");
+  link.textContent = state.isAuth ? state.user.displayName : "Войти / Регистрация";
+  link.href = state.isAuth ? "#/profile" : "#/auth";
+  const counters = document.getElementById("header-progress");
+  counters.hidden = !state.isAuth;
+  counters.textContent = state.isAuth ? `Разряд ${state.user.rank} · ${state.user.totalXp} XP · ${state.user.coinsBalance} монет` : "";
+  document.getElementById("logout-btn").hidden = !state.isAuth;
 }
 
-export function addRewards(xp, coins) {
-  state.user.xp += xp;
-  state.user.coins += coins;
+export async function refreshProfile() {
+  state.user = await api.profile();
+  state.isAuth = true;
   updateHeaderUI();
+  return state.user;
 }
+
+export function clearSession() { state.user = null; state.isAuth = false; updateHeaderUI(); }

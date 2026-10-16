@@ -30,18 +30,33 @@ public sealed class AssessmentVersion
     public int DamagePerCorrectAnswer { get; set; }
     public Assessment Assessment { get; set; } = null!;
     public List<Question> Questions { get; set; } = [];
+    public List<CrisisScenario> Scenarios { get; set; } = [];
 }
 
 public sealed class Question
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
     public Guid AssessmentVersionId { get; set; }
+    public Guid? ScenarioId { get; set; }
     public string Prompt { get; set; } = string.Empty;
     public QuestionType Type { get; set; } = QuestionType.SingleChoice;
     public int SortOrder { get; set; }
     public string Explanation { get; set; } = string.Empty;
     public AssessmentVersion AssessmentVersion { get; set; } = null!;
+    public CrisisScenario? Scenario { get; set; }
     public List<AnswerOption> Options { get; set; } = [];
+}
+
+public sealed class CrisisScenario
+{
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid AssessmentVersionId { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Introduction { get; set; } = string.Empty;
+    public string IllustrationKey { get; set; } = "circuit";
+    public int SortOrder { get; set; }
+    public AssessmentVersion AssessmentVersion { get; set; } = null!;
+    public List<Question> Questions { get; set; } = [];
 }
 
 public sealed class AnswerOption

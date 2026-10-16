@@ -23,13 +23,13 @@ public sealed class SchemaTests(ApiFixture fixture)
         await database.SaveChangesAsync();
         database.RewardGrants.Add(new RewardGrant
         {
-            AttemptId = first.Id, UserId = profile.UserId, AssessmentId = version.AssessmentId,
+            AttemptId = first.Id, UserId = profile.UserId, AssessmentId = version.AssessmentId, TopicId = DemoData.TopicId,
             XpAmount = 100, CoinsAmount = 10, GrantedAt = DateTimeOffset.UtcNow
         });
         await database.SaveChangesAsync();
         database.RewardGrants.Add(new RewardGrant
         {
-            AttemptId = second.Id, UserId = profile.UserId, AssessmentId = version.AssessmentId,
+            AttemptId = second.Id, UserId = profile.UserId, AssessmentId = version.AssessmentId, TopicId = DemoData.TopicId,
             XpAmount = 100, CoinsAmount = 10, GrantedAt = DateTimeOffset.UtcNow
         });
         var error = await Assert.ThrowsAsync<DbUpdateException>(() => database.SaveChangesAsync());
@@ -84,7 +84,7 @@ public sealed class SchemaTests(ApiFixture fixture)
 
     private static Attempt CreateAttempt(Guid userId, AssessmentVersion version) => new()
     {
-        UserId = userId, AssessmentId = version.AssessmentId, AssessmentVersionId = version.Id,
+        UserId = userId, AssessmentId = version.AssessmentId, AssessmentVersionId = version.Id, TopicId = DemoData.TopicId,
         Status = AttemptStatus.Passed, QuestionCount = 2, CorrectAnswers = 1,
         StartedAt = DateTimeOffset.UtcNow.AddMinutes(-1), FinishedAt = DateTimeOffset.UtcNow
     };

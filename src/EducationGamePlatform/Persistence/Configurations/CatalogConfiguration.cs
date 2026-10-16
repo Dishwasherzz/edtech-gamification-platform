@@ -62,6 +62,7 @@ public sealed class LessonProgressConfiguration : IEntityTypeConfiguration<Lesso
     public void Configure(EntityTypeBuilder<LessonProgress> builder)
     {
         builder.HasKey(progress => new { progress.UserId, progress.LessonId });
+        builder.ToTable("LessonProgress", table => table.HasCheckConstraint("CK_LessonProgress_AwardedXp", "\"AwardedXp\" >= 0"));
         builder.HasOne(progress => progress.User).WithMany().HasForeignKey(progress => progress.UserId)
             .OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(progress => progress.Lesson).WithMany().HasForeignKey(progress => progress.LessonId)

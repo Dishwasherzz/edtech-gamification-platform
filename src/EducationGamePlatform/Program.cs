@@ -3,6 +3,7 @@ using EducationGamePlatform.Domain;
 using EducationGamePlatform.Features.Auth;
 using EducationGamePlatform.Features.Catalog;
 using EducationGamePlatform.Features.Profile;
+using EducationGamePlatform.Features.Game;
 using EducationGamePlatform.Infrastructure;
 using EducationGamePlatform.Persistence;
 using Microsoft.AspNetCore.DataProtection;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var hostArguments = args.Where(argument => argument is not "--migrate" and not "--seed-demo").ToArray();
 var builder = WebApplication.CreateBuilder(hostArguments);
@@ -70,6 +72,14 @@ builder.Services.AddDataProtection().SetApplicationName("EducationGamePlatform")
 builder.Services.Configure<JsonOptions>(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GameRuleExceptionHandler>();
+builder.Services.AddOptions<GameOptions>().BindConfiguration("Game")
+    .PostConfigure(options => { if (options.RankThresholds is not { Length: > 0 }) options.RankThresholds = [0, 100, 300, 600, 1000, 1500]; })
+    .Validate(GameOptions.IsValid, "Invalid game economy or rank thresholds.").ValidateOnStart();
+builder.Services.AddScoped<ProgressService>();
+builder.Services.AddScoped<GameService>();
+builder.Services.AddSingleton<RankCalculator>();
+builder.Services.AddHostedService<AttemptExpiryWorker>();
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddHealthChecks().AddCheck<PostgresHealthCheck>("postgres", tags: ["ready"]);
@@ -86,6 +96,15 @@ if (args.Contains("--migrate") || args.Contains("--seed-demo"))
     return;
 }
 app.UseExceptionHandler();
+var frontendPath = Path.Combine(AppContext.BaseDirectory, "wwwroot");
+if (!Directory.Exists(frontendPath)) frontendPath = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "../../frontend"));
+if (Directory.Exists(frontendPath))
+{
+    var frontendFiles = new PhysicalFileProvider(frontendPath);
+    app.Lifetime.ApplicationStopped.Register(frontendFiles.Dispose);
+    app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = frontendFiles });
+    app.UseStaticFiles(new StaticFileOptions { FileProvider = frontendFiles });
+}
 app.UseStatusCodePages(async context =>
     await Results.Problem(statusCode: context.HttpContext.Response.StatusCode)
         .ExecuteAsync(context.HttpContext));
@@ -98,6 +117,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check 
 app.MapAuthEndpoints();
 app.MapProfileEndpoints();
 app.MapCatalogEndpoints();
+app.MapGameEndpoints();
 app.Run();
 
 public partial class Program;

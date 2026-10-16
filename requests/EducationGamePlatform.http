@@ -60,3 +60,24 @@ X-CSRF-TOKEN: {{csrfToken}}
 
 ### Readiness.
 GET {{baseUrl}}/health/ready
+
+### After logging in again: current rules and economy.
+GET {{baseUrl}}/api/instructions
+
+### Resume the active attempt (or empty response if none).
+GET {{baseUrl}}/api/me/attempts/active
+
+### Personal attempt history, 20 items per page.
+GET {{baseUrl}}/api/me/attempts?page=1
+
+### Start/resume demo boss after reading the first lesson. Refresh CSRF after login.
+POST {{baseUrl}}/api/assessments/40000000-0000-4000-8000-000000000001/attempts
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{}
+
+> {% client.global.set("attemptId", response.body.id); %}
+
+### Server state; expiresAt is authoritative. Use the browser UI to answer questions.
+GET {{baseUrl}}/api/attempts/{{attemptId}}
