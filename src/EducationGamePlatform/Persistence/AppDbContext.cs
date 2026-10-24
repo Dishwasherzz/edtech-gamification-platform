@@ -24,6 +24,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<TopicProgress> TopicProgress => Set<TopicProgress>();
     public DbSet<CrisisScenario> CrisisScenarios => Set<CrisisScenario>();
     public DbSet<AttemptChoice> AttemptChoices => Set<AttemptChoice>();
+    public DbSet<CharacterSkin> CharacterSkins => Set<CharacterSkin>();
+    public DbSet<Mascot> Mascots => Set<Mascot>();
+    public DbSet<MascotReaction> MascotReactions => Set<MascotReaction>();
+    public DbSet<UserSkin> UserSkins => Set<UserSkin>();
+    public DbSet<SkinPurchase> SkinPurchases => Set<SkinPurchase>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

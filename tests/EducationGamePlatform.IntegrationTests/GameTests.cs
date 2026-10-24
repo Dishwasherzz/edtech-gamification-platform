@@ -49,6 +49,29 @@ public sealed class GameTests(ApiFixture fixture)
     }
 
     [Fact]
+    public async Task CrisisWithFewerThanThreeScenariosIsRejectedBeforeCreatingAttempt()
+    {
+        using var client = await Ready();
+        var assessment = new Assessment { TopicId = DemoData.TopicId, Mode = AssessmentMode.Crisis, Title = "Incomplete scenario bank", IsPublished = true };
+        var version = new AssessmentVersion { AssessmentId = assessment.Id, VersionNumber = 1, RequiredCorrectAnswers = 4,
+            PublishedAt = fixture.Clock.GetUtcNow(), QuestionTimeLimitSeconds = 60 };
+        var scenario = new CrisisScenario { AssessmentVersionId = version.Id, Title = "Only scenario" };
+        version.Scenarios.Add(scenario);
+        for (var i = 0; i < 4; i++)
+            version.Questions.Add(new Question { AssessmentVersionId = version.Id, ScenarioId = scenario.Id, Prompt = $"Step {i}", SortOrder = i,
+                Options = [new AnswerOption { Text = "Correct", IsCorrect = true, SortOrder = 0 },
+                    new AnswerOption { Text = "Wrong 1", SortOrder = 1 }, new AnswerOption { Text = "Wrong 2", SortOrder = 2 }] });
+        assessment.Versions.Add(version);
+        await using var db = fixture.CreateDatabase();
+        db.Assessments.Add(assessment);
+        await db.SaveChangesAsync();
+        var response = await client.PostAsJsonAsync($"/api/assessments/{assessment.Id}/attempts", new { });
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Contains("InvalidContent", await response.Content.ReadAsStringAsync());
+        Assert.False(await db.Attempts.AnyAsync(attempt => attempt.AssessmentId == assessment.Id));
+    }
+
+    [Fact]
     public async Task LegacyReadingMarkReceivesTheNewAwardOnceAndKeepsItsOriginalDate()
     {
         using var client = await fixture.CreateStudentAsync();

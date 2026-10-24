@@ -1,0 +1,72 @@
+@baseUrl = http://localhost:5244
+@email = cosmetics.student@example.test
+@password = Development123!
+@skinId = 60000000-0000-4000-8000-000000000002
+@mascotId = 70000000-0000-4000-8000-000000000002
+@purchaseRequestId = e2000000-0000-4000-8000-000000000001
+
+### Obtain CSRF; Rider preserves cookies.
+GET {{baseUrl}}/api/auth/csrf
+
+> {% client.global.set("csrfToken", response.body.token); %}
+
+### Run once, or use an existing account and skip registration.
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{"email":"{{email}}","password":"{{password}}","displayName":"Студент"}
+
+### Login, then refresh CSRF.
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{"email":"{{email}}","password":"{{password}}"}
+
+### Refresh after login.
+GET {{baseUrl}}/api/auth/csrf
+
+> {% client.global.set("csrfToken", response.body.token); %}
+
+### Store catalog; coins must be earned in an existing trial before purchase.
+GET {{baseUrl}}/api/shop/skins
+
+### First purchase; replay this exact request to verify no second debit.
+POST {{baseUrl}}/api/shop/skins/{{skinId}}/purchase
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{"requestId":"{{purchaseRequestId}}"}
+
+### Inventory.
+GET {{baseUrl}}/api/me/skins
+
+### Equip an owned skin. This does not edit the frontend or change AvatarKey.
+PUT {{baseUrl}}/api/me/skin
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{"skinId":"{{skinId}}"}
+
+### Mascot catalog.
+GET {{baseUrl}}/api/mascots
+
+### Reaction definitions.
+GET {{baseUrl}}/api/mascots/{{mascotId}}
+
+### Choose a mascot for future attempts.
+PUT {{baseUrl}}/api/me/mascot
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+
+{"mascotId":"{{mascotId}}"}
+
+### Appearance and profile.
+GET {{baseUrl}}/api/me/appearance
+
+### Existing profile fields plus characterSkin and mascot.
+GET {{baseUrl}}/api/me
+
+### Private receipts.
+GET {{baseUrl}}/api/me/purchases?page=1

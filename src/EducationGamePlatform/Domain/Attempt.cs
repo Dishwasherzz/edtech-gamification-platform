@@ -12,6 +12,8 @@ public sealed class Attempt
     public Guid AssessmentVersionId { get; set; }
     public Guid TopicId { get; set; }
     public Guid? ScenarioId { get; set; }
+    public Guid? CharacterSkinId { get; set; }
+    public Guid? MascotId { get; set; }
     public AttemptStatus Status { get; set; } = AttemptStatus.Active;
     public DateTimeOffset StartedAt { get; set; }
     public DateTimeOffset? BegunAt { get; set; }

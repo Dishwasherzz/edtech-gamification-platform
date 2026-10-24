@@ -223,6 +223,9 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.Property<int>("BossHpRemaining")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("CharacterSkinId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("CorrectAnswers")
                         .HasColumnType("integer");
 
@@ -238,6 +241,9 @@ namespace EducationGamePlatform.Persistence.Migrations
 
                     b.Property<DateTimeOffset?>("FinishedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("MascotId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("QuestionCount")
                         .HasColumnType("integer");
@@ -260,6 +266,10 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CharacterSkinId");
+
+                    b.HasIndex("MascotId");
 
                     b.HasIndex("TopicId");
 
@@ -403,6 +413,93 @@ namespace EducationGamePlatform.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EducationGamePlatform.Domain.CharacterSkin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssetKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<bool>("IsForSale")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsStarter")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("PriceCoins")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("CharacterSkins", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CharacterSkin_Settings", "\"PriceCoins\" >= 0 AND \"SortOrder\" >= 0 AND (NOT \"IsStarter\" OR \"PriceCoins\" = 0)");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("60000000-0000-4000-8000-000000000001"),
+                            AssetKey = "characters/engineer/default",
+                            Description = "Базовый образ доступен каждому игроку.",
+                            IsForSale = false,
+                            IsStarter = true,
+                            Key = "default",
+                            Name = "Стандартный инженер",
+                            PriceCoins = 0,
+                            SortOrder = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("60000000-0000-4000-8000-000000000002"),
+                            AssetKey = "characters/engineer/copper",
+                            Description = "Демонстрационный скин. Цена предварительная.",
+                            IsForSale = true,
+                            IsStarter = false,
+                            Key = "copper-engineer",
+                            Name = "Медный инженер",
+                            PriceCoins = 30,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("60000000-0000-4000-8000-000000000003"),
+                            AssetKey = "characters/engineer/neon",
+                            Description = "Демонстрационный скин. Цена предварительная.",
+                            IsForSale = true,
+                            IsStarter = false,
+                            Key = "neon-engineer",
+                            Name = "Неоновый инженер",
+                            PriceCoins = 75,
+                            SortOrder = 2
+                        });
+                });
+
             modelBuilder.Entity("EducationGamePlatform.Domain.Course", b =>
                 {
                     b.Property<Guid>("Id")
@@ -528,6 +625,633 @@ namespace EducationGamePlatform.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EducationGamePlatform.Domain.Mascot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssetKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("Mascots");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("70000000-0000-4000-8000-000000000001"),
+                            AssetKey = "mascots/spark/idle",
+                            Description = "Поддерживает в учебных испытаниях.",
+                            IsEnabled = true,
+                            Key = "spark",
+                            Name = "Искра",
+                            SortOrder = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("70000000-0000-4000-8000-000000000002"),
+                            AssetKey = "mascots/ohm/idle",
+                            Description = "Помогает спокойно разобрать ошибки.",
+                            IsEnabled = true,
+                            Key = "ohm",
+                            Name = "Ом",
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("70000000-0000-4000-8000-000000000003"),
+                            AssetKey = "mascots/relay/idle",
+                            Description = "Следит за состоянием учебной цепи.",
+                            IsEnabled = true,
+                            Key = "relay",
+                            Name = "Реле",
+                            SortOrder = 2
+                        });
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.MascotReaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AssetKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Context")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Event")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid>("MascotId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("Variant")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MascotId", "Event", "Context", "Variant")
+                        .IsUnique();
+
+                    b.ToTable("MascotReactions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_MascotReaction_Variant", "\"Variant\" >= 0");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000001"),
+                            AssetKey = "mascots/spark/any/idle-0",
+                            Context = "Any",
+                            Event = "Idle",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Начнём с лекции. Потом можно выбрать тест или аварию.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000002"),
+                            AssetKey = "mascots/spark/any/intro-0",
+                            Context = "Any",
+                            Event = "Intro",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Начни, когда будешь готов. Время испытания считает сервер.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000003"),
+                            AssetKey = "mascots/spark/any/correctanswer-0",
+                            Context = "Any",
+                            Event = "CorrectAnswer",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Верно! Продолжай в том же духе.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000004"),
+                            AssetKey = "mascots/spark/any/wronganswer-0",
+                            Context = "Any",
+                            Event = "WrongAnswer",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Это ошибка. Посмотри на условие ещё раз.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000005"),
+                            AssetKey = "mascots/spark/any/timewarning-0",
+                            Context = "Any",
+                            Event = "TimeWarning",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Времени осталось мало. Выбери действие.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000006"),
+                            AssetKey = "mascots/spark/any/timeout-0",
+                            Context = "Any",
+                            Event = "Timeout",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Время вопроса истекло. Продолжим с текущего состояния.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000007"),
+                            AssetKey = "mascots/spark/any/victory-0",
+                            Context = "Any",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Испытание пройдено! Результат и награда сохранены.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000008"),
+                            AssetKey = "mascots/spark/any/defeat-0",
+                            Context = "Any",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Попытка завершена. Разберём ошибки и попробуем снова.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000009"),
+                            AssetKey = "mascots/spark/any/abandoned-0",
+                            Context = "Any",
+                            Event = "Abandoned",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Попытка прекращена. Можно выбрать другое испытание.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000010"),
+                            AssetKey = "mascots/spark/boss/victory-0",
+                            Context = "Boss",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Испытание пройдено! Результат и награда сохранены.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000011"),
+                            AssetKey = "mascots/spark/boss/victory-1",
+                            Context = "Boss",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Победа! Можно двигаться к следующей теме.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000012"),
+                            AssetKey = "mascots/spark/boss/defeat-0",
+                            Context = "Boss",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Попытка завершена. Разберём ошибки и попробуем снова.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000013"),
+                            AssetKey = "mascots/spark/boss/defeat-1",
+                            Context = "Boss",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Прогресс сохранён. Повтори теорию и возвращайся.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000014"),
+                            AssetKey = "mascots/spark/crisis/victory-0",
+                            Context = "Crisis",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Испытание пройдено! Результат и награда сохранены.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000015"),
+                            AssetKey = "mascots/spark/crisis/victory-1",
+                            Context = "Crisis",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Победа! Можно двигаться к следующей теме.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000016"),
+                            AssetKey = "mascots/spark/crisis/defeat-0",
+                            Context = "Crisis",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Попытка завершена. Разберём ошибки и попробуем снова.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000017"),
+                            AssetKey = "mascots/spark/crisis/defeat-1",
+                            Context = "Crisis",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000001"),
+                            Message = "Искра: Прогресс сохранён. Повтори теорию и возвращайся.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000018"),
+                            AssetKey = "mascots/ohm/any/idle-0",
+                            Context = "Any",
+                            Event = "Idle",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Начнём с лекции. Потом можно выбрать тест или аварию.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000019"),
+                            AssetKey = "mascots/ohm/any/intro-0",
+                            Context = "Any",
+                            Event = "Intro",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Начни, когда будешь готов. Время испытания считает сервер.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000020"),
+                            AssetKey = "mascots/ohm/any/correctanswer-0",
+                            Context = "Any",
+                            Event = "CorrectAnswer",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Верно! Продолжай в том же духе.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000021"),
+                            AssetKey = "mascots/ohm/any/wronganswer-0",
+                            Context = "Any",
+                            Event = "WrongAnswer",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Это ошибка. Посмотри на условие ещё раз.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000022"),
+                            AssetKey = "mascots/ohm/any/timewarning-0",
+                            Context = "Any",
+                            Event = "TimeWarning",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Времени осталось мало. Выбери действие.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000023"),
+                            AssetKey = "mascots/ohm/any/timeout-0",
+                            Context = "Any",
+                            Event = "Timeout",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Время вопроса истекло. Продолжим с текущего состояния.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000024"),
+                            AssetKey = "mascots/ohm/any/victory-0",
+                            Context = "Any",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Испытание пройдено! Результат и награда сохранены.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000025"),
+                            AssetKey = "mascots/ohm/any/defeat-0",
+                            Context = "Any",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Попытка завершена. Разберём ошибки и попробуем снова.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000026"),
+                            AssetKey = "mascots/ohm/any/abandoned-0",
+                            Context = "Any",
+                            Event = "Abandoned",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Попытка прекращена. Можно выбрать другое испытание.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000027"),
+                            AssetKey = "mascots/ohm/boss/victory-0",
+                            Context = "Boss",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Испытание пройдено! Результат и награда сохранены.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000028"),
+                            AssetKey = "mascots/ohm/boss/victory-1",
+                            Context = "Boss",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Победа! Можно двигаться к следующей теме.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000029"),
+                            AssetKey = "mascots/ohm/boss/defeat-0",
+                            Context = "Boss",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Попытка завершена. Разберём ошибки и попробуем снова.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000030"),
+                            AssetKey = "mascots/ohm/boss/defeat-1",
+                            Context = "Boss",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Прогресс сохранён. Повтори теорию и возвращайся.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000031"),
+                            AssetKey = "mascots/ohm/crisis/victory-0",
+                            Context = "Crisis",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Испытание пройдено! Результат и награда сохранены.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000032"),
+                            AssetKey = "mascots/ohm/crisis/victory-1",
+                            Context = "Crisis",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Победа! Можно двигаться к следующей теме.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000033"),
+                            AssetKey = "mascots/ohm/crisis/defeat-0",
+                            Context = "Crisis",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Попытка завершена. Разберём ошибки и попробуем снова.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000034"),
+                            AssetKey = "mascots/ohm/crisis/defeat-1",
+                            Context = "Crisis",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000002"),
+                            Message = "Ом: Прогресс сохранён. Повтори теорию и возвращайся.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000035"),
+                            AssetKey = "mascots/relay/any/idle-0",
+                            Context = "Any",
+                            Event = "Idle",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Начнём с лекции. Потом можно выбрать тест или аварию.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000036"),
+                            AssetKey = "mascots/relay/any/intro-0",
+                            Context = "Any",
+                            Event = "Intro",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Начни, когда будешь готов. Время испытания считает сервер.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000037"),
+                            AssetKey = "mascots/relay/any/correctanswer-0",
+                            Context = "Any",
+                            Event = "CorrectAnswer",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Верно! Продолжай в том же духе.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000038"),
+                            AssetKey = "mascots/relay/any/wronganswer-0",
+                            Context = "Any",
+                            Event = "WrongAnswer",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Это ошибка. Посмотри на условие ещё раз.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000039"),
+                            AssetKey = "mascots/relay/any/timewarning-0",
+                            Context = "Any",
+                            Event = "TimeWarning",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Времени осталось мало. Выбери действие.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000040"),
+                            AssetKey = "mascots/relay/any/timeout-0",
+                            Context = "Any",
+                            Event = "Timeout",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Время вопроса истекло. Продолжим с текущего состояния.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000041"),
+                            AssetKey = "mascots/relay/any/victory-0",
+                            Context = "Any",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Испытание пройдено! Результат и награда сохранены.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000042"),
+                            AssetKey = "mascots/relay/any/defeat-0",
+                            Context = "Any",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Попытка завершена. Разберём ошибки и попробуем снова.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000043"),
+                            AssetKey = "mascots/relay/any/abandoned-0",
+                            Context = "Any",
+                            Event = "Abandoned",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Попытка прекращена. Можно выбрать другое испытание.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000044"),
+                            AssetKey = "mascots/relay/boss/victory-0",
+                            Context = "Boss",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Испытание пройдено! Результат и награда сохранены.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000045"),
+                            AssetKey = "mascots/relay/boss/victory-1",
+                            Context = "Boss",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Победа! Можно двигаться к следующей теме.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000046"),
+                            AssetKey = "mascots/relay/boss/defeat-0",
+                            Context = "Boss",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Попытка завершена. Разберём ошибки и попробуем снова.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000047"),
+                            AssetKey = "mascots/relay/boss/defeat-1",
+                            Context = "Boss",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Прогресс сохранён. Повтори теорию и возвращайся.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000048"),
+                            AssetKey = "mascots/relay/crisis/victory-0",
+                            Context = "Crisis",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Испытание пройдено! Результат и награда сохранены.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000049"),
+                            AssetKey = "mascots/relay/crisis/victory-1",
+                            Context = "Crisis",
+                            Event = "Victory",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Победа! Можно двигаться к следующей теме.",
+                            Variant = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000050"),
+                            AssetKey = "mascots/relay/crisis/defeat-0",
+                            Context = "Crisis",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Попытка завершена. Разберём ошибки и попробуем снова.",
+                            Variant = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("71000000-0000-4000-8000-000000000051"),
+                            AssetKey = "mascots/relay/crisis/defeat-1",
+                            Context = "Crisis",
+                            Event = "Defeat",
+                            MascotId = new Guid("70000000-0000-4000-8000-000000000003"),
+                            Message = "Реле: Прогресс сохранён. Повтори теорию и возвращайся.",
+                            Variant = 1
+                        });
+                });
+
             modelBuilder.Entity("EducationGamePlatform.Domain.PlayerProfile", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -546,10 +1270,20 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)");
 
+                    b.Property<Guid?>("EquippedSkinId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SelectedMascotId")
+                        .HasColumnType("uuid");
+
                     b.Property<long>("TotalXp")
                         .HasColumnType("bigint");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("EquippedSkinId");
+
+                    b.HasIndex("SelectedMascotId");
 
                     b.ToTable("PlayerProfiles", null, t =>
                         {
@@ -651,6 +1385,43 @@ namespace EducationGamePlatform.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("EducationGamePlatform.Domain.SkinPurchase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PricePaid")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SkinId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SkinId");
+
+                    b.HasIndex("UserId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "SkinId")
+                        .IsUnique();
+
+                    b.ToTable("SkinPurchases", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_SkinPurchase_Price", "\"PricePaid\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("EducationGamePlatform.Domain.Topic", b =>
                 {
                     b.Property<Guid>("Id")
@@ -707,6 +1478,30 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.HasIndex("FirstAttemptId", "UserId", "TopicId");
 
                     b.ToTable("TopicProgress");
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.UserSkin", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SkinId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AcquiredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("PurchaseId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UserId", "SkinId");
+
+                    b.HasIndex("SkinId");
+
+                    b.HasIndex("PurchaseId", "UserId", "SkinId")
+                        .IsUnique();
+
+                    b.ToTable("UserSkins");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -874,6 +1669,16 @@ namespace EducationGamePlatform.Persistence.Migrations
 
             modelBuilder.Entity("EducationGamePlatform.Domain.Attempt", b =>
                 {
+                    b.HasOne("EducationGamePlatform.Domain.CharacterSkin", null)
+                        .WithMany()
+                        .HasForeignKey("CharacterSkinId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("EducationGamePlatform.Domain.Mascot", null)
+                        .WithMany()
+                        .HasForeignKey("MascotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("EducationGamePlatform.Domain.Topic", "Topic")
                         .WithMany()
                         .HasForeignKey("TopicId")
@@ -1019,8 +1824,29 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("EducationGamePlatform.Domain.MascotReaction", b =>
+                {
+                    b.HasOne("EducationGamePlatform.Domain.Mascot", "Mascot")
+                        .WithMany("Reactions")
+                        .HasForeignKey("MascotId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Mascot");
+                });
+
             modelBuilder.Entity("EducationGamePlatform.Domain.PlayerProfile", b =>
                 {
+                    b.HasOne("EducationGamePlatform.Domain.CharacterSkin", null)
+                        .WithMany()
+                        .HasForeignKey("EquippedSkinId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("EducationGamePlatform.Domain.Mascot", null)
+                        .WithMany()
+                        .HasForeignKey("SelectedMascotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("EducationGamePlatform.Domain.ApplicationUser", "User")
                         .WithOne("Profile")
                         .HasForeignKey("EducationGamePlatform.Domain.PlayerProfile", "UserId")
@@ -1076,6 +1902,25 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("EducationGamePlatform.Domain.SkinPurchase", b =>
+                {
+                    b.HasOne("EducationGamePlatform.Domain.CharacterSkin", "Skin")
+                        .WithMany()
+                        .HasForeignKey("SkinId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationGamePlatform.Domain.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Skin");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("EducationGamePlatform.Domain.Topic", b =>
                 {
                     b.HasOne("EducationGamePlatform.Domain.Course", "Course")
@@ -1111,6 +1956,33 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.Navigation("FirstAttempt");
 
                     b.Navigation("Topic");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.UserSkin", b =>
+                {
+                    b.HasOne("EducationGamePlatform.Domain.CharacterSkin", "Skin")
+                        .WithMany()
+                        .HasForeignKey("SkinId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationGamePlatform.Domain.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EducationGamePlatform.Domain.SkinPurchase", "Purchase")
+                        .WithOne()
+                        .HasForeignKey("EducationGamePlatform.Domain.UserSkin", "PurchaseId", "UserId", "SkinId")
+                        .HasPrincipalKey("EducationGamePlatform.Domain.SkinPurchase", "Id", "UserId", "SkinId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Purchase");
+
+                    b.Navigation("Skin");
 
                     b.Navigation("User");
                 });
@@ -1201,6 +2073,11 @@ namespace EducationGamePlatform.Persistence.Migrations
             modelBuilder.Entity("EducationGamePlatform.Domain.CrisisScenario", b =>
                 {
                     b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.Mascot", b =>
+                {
+                    b.Navigation("Reactions");
                 });
 
             modelBuilder.Entity("EducationGamePlatform.Domain.Question", b =>

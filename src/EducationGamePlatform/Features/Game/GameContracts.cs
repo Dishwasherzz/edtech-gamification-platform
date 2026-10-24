@@ -1,4 +1,5 @@
 using EducationGamePlatform.Domain;
+using EducationGamePlatform.Features.Cosmetics;
 
 namespace EducationGamePlatform.Features.Game;
 
@@ -14,6 +15,10 @@ public sealed record AttemptResponse(Guid Id, Guid TopicId, Guid AssessmentId, s
     AttemptStatus Status, bool IsReady, DateTimeOffset ServerNow, DateTimeOffset StartedAt, DateTimeOffset? FinishedAt,
     DateTimeOffset? ExpiresAt, int CorrectAnswers, int Errors, int QuestionCount, int BossHpRemaining,
     int BossMaxHp, string BossName, string? FinishReason, ScenarioResponse? Scenario, QuestionResponse? CurrentQuestion,
-    FeedbackResponse? Feedback, RewardResponse? Reward, List<ReviewResponse>? Review);
+    FeedbackResponse? Feedback, RewardResponse? Reward, List<ReviewResponse>? Review)
+{
+    public SkinReference? CharacterSkin { get; init; }
+    public MascotPresentation? Mascot { get; init; }
+}
 public sealed record HistoryResponse(Guid Id, Guid TopicId, string TopicTitle, AssessmentMode Mode, AttemptStatus Status,
     DateTimeOffset StartedAt, DateTimeOffset? FinishedAt, int CorrectAnswers, int Errors, int Xp, int Coins);
