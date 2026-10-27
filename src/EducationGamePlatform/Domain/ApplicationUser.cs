@@ -15,5 +15,7 @@ public sealed class PlayerProfile
     public string AvatarKey { get; set; } = "default";
     public long TotalXp { get; set; }
     public long CoinsBalance { get; set; }
+    public Guid? EquippedSkinId { get; set; }
+    public Guid? SelectedMascotId { get; set; }
     public ApplicationUser User { get; set; } = null!;
 }

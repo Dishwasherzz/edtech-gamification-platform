@@ -51,6 +51,12 @@ public sealed class UpgradeTests(ApiFixture fixture)
             Assert.Equal(topic, (await db.Attempts.SingleAsync()).TopicId);
             Assert.Equal(topic, (await db.RewardGrants.SingleAsync()).TopicId);
             Assert.Equal(attempt, (await db.TopicProgress.SingleAsync()).FirstAttemptId);
+            Assert.Null(profile.EquippedSkinId);
+            Assert.Null(profile.SelectedMascotId);
+            Assert.Equal(3, await db.CharacterSkins.CountAsync());
+            Assert.Equal(3, await db.Mascots.CountAsync());
+            Assert.Equal(51, await db.MascotReactions.CountAsync());
+            Assert.Empty(await db.SkinPurchases.ToListAsync());
         }
         finally
         {

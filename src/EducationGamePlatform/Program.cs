@@ -4,6 +4,7 @@ using EducationGamePlatform.Features.Auth;
 using EducationGamePlatform.Features.Catalog;
 using EducationGamePlatform.Features.Profile;
 using EducationGamePlatform.Features.Game;
+using EducationGamePlatform.Features.Cosmetics;
 using EducationGamePlatform.Infrastructure;
 using EducationGamePlatform.Persistence;
 using Microsoft.AspNetCore.DataProtection;
@@ -78,6 +79,8 @@ builder.Services.AddOptions<GameOptions>().BindConfiguration("Game")
     .Validate(GameOptions.IsValid, "Invalid game economy or rank thresholds.").ValidateOnStart();
 builder.Services.AddScoped<ProgressService>();
 builder.Services.AddScoped<GameService>();
+builder.Services.AddScoped<CosmeticsService>();
+builder.Services.AddScoped<MascotPresentationService>();
 builder.Services.AddSingleton<RankCalculator>();
 builder.Services.AddHostedService<AttemptExpiryWorker>();
 builder.Services.AddOpenApi();
@@ -118,6 +121,7 @@ app.MapAuthEndpoints();
 app.MapProfileEndpoints();
 app.MapCatalogEndpoints();
 app.MapGameEndpoints();
+app.MapCosmeticsEndpoints();
 app.Run();
 
 public partial class Program;

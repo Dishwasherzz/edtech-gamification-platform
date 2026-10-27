@@ -1,4 +1,5 @@
 using EducationGamePlatform.Domain;
+using EducationGamePlatform.Features.Cosmetics;
 using EducationGamePlatform.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -6,7 +7,8 @@ using Microsoft.Extensions.Options;
 namespace EducationGamePlatform.Features.Game;
 
 // All mutations for a player hold their profile row lock. Rewards, answers and progress commit together.
-public sealed class GameService(AppDbContext database, ProgressService progress, TimeProvider clock, IOptions<GameOptions> options)
+public sealed class GameService(AppDbContext database, ProgressService progress, TimeProvider clock, IOptions<GameOptions> options,
+    CosmeticsService cosmetics, MascotPresentationService mascots)
 {
     private GameOptions Economy => options.Value;
 
@@ -58,9 +60,11 @@ public sealed class GameService(AppDbContext database, ProgressService progress,
         }
         else
         {
+            if (version.Scenarios.Count != 3)
+                throw new GameRuleException(409, "InvalidContent", "Для аварии нужны три опубликованных сценария в версии испытания.");
             var previous = await database.Attempts.Where(attempt => attempt.UserId == userId && attempt.TopicId == assessment.TopicId && attempt.ScenarioId != null)
-                .OrderByDescending(attempt => attempt.StartedAt).Select(attempt => attempt.ScenarioId).ToListAsync(token);
-            scenario = version.Scenarios.Where(candidate => previous.Count == 0 || version.Scenarios.Count == 1 || candidate.Id != previous[0])
+                .OrderByDescending(attempt => attempt.StartedAt).ThenByDescending(attempt => attempt.Id).Select(attempt => attempt.ScenarioId).ToListAsync(token);
+            scenario = version.Scenarios.Where(candidate => previous.Count == 0 || candidate.Id != previous[0])
                 .OrderBy(candidate => previous.Contains(candidate.Id)).ThenBy(_ => Random.Shared.Next()).FirstOrDefault()
                 ?? throw new GameRuleException(409, "InvalidContent", "Сценарии аварии ещё не подготовлены.");
             questions = version.Questions.Where(question => question.ScenarioId == scenario.Id).OrderBy(question => question.SortOrder).ToList();
@@ -70,11 +74,13 @@ public sealed class GameService(AppDbContext database, ProgressService progress,
             question.Options.Count(option => option.IsCorrect) != 1))
             throw new GameRuleException(409, "InvalidContent", "Проверь варианты ответа и правильный вариант каждого вопроса.");
         var now = GameTime.Now(clock);
+        var appearance = await cosmetics.CaptureAsync(profile, token);
         var attempt = new Attempt
         {
             UserId = userId, AssessmentId = assessmentId, AssessmentVersionId = version.Id, TopicId = assessment.TopicId,
             AssessmentVersion = version, Topic = assessment.Topic, ScenarioId = scenario?.Id, Scenario = scenario,
             StartedAt = now, BegunAt = assessment.Mode == AssessmentMode.Boss ? now : null,
+            CharacterSkinId = appearance.CharacterSkin.Id, MascotId = appearance.Mascot.Id,
             // A prepared QTE intro does not start the 60-second game timer. Stale preparations expire after 30 minutes.
             ExpiresAt = now.AddMinutes(30), QuestionCount = questions.Count, BossHpRemaining = assessment.Mode == AssessmentMode.Boss ? 100 : 0
         };
@@ -304,11 +310,13 @@ public sealed class GameService(AppDbContext database, ProgressService progress,
                     question.Answer?.IsCorrect == true, question.Status == AttemptQuestionStatus.TimedOut,
                     choices.Where(choice => choice.AttemptQuestionId == question.Id && !choice.IsCorrect)
                         .Select(choice => question.Question.Options.Single(option => option.Id == choice.SelectedOptionId).Text).ToList())).ToList();
+        var appearance = await cosmetics.ResolveAsync(attempt.CharacterSkinId, attempt.MascotId, token);
+        var mascot = await mascots.ForAttemptAsync(attempt, appearance.Mascot, choices, GameTime.Now(clock), token);
         return new(attempt.Id, attempt.TopicId, attempt.AssessmentId, attempt.Topic.Title, attempt.AssessmentVersion.Assessment.Mode,
             attempt.Status, attempt.BegunAt == null && attempt.Status == AttemptStatus.Active, GameTime.Now(clock), attempt.StartedAt,
             attempt.FinishedAt, attempt.ExpiresAt, attempt.CorrectAnswers, attempt.ErrorCount, attempt.QuestionCount,
             attempt.BossHpRemaining, 100, attempt.AssessmentVersion.BossName, attempt.FinishReason,
             attempt.Scenario == null ? null : new(attempt.Scenario.Title, attempt.Scenario.Introduction, attempt.Scenario.IllustrationKey),
-            questionView, feedback, reward, review);
+            questionView, feedback, reward, review) { CharacterSkin = appearance.CharacterSkin, Mascot = mascot };
     }
 }
