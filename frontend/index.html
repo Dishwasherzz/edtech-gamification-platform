@@ -3,29 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ТПУ // Учебный модуль</title>
+  <title>Электротехника — Учебный модуль</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="navbar">
-    <div class="logo-group">
-      <div class="logo-icon"></div>
-      <div class="logo-text">
-        <span class="logo-title">ТПУ // УЧЕБНЫЙ МОДУЛЬ</span>
+    <a class="logo-group" href="#/">
+      <span class="logo-icon"></span>
+      <span class="logo-text">
+        <span class="logo-title">логотип</span>
         <span class="logo-subtitle">электротехника</span>
-      </div>
-    </div>
+      </span>
+    </a>
 
     <nav class="nav-links">
       <a href="#/">Главная</a>
-      <a href="#/profile">Прогресс</a>
-      <a href="#/instructions">Правила</a>
+      <a href="#/topics">Темы</a>
+      <a href="#/instructions">Инструкция</a>
+      <a href="#/profile">Профиль</a>
+      <a href="#/settings">Настройки</a>
     </nav>
 
     <div class="header-actions">
       <span id="header-progress" class="muted" hidden></span>
-      <a href="#/auth" class="btn-primary-green" id="auth-btn">Регистрация</a>
-      <button id="logout-btn" class="btn secondary" hidden>Выйти</button>
+      <a href="#/auth" class="btn" id="auth-btn">Войти</a>
+      <button id="logout-btn" class="btn btn-outline" hidden>Выйти</button>
     </div>
   </header>
 
@@ -33,6 +35,11 @@
   <main id="app"></main>
   <p id="global-error" class="error" role="alert"></p>
   <noscript>Для работы учебного модуля включи JavaScript.</noscript>
+
+  <footer class="site-footer">
+    <span>Электротехника</span>
+    <span>Демо без сервера</span>
+  </footer>
 
   <script type="module" src="js/main.js"></script>
 </body>

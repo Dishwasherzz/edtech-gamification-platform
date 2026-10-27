@@ -1,18 +1,95 @@
 import { api } from "../api.js";
 import { state, refreshProfile } from "../state.js";
-import { element, escapeHtml as e, progressBar, statusName, modeName } from "../ui.js";
+import { element, escapeHtml as e, progressBar, statusName } from "../ui.js";
+
+// Плейсхолдер картинки из макета: перечёркнутая область с подписью.
+// Позже заменяется на реальное изображение курса.
+const mediaPlaceholder = `<div class="media-placeholder"><span>Изображение / лого</span></div>`;
+
+function hero({ title, description, ctaHref, ctaLabel }) {
+  return `
+    <div class="hero">
+      <div>
+        <span class="eyebrow">Курс электротехники</span>
+        <h1>${e(title)}</h1>
+        <p class="muted">${e(description)}</p>
+        <div class="actions">
+          <a class="btn btn-cta" href="${e(ctaHref)}">${e(ctaLabel)}</a>
+          <a class="btn btn-outline" href="#/instructions">Инструкция</a>
+        </div>
+      </div>
+      ${mediaPlaceholder}
+    </div>`;
+}
+
+function statCard(label, value, sub, extra = "") {
+  return `
+    <dl class="stat-card">
+      <dt>${e(label)}</dt>
+      <dd>${e(value)}</dd>
+      ${sub ? `<p class="stat-sub">${e(sub)}</p>` : ""}
+      ${extra}
+    </dl>`;
+}
 
 export async function renderDashboard() {
-  if (!state.isAuth) return element(`<div class="card hero"><span class="eyebrow">ЭЛЕКТРОТЕХНИКА · ОБУЧЕНИЕ ЧЕРЕЗ ИГРУ</span><h1>Разберись в цепях.<br>Пройди испытание.</h1>
-    <p>Изучай теорию, сражайся с боссом или устраняй аварию в виртуальном стенде. Победа открывает следующую тему.</p><a class="btn" href="#/auth">Начать обучение</a></div>`);
-  await refreshProfile();
-  const [courses, active] = await Promise.all([api.courses(), api.active()]);
-  const lists = await Promise.all(courses.map(course => api.topics(course.id)));
-  return element(`<div class="page-heading"><div><span class="eyebrow">ЛИЧНЫЙ КАБИНЕТ</span><h1>Привет, ${e(state.user.displayName)}!</h1></div><a class="btn secondary" href="#/instructions">Как играть</a></div>
-    ${active ? `<div class="notice">Есть незавершённое испытание: ${e(modeName(active.mode))}. <a href="#/attempt/${e(active.id)}">Продолжить</a></div>` : ""}
-    <div class="stats"><div class="card"><span class="muted">Разряд</span><strong>${state.user.rank}</strong></div><div class="card"><span class="muted">Опыт</span><strong>${state.user.totalXp} XP</strong></div><div class="card"><span class="muted">Монеты</span><strong>${state.user.coinsBalance}</strong></div></div>
-    ${courses.length ? courses.map((course, i) => `<article class="card"><div class="page-heading"><h2>${e(course.title)}</h2><span>${course.progressPercent}%</span></div>
-      <p class="muted">${e(course.description)}</p>${progressBar(course.progressPercent, "Прогресс курса")}<p class="muted">Тем пройдено: ${course.completedTopics} из ${course.totalTopics}</p>
-      ${course.progressPercent === 100 ? '<p class="success">Курс пройден! Испытания доступны для повторения.</p>' : ""}
-      <div class="topic-list">${lists[i].map((topic, index) => `<${topic.status === "Locked" ? "div" : "a"} ${topic.status === "Locked" ? 'aria-disabled="true"' : `href="#/topic/${e(topic.id)}"`} class="topic-row ${topic.status === "Locked" ? "locked" : ""}"><span class="topic-number">${index + 1}</span><div><h3>${e(topic.title)}</h3><span class="muted">${topic.completedLessons}/${topic.lessonCount} лекций прочитано</span></div><span class="badge">${e(statusName(topic.status))}</span></${topic.status === "Locked" ? "div" : "a"}>`).join("")}</div></article>`).join("") : '<div class="card">Пока нет опубликованных курсов.</div>'}`);
+  if (!state.isAuth) {
+    return element(hero({
+      title: "Разберись в цепях. Пройди испытание.",
+      description: "Изучай теорию, сражайся с боссом или устраняй аварию в виртуальном стенде. Победа открывает следующую тему.",
+      ctaHref: "#/auth",
+      ctaLabel: "Начать обучение"
+    }));
+  }
+
+  const [user, courses] = await Promise.all([refreshProfile(), api.courses()]);
+  const [active, ...lists] = await Promise.all([api.active(), ...courses.map(course => api.topics(course.id))]);
+
+  // «Последние темы» — открытые темы из всех курсов, закрытые пропускаем.
+  const recent = courses
+    .flatMap((course, index) =>
+      (lists[index] ?? [])
+        .filter(topic => topic.status !== "Locked")
+        .map(topic => ({ course, topic })))
+    .slice(0, 4);
+
+  const totals = courses.reduce((acc, course) => ({
+    topics: acc.topics + course.totalTopics,
+    done: acc.done + course.completedTopics
+  }), { topics: 0, done: 0 });
+
+  const overall = totals.topics ? Math.round(totals.done * 100 / totals.topics) : 0;
+
+  return element(`
+    ${hero({
+      title: `Привет, ${user.displayName}!`,
+      description: "Продолжай курс: следующая тема ждёт своего испытания.",
+      ctaHref: recent[0] ? `#/topic/${recent[0].topic.id}` : "#/instructions",
+      ctaLabel: "Продолжить обучение"
+    })}
+
+    ${active ? `<div class="notice">Незавершённое испытание ждёт. <a href="#/attempt/${e(active.id)}">Вернуться к попытке</a></div>` : ""}
+
+    <h2 class="section-title">Ваш прогресс</h2>
+
+    <dl class="stat-grid">
+      ${statCard("Прогресс курса", `${overall}%`, `${totals.done} из ${totals.topics} темы`)}
+      ${statCard("Текущий разряд", String(user.rank), `от ${user.rankStartXp} XP`)}
+      ${statCard("Опыт", `${user.totalXp} XP`, null, progressBar(user.rankProgressPercent, "Прогресс до следующего разряда"))}
+      ${statCard("Монеты", String(user.coinsBalance), "баланс")}
+    </dl>
+
+    <div class="card">
+      <h2>Последние темы</h2>
+      ${recent.length ? `<div class="topic-list">${recent.map(({ course, topic }) => `
+        <a class="topic-row" href="#/topic/${e(topic.id)}">
+          <div>
+            <h3>${e(topic.title)}</h3>
+            <span class="muted">${e(course.title)} · ${topic.completedLessons}/${topic.lessonCount} лекций</span>
+          </div>
+          <span class="badge">${e(statusName(topic.status))}</span>
+        </a>`).join("")}</div>`
+      : `<p class="muted">${courses.length ? "Все темы закрыты — пройдено всё." : "Пока нет опубликованных курсов."}</p>`}
+    </div>
+  `);
 }
