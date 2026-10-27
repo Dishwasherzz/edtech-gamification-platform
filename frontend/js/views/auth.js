@@ -13,7 +13,7 @@ export function renderAuth() {
         <fieldset>
           ${field({ label: "Email", name: "email", type: "email", autocomplete: "username", placeholder: "student@example.com" })}
           ${field({ label: "Пароль", name: "password", type: "password", autocomplete: "current-password", placeholder: "••••••••" })}
-          <p class="auth-note">Вход сохраняет сессию в защищённой cookie. Пароль нигде не хранится.</p>
+          <p class="auth-note">После входа можно продолжить обучение с сохранённым прогрессом.</p>
           <button type="submit" class="btn btn-block">Войти</button>
         </fieldset>
       </form>

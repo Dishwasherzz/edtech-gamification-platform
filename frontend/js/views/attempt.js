@@ -44,11 +44,13 @@ export async function renderAttempt(id) {
     }
     if (data.isReady) {
       root.innerHTML = `<a class="back-link" href="#/topic/${e(data.topicId)}">← К теме</a><div class="card"><span class="eyebrow">АВАРИЯ · ВИРТУАЛЬНЫЙ СТЕНД</span><h1>${e(data.scenario.title)}</h1>${illustration(data.scenario.illustrationKey)}<p>${e(data.scenario.introduction)}</p>
-        <div class="actions"><button class="btn" data-begin>Действовать</button><button class="btn secondary" data-abandon>Отменить подготовку</button></div><p class="error" data-error role="alert">${e(errorMessage)}</p></div>`;
-      root.querySelector("[data-begin]").onclick = async event => {
-        event.target.disabled = true;
-        try { accept(await api.begin(id)); errorMessage = ""; draw(); }
-        catch (error) { errorMessage = error.message; draw(); }
+        <div class="actions"><button class="btn" data-begin ${busy ? "disabled" : ""}>Действовать</button><button class="btn secondary" data-abandon>Отменить подготовку</button></div><p class="error" data-error role="alert">${e(errorMessage)}</p></div>`;
+      root.querySelector("[data-begin]").onclick = async () => {
+        if (busy || disposed) return;
+        busy = true; draw();
+        try { accept(await api.begin(id)); errorMessage = ""; }
+        catch (error) { errorMessage = error.message; }
+        finally { busy = false; draw(); }
       };
     } else {
       const question = data.currentQuestion;
@@ -70,9 +72,9 @@ export async function renderAttempt(id) {
     root.querySelector("[data-abandon]").onclick = async () => {
       if (busy || !window.confirm("Завершить попытку без награды?")) return;
       busy = true;
-      try { accept(await api.abandon(id)); draw(); }
-      catch (error) { errorMessage = error.message; draw(); }
-      finally { busy = false; }
+      try { accept(await api.abandon(id)); }
+      catch (error) { errorMessage = error.message; }
+      finally { busy = false; draw(); }
     };
   }
 

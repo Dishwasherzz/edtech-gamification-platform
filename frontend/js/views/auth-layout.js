@@ -1,4 +1,4 @@
-import { element, showError } from "../ui.js";
+import { element, escapeHtml as e, showError } from "../ui.js";
 
 // Общая разметка для входа и регистрации: заголовок страницы с розовой чертой,
 // цветные засечки по углам рамки, схема слева и форма справа.
@@ -25,10 +25,10 @@ export function authLayout({ pageTitle, panelTitle, formHtml, altHtml = "" }) {
 export function field({ label, name, type = "text", placeholder, autocomplete = "off", max = 128, hint = "" }) {
   return `
     <label class="field">
-      <span>${label}</span>
-      <input name="${name}" type="${type}" placeholder="${placeholder}" autocomplete="${autocomplete}"
-             maxlength="${max}" aria-describedby="${name}-hint" required>
-      <p class="field-hint" id="${name}-hint" data-hint="${name}">${hint}</p>
+      <span>${e(label)}</span>
+      <input name="${e(name)}" type="${e(type)}" placeholder="${e(placeholder)}" autocomplete="${e(autocomplete)}"
+             maxlength="${max}" aria-describedby="${e(name)}-hint" required>
+      <p class="field-hint" id="${e(name)}-hint" data-hint="${e(name)}">${e(hint)}</p>
     </label>
   `;
 }
@@ -41,12 +41,15 @@ export function bindForm(root, onSubmit) {
 
   form.onsubmit = async event => {
     event.preventDefault();
+    if (fieldset.disabled || !form.reportValidity()) return;
+    // Disabled controls are omitted by FormData, so read them before locking the form.
+    const values = new FormData(form);
     fieldset.disabled = true;
     clearError(root);
     const label = button.textContent;
     button.textContent = "Отправка…";
     try {
-      await onSubmit(new FormData(form));
+      await onSubmit(values);
     } catch (error) {
       showError(root, error);
       // Сервер не различает поля в тексте ошибки: подсвечиваем все заполненные.

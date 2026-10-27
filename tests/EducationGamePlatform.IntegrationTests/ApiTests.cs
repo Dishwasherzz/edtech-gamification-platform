@@ -146,8 +146,12 @@ public sealed class ApiTests(ApiFixture fixture)
         Assert.True(paths.TryGetProperty("/api/auth/register", out _));
         Assert.True(paths.TryGetProperty("/api/me", out _));
         Assert.True(paths.TryGetProperty("/api/assessments/{assessmentId}/attempts", out _));
-        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/")).StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/js/router.js")).StatusCode);
+        foreach (var path in new[] { "/", "/style.css", "/js/router.js", "/js/views/auth-layout.js" })
+        {
+            var asset = await client.GetAsync(path);
+            Assert.Equal(HttpStatusCode.OK, asset.StatusCode);
+            Assert.True(asset.Headers.CacheControl?.NoCache);
+        }
         Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/appsettings.Local.json")).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/not-an-endpoint")).StatusCode);
         await using var database = fixture.CreateDatabase();

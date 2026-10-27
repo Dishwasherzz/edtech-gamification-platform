@@ -42,8 +42,9 @@ export async function renderDashboard() {
     }));
   }
 
+  const active = await api.active();
   const [user, courses] = await Promise.all([refreshProfile(), api.courses()]);
-  const [active, ...lists] = await Promise.all([api.active(), ...courses.map(course => api.topics(course.id))]);
+  const lists = await Promise.all(courses.map(course => api.topics(course.id)));
 
   // «Последние темы» — открытые темы из всех курсов, закрытые пропускаем.
   const recent = courses
@@ -59,12 +60,13 @@ export async function renderDashboard() {
   }), { topics: 0, done: 0 });
 
   const overall = totals.topics ? Math.round(totals.done * 100 / totals.topics) : 0;
+  const next = recent.find(({ topic }) => topic.status === "Available") ?? recent[0];
 
   return element(`
     ${hero({
       title: `Привет, ${user.displayName}!`,
       description: "Продолжай курс: следующая тема ждёт своего испытания.",
-      ctaHref: recent[0] ? `#/topic/${recent[0].topic.id}` : "#/instructions",
+      ctaHref: active ? `#/attempt/${active.id}` : next ? `#/topic/${next.topic.id}` : "#/topics",
       ctaLabel: "Продолжить обучение"
     })}
 
@@ -89,7 +91,7 @@ export async function renderDashboard() {
           </div>
           <span class="badge">${e(statusName(topic.status))}</span>
         </a>`).join("")}</div>`
-      : `<p class="muted">${courses.length ? "Все темы закрыты — пройдено всё." : "Пока нет опубликованных курсов."}</p>`}
+      : `<p class="muted">${courses.length ? "Пока нет доступных тем." : "Пока нет опубликованных курсов."}</p>`}
     </div>
   `);
 }

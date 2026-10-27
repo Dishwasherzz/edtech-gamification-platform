@@ -18,6 +18,7 @@ function statCard(label, value, sub, extra = "") {
 }
 
 export async function renderProfile(page = 1) {
+  await api.active();
   const [user, history, courses] = await Promise.all([
     refreshProfile(),
     api.history(page),
@@ -87,6 +88,6 @@ export async function renderProfile(page = 1) {
       </article>
     </div>
 
-    <div class="notice">Разряд и баланс — часть профиля. Магазина, кастомизации и достижений на войдут в текущий MVP.</div>
+    <div class="notice">Разряд и баланс сохраняются в профиле. Интерфейс магазина и выбора внешнего вида ещё в разработке.</div>
   `);
 }

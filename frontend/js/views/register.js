@@ -21,7 +21,7 @@ export function renderRegister() {
             placeholder: "••••••••",
             hint: "От 10 символов, строчная и заглавная буквы, цифра."
           })}
-          <p class="auth-note">Регистрация создаёт профиль, но не открывает сессию: вход выполняется следом.</p>
+          <p class="auth-note">После регистрации ты автоматически войдёшь в свой профиль.</p>
           <button type="submit" class="btn btn-block">Зарегистрироваться</button>
         </fieldset>
       </form>

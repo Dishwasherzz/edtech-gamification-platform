@@ -32,6 +32,7 @@ function bindForm(root, name, onSubmit) {
 export function renderSettings() {
   const root = element(`
     <h1 class="page-title">Настройки профиля</h1>
+    <p class="notice">Настройки пока работают в демонстрационном режиме: никнейм меняется только в этой вкладке, пароль не сохраняется.</p>
 
     <div class="split-2">
       <section class="card">

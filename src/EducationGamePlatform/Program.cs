@@ -106,7 +106,12 @@ if (Directory.Exists(frontendPath))
     var frontendFiles = new PhysicalFileProvider(frontendPath);
     app.Lifetime.ApplicationStopped.Register(frontendFiles.Dispose);
     app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = frontendFiles });
-    app.UseStaticFiles(new StaticFileOptions { FileProvider = frontendFiles });
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = frontendFiles,
+        // Asset names are stable: revalidate them after a frontend update.
+        OnPrepareResponse = context => context.Context.Response.Headers.CacheControl = "no-cache"
+    });
 }
 app.UseStatusCodePages(async context =>
     await Results.Problem(statusCode: context.HttpContext.Response.StatusCode)
