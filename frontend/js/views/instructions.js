@@ -50,7 +50,7 @@ export async function renderInstructions() {
     <article class="card">
       <h2>Награды и повторные попытки</h2>
       <p>Первая победа: ${rules.firstWinXp} XP и ${rules.firstWinCoins} монет. Без ошибок дополнительно ${rules.perfectBonusXp} XP и ${rules.perfectBonusCoins} монет.</p>
-      <p>Повторная победа в любом режиме: ${rules.repeatWinXp} XP и ${rules.repeatWinCoins} монет. Это 25% базовой награды, бонус за чистоту при этом не начисляется.</p>
+      <p>Первые ${rules.paidRepeatWinLimit} повторные победы по теме дают по ${rules.repeatWinXp} XP и ${rules.repeatWinCoins} монет (${rules.repeatWinPercent}% базовой награды с округлением вниз). Лимит общий для теста и аварии. Дальнейшие победы сохраняются в истории без начисления.</p>
       <p class="muted">Значения наград предварительные и требуют согласования с командой.</p>
       <div class="actions"><a class="btn btn-cta" href="#/">К темам</a></div>
     </article>

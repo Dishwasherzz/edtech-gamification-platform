@@ -2,17 +2,19 @@
 [CmdletBinding()]
 param(
     [switch]$Migrate,
-    [switch]$SeedDemo
+    [switch]$SeedDemo,
+    [switch]$SeedPilot
 )
 
 $ErrorActionPreference = 'Stop'
 $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $project = Join-Path $repository 'src\EducationGamePlatform\EducationGamePlatform.csproj'
 $arguments = @('run', '--project', $project, '--launch-profile', 'http')
-if ($Migrate -or $SeedDemo) {
+if ($Migrate -or $SeedDemo -or $SeedPilot) {
     $arguments += '--'
     if ($Migrate) { $arguments += '--migrate' }
     if ($SeedDemo) { $arguments += '--seed-demo' }
+    if ($SeedPilot) { $arguments += '--seed-pilot' }
 }
 Push-Location -LiteralPath $repository
 try {

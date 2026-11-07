@@ -30,7 +30,8 @@ public static class GameEndpoints
         {
             lessonXp = options.Value.LessonXp, firstWinXp = options.Value.FirstWinXp, firstWinCoins = options.Value.FirstWinCoins,
             perfectBonusXp = options.Value.PerfectBonusXp, perfectBonusCoins = options.Value.PerfectBonusCoins,
-            repeatWinXp = options.Value.FirstWinXp / 4, repeatWinCoins = options.Value.FirstWinCoins / 4,
+            repeatWinXp = options.Value.RepeatWinXp, repeatWinCoins = options.Value.RepeatWinCoins,
+            repeatWinPercent = options.Value.RepeatWinPercent, paidRepeatWinLimit = options.Value.PaidRepeatWinLimit,
             rankThresholds = options.Value.RankThresholds
         }));
     }

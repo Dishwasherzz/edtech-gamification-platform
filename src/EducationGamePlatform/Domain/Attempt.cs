@@ -2,7 +2,7 @@ namespace EducationGamePlatform.Domain;
 
 public enum AttemptStatus { Active, Passed, Failed, Abandoned }
 public enum AttemptQuestionStatus { Pending, Presented, Answered, TimedOut }
-public enum RewardReason { FirstPass, RepeatPass }
+public enum RewardReason { FirstPass, RepeatPass, RepeatLimitReached }
 
 public sealed class Attempt
 {

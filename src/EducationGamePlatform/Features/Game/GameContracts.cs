@@ -8,7 +8,10 @@ public sealed record OptionResponse(Guid Id, string Text, bool IsDisabled);
 public sealed record QuestionResponse(Guid Id, int Position, string Prompt, DateTimeOffset ExpiresAt, List<OptionResponse> Options);
 public sealed record ScenarioResponse(string Title, string Introduction, string IllustrationKey);
 public sealed record FeedbackResponse(Guid QuestionId, bool IsCorrect, string Message);
-public sealed record RewardResponse(int Xp, int Coins, bool IsFirstPass, bool PerfectBonus);
+public sealed record RewardResponse(int Xp, int Coins, bool IsFirstPass, bool PerfectBonus)
+{
+    public bool RepeatLimitReached { get; init; }
+}
 public sealed record ReviewResponse(int Position, string Prompt, string? SelectedAnswer, string CorrectAnswer,
     string Explanation, bool IsCorrect, bool TimedOut, List<string> WrongChoices);
 public sealed record AttemptResponse(Guid Id, Guid TopicId, Guid AssessmentId, string TopicTitle, AssessmentMode Mode,

@@ -275,8 +275,19 @@ public sealed class GameService(AppDbContext database, ProgressService progress,
         attempt.FinishReason = "Passed";
         var first = !await database.TopicProgress.AnyAsync(item => item.UserId == attempt.UserId && item.TopicId == attempt.TopicId, token);
         var perfect = first && attempt.ErrorCount == 0;
-        var xp = first ? Economy.FirstWinXp + (perfect ? Economy.PerfectBonusXp : 0) : Economy.FirstWinXp / 4;
-        var coins = first ? Economy.FirstWinCoins + (perfect ? Economy.PerfectBonusCoins : 0) : Economy.FirstWinCoins / 4;
+        var limitReached = !first && await database.RewardGrants.CountAsync(grant =>
+            grant.UserId == attempt.UserId && grant.TopicId == attempt.TopicId &&
+            grant.Reason == RewardReason.RepeatPass && (grant.XpAmount > 0 || grant.CoinsAmount > 0), token)
+            >= Economy.PaidRepeatWinLimit;
+        var xp = first ? Economy.FirstWinXp + (perfect ? Economy.PerfectBonusXp : 0) : Economy.RepeatWinXp;
+        var coins = first ? Economy.FirstWinCoins + (perfect ? Economy.PerfectBonusCoins : 0) : Economy.RepeatWinCoins;
+        var reason = first ? RewardReason.FirstPass : RewardReason.RepeatPass;
+        if (limitReached)
+        {
+            xp = 0;
+            coins = 0;
+            reason = RewardReason.RepeatLimitReached;
+        }
         if (first) database.TopicProgress.Add(new TopicProgress
         {
             UserId = attempt.UserId, TopicId = attempt.TopicId, FirstAttemptId = attempt.Id, CompletedAt = now
@@ -284,7 +295,7 @@ public sealed class GameService(AppDbContext database, ProgressService progress,
         database.RewardGrants.Add(new RewardGrant
         {
             UserId = attempt.UserId, TopicId = attempt.TopicId, AssessmentId = attempt.AssessmentId, AttemptId = attempt.Id,
-            Reason = first ? RewardReason.FirstPass : RewardReason.RepeatPass, XpAmount = xp, CoinsAmount = coins, GrantedAt = now
+            Reason = reason, XpAmount = xp, CoinsAmount = coins, GrantedAt = now
         });
         profile.TotalXp += xp;
         profile.CoinsBalance += coins;
@@ -300,7 +311,10 @@ public sealed class GameService(AppDbContext database, ProgressService progress,
                 .Select(option => new OptionResponse(option.Id, option.Text, choices.Any(choice => choice.AttemptQuestionId == current.Id && choice.SelectedOptionId == option.Id))).ToList());
         var grant = await database.RewardGrants.AsNoTracking().SingleOrDefaultAsync(grant => grant.AttemptId == attempt.Id, token);
         var reward = grant == null ? null : new RewardResponse(grant.XpAmount, grant.CoinsAmount,
-            grant.Reason == RewardReason.FirstPass, grant.Reason == RewardReason.FirstPass && attempt.ErrorCount == 0);
+            grant.Reason == RewardReason.FirstPass, grant.Reason == RewardReason.FirstPass && attempt.ErrorCount == 0)
+        {
+            RepeatLimitReached = grant.Reason == RewardReason.RepeatLimitReached
+        };
         List<ReviewResponse>? review = null;
         if (attempt.Status != AttemptStatus.Active)
             review = attempt.Questions.Where(question => attempt.AssessmentVersion.Assessment.Mode == AssessmentMode.Crisis || question.Status != AttemptQuestionStatus.Pending)

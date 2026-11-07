@@ -9,12 +9,17 @@ public sealed class GameOptions
     public int FirstWinCoins { get; set; } = 30;
     public int PerfectBonusXp { get; set; } = 50;
     public int PerfectBonusCoins { get; set; } = 20;
+    public int RepeatWinPercent { get; set; } = 25;
+    public int PaidRepeatWinLimit { get; set; } = 3;
+    public int RepeatWinXp => (int)((long)FirstWinXp * RepeatWinPercent / 100);
+    public int RepeatWinCoins => (int)((long)FirstWinCoins * RepeatWinPercent / 100);
     // ConfigurationBinder appends array values; start empty so configured thresholds are not duplicated.
     public int[] RankThresholds { get; set; } = [];
     public bool EnableExpiryWorker { get; set; } = true;
 
     public static bool IsValid(GameOptions value) => value.LessonXp > 0 && value.FirstWinXp >= 0 &&
         value.FirstWinCoins >= 0 && value.PerfectBonusXp >= 0 && value.PerfectBonusCoins >= 0 &&
+        value.RepeatWinPercent is >= 0 and <= 100 && value.PaidRepeatWinLimit >= 0 &&
         value.RankThresholds.Length > 0 && value.RankThresholds[0] == 0 &&
         value.RankThresholds.Zip(value.RankThresholds.Skip(1)).All(pair => pair.First < pair.Second);
 }

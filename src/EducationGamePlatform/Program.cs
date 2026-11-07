@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
-var hostArguments = args.Where(argument => argument is not "--migrate" and not "--seed-demo").ToArray();
+var hostArguments = args.Where(argument => argument is not "--migrate" and not "--seed-demo" and not "--seed-pilot").ToArray();
 var builder = WebApplication.CreateBuilder(hostArguments);
 // This ignored file also works when Rider and a terminal use different user-secrets profiles.
 if (builder.Environment.IsDevelopment())
@@ -75,7 +75,7 @@ builder.Services.Configure<JsonOptions>(options =>
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GameRuleExceptionHandler>();
 builder.Services.AddOptions<GameOptions>().BindConfiguration("Game")
-    .PostConfigure(options => { if (options.RankThresholds is not { Length: > 0 }) options.RankThresholds = [0, 100, 300, 600, 1000, 1500]; })
+    .PostConfigure(options => { if (options.RankThresholds is not { Length: > 0 }) options.RankThresholds = [0, 30, 75, 140, 215, 300, 400, 500]; })
     .Validate(GameOptions.IsValid, "Invalid game economy or rank thresholds.").ValidateOnStart();
 builder.Services.AddScoped<ProgressService>();
 builder.Services.AddScoped<GameService>();
@@ -89,13 +89,14 @@ builder.Services.AddHealthChecks().AddCheck<PostgresHealthCheck>("postgres", tag
 
 var app = builder.Build();
 // Apply migrations once explicitly, before starting API instances.
-if (args.Contains("--migrate") || args.Contains("--seed-demo"))
+var seedPilot = args.Contains("--seed-pilot");
+if (args.Contains("--migrate") || args.Contains("--seed-demo") || seedPilot)
 {
     await using var scope = app.Services.CreateAsyncScope();
     var database = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     if (args.Contains("--migrate")) await database.Database.MigrateAsync();
-    if (args.Contains("--seed-demo") || builder.Configuration.GetValue<bool>("Database:SeedDemoData"))
-        await DemoData.SeedAsync(database);
+    if (args.Contains("--seed-demo") || seedPilot || builder.Configuration.GetValue<bool>("Database:SeedDemoData"))
+        await DemoData.SeedAsync(database, includePilot: seedPilot);
     return;
 }
 app.UseExceptionHandler();

@@ -145,6 +145,40 @@ public sealed class GameTests(ApiFixture fixture)
     }
 
     [Fact]
+    public async Task FourthRepeatWinsWithoutAwardAndTheLimitIsSharedAcrossModes()
+    {
+        using var client = await Ready();
+        var first = await Pass(client, await SendStart(client, DemoGameContent.BossId()));
+        Assert.True(first.Reward!.IsFirstPass);
+        foreach (var assessmentId in new[] { DemoGameContent.CrisisId(), DemoGameContent.BossId(), DemoGameContent.CrisisId() })
+        {
+            var repeat = await Pass(client, await SendStart(client, assessmentId));
+            Assert.Equal(25, repeat.Reward!.Xp);
+            Assert.Equal(7, repeat.Reward.Coins);
+            Assert.False(repeat.Reward.RepeatLimitReached);
+        }
+
+        var capped = await Pass(client, await SendStart(client, DemoGameContent.BossId()));
+        Assert.Equal(AttemptStatus.Passed, capped.Status);
+        Assert.True(capped.Reward!.RepeatLimitReached);
+        Assert.Equal(0, capped.Reward.Xp);
+        Assert.Equal(0, capped.Reward.Coins);
+        var result = await Read(await client.GetAsync($"/api/attempts/{capped.Id}/result"));
+        Assert.Equal(capped.Reward, result.Reward);
+        var profile = (await client.GetFromJsonAsync<ProfileResponse>("/api/me"))!;
+        Assert.Equal(245, profile.TotalXp);
+        Assert.Equal(71, profile.CoinsBalance);
+        Assert.Equal(5, profile.Rank);
+        var history = (await client.GetFromJsonAsync<List<HistoryResponse>>("/api/me/attempts", Json))!;
+        var lastWin = Assert.Single(history, item => item.Id == capped.Id);
+        Assert.Equal(AttemptStatus.Passed, lastWin.Status);
+        Assert.Equal(0, lastWin.Coins);
+        var instructions = await client.GetFromJsonAsync<JsonElement>("/api/instructions");
+        Assert.Equal(3, instructions.GetProperty("paidRepeatWinLimit").GetInt32());
+        Assert.Equal(8, instructions.GetProperty("rankThresholds").GetArrayLength());
+    }
+
+    [Fact]
     public async Task ThreeWrongBossAnswersLoseWithoutRewardAndRetryCanWinFirstPrize()
     {
         using var client = await Ready();

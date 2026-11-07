@@ -78,11 +78,13 @@
 - `currentQuestion`: `{id,position,prompt,expiresAt,options}` или null. `id` — идентификатор **вопроса попытки**, именно его подставлять в адрес ответа.
 - `options`: массив `{id,text,isDisabled}`. Правильность и объяснения до завершения не выдаются.
 - `feedback`: `{questionId,isCorrect,message}` для обработанного выбора либо null. У неверного QTE-выбора правильное действие не раскрывается.
-- `reward`: `{xp,coins,isFirstPass,perfectBonus}` после победы; иначе null.
+- `reward` после победы содержит `{xp,coins,isFirstPass,perfectBonus,repeatLimitReached}`. Если лимит исчерпан, статус остаётся `Passed`, суммы равны нулю, `repeatLimitReached` равно `true`. У поражения и прерванной попытки награды нет.
 - `review`: только после завершения; элементы `{position,prompt,selectedAnswer,correctAnswer,explanation,isCorrect,timedOut,wrongChoices}`.
 
 История: `{id,topicId,topicTitle,mode,status,startedAt,finishedAt,correctAnswers,errors,xp,coins}`.
 Для повторного прохождения создать новую попытку через assessmentId; история предыдущей сохраняется.
+
+`GET /api/instructions` возвращает `paidRepeatWinLimit`, `repeatWinPercent`, `repeatWinXp`, `repeatWinCoins` и `rankThresholds` из действующих настроек.
 
 ## Работа фронтенда
 

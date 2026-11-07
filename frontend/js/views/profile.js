@@ -29,7 +29,7 @@ export async function renderProfile(page = 1) {
     topics: acc.topics + course.totalTopics,
     done: acc.done + course.completedTopics
   }), { topics: 0, done: 0 });
-  const percent = totals.topics ? Math.round(totals.done * 100 / totals.topics) : 0;
+  const percent = totals.topics ? Math.floor(totals.done * 100 / totals.topics) : 0;
 
   const nextCourse = courses.find(course => course.progressPercent < 100);
 

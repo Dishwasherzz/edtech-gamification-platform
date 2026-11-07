@@ -59,7 +59,7 @@ export async function renderDashboard() {
     done: acc.done + course.completedTopics
   }), { topics: 0, done: 0 });
 
-  const overall = totals.topics ? Math.round(totals.done * 100 / totals.topics) : 0;
+  const overall = totals.topics ? Math.floor(totals.done * 100 / totals.topics) : 0;
   const next = recent.find(({ topic }) => topic.status === "Available") ?? recent[0];
 
   return element(`
