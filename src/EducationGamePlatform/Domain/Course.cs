@@ -16,6 +16,8 @@ public sealed class Topic
     public Guid CourseId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string? Subtitle { get; set; }
+    public string? IconKey { get; set; }
     public int SortOrder { get; set; }
     public bool IsPublished { get; set; }
     public Course Course { get; set; } = null!;
@@ -53,4 +55,11 @@ public sealed class TopicProgress
     public ApplicationUser User { get; set; } = null!;
     public Topic Topic { get; set; } = null!;
     public Attempt FirstAttempt { get; set; } = null!;
+}
+
+public sealed class CourseCompletionReceipt
+{
+    public Guid UserId { get; set; }
+    public Guid CourseId { get; set; }
+    public DateTimeOffset AcknowledgedAt { get; set; }
 }

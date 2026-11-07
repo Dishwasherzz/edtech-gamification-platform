@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace EducationGamePlatform.Features.Game;
 
 public sealed record TopicState(Guid Id, string Title, string Description, int SortOrder, int LessonCount,
-    int CompletedLessons, string Status, bool IsRead);
+    int CompletedLessons, string Status, bool IsRead, string? Subtitle, string? IconKey);
 
 public sealed class ProgressService(AppDbContext database)
 {
@@ -15,7 +15,7 @@ public sealed class ProgressService(AppDbContext database)
             throw new GameRuleException(404, "NotFound", "Курс не найден.");
         var topics = await database.Topics.AsNoTracking().Where(topic => topic.CourseId == courseId && topic.IsPublished)
             .OrderBy(topic => topic.SortOrder).ThenBy(topic => topic.Id)
-            .Select(topic => new { topic.Id, topic.Title, topic.Description, topic.SortOrder,
+            .Select(topic => new { topic.Id, topic.Title, topic.Description, topic.SortOrder, topic.Subtitle, topic.IconKey,
                 Lessons = topic.Lessons.Count(lesson => lesson.IsPublished),
                 Read = database.LessonProgress.Count(progress => progress.UserId == userId &&
                     progress.Lesson.TopicId == topic.Id && progress.Lesson.IsPublished) }).ToListAsync(token);
@@ -27,7 +27,8 @@ public sealed class ProgressService(AppDbContext database)
         {
             var passed = completed.Contains(topic.Id);
             result.Add(new(topic.Id, topic.Title, topic.Description, topic.SortOrder, topic.Lessons, topic.Read,
-                passed ? "Completed" : previousPassed ? "Available" : "Locked", topic.Lessons > 0 && topic.Read == topic.Lessons));
+                passed ? "Completed" : previousPassed ? "Available" : "Locked", topic.Lessons > 0 && topic.Read == topic.Lessons,
+                topic.Subtitle, topic.IconKey));
             previousPassed &= passed;
         }
         return result;

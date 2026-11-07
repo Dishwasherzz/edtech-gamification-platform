@@ -8,7 +8,7 @@ namespace EducationGamePlatform.Features.Game;
 
 // All mutations for a player hold their profile row lock. Rewards, answers and progress commit together.
 public sealed class GameService(AppDbContext database, ProgressService progress, TimeProvider clock, IOptions<GameOptions> options,
-    CosmeticsService cosmetics, MascotPresentationService mascots)
+    CosmeticsService cosmetics, MascotPresentationService mascots, RankCalculator ranks)
 {
     private GameOptions Economy => options.Value;
 
@@ -295,7 +295,7 @@ public sealed class GameService(AppDbContext database, ProgressService progress,
         database.RewardGrants.Add(new RewardGrant
         {
             UserId = attempt.UserId, TopicId = attempt.TopicId, AssessmentId = attempt.AssessmentId, AttemptId = attempt.Id,
-            Reason = reason, XpAmount = xp, CoinsAmount = coins, GrantedAt = now
+            Reason = reason, XpAmount = xp, TotalXpAfter = profile.TotalXp + xp, CoinsAmount = coins, GrantedAt = now
         });
         profile.TotalXp += xp;
         profile.CoinsBalance += coins;
@@ -308,12 +308,17 @@ public sealed class GameService(AppDbContext database, ProgressService progress,
             ? attempt.Questions.SingleOrDefault(question => question.Status == AttemptQuestionStatus.Presented) : null;
         var questionView = current == null ? null : new QuestionResponse(current.Id, current.Position + 1, current.Question.Prompt,
             current.ExpiresAt!.Value, current.Question.Options.OrderBy(option => option.SortOrder)
-                .Select(option => new OptionResponse(option.Id, option.Text, choices.Any(choice => choice.AttemptQuestionId == current.Id && choice.SelectedOptionId == option.Id))).ToList());
+                .Select(option => new OptionResponse(option.Id, option.Text, choices.Any(choice => choice.AttemptQuestionId == current.Id && choice.SelectedOptionId == option.Id))).ToList())
+        {
+            CalculationHint = current.Question.CalculationHint
+        };
         var grant = await database.RewardGrants.AsNoTracking().SingleOrDefaultAsync(grant => grant.AttemptId == attempt.Id, token);
         var reward = grant == null ? null : new RewardResponse(grant.XpAmount, grant.CoinsAmount,
             grant.Reason == RewardReason.FirstPass, grant.Reason == RewardReason.FirstPass && attempt.ErrorCount == 0)
         {
-            RepeatLimitReached = grant.Reason == RewardReason.RepeatLimitReached
+            RepeatLimitReached = grant.Reason == RewardReason.RepeatLimitReached,
+            NewRank = grant.TotalXpAfter is long xp && ranks.Calculate(xp).Rank > ranks.Calculate(xp - grant.XpAmount).Rank
+                ? ranks.Calculate(xp).Rank : null
         };
         List<ReviewResponse>? review = null;
         if (attempt.Status != AttemptStatus.Active)
@@ -326,11 +331,31 @@ public sealed class GameService(AppDbContext database, ProgressService progress,
                         .Select(choice => question.Question.Options.Single(option => option.Id == choice.SelectedOptionId).Text).ToList())).ToList();
         var appearance = await cosmetics.ResolveAsync(attempt.CharacterSkinId, attempt.MascotId, token);
         var mascot = await mascots.ForAttemptAsync(attempt, appearance.Mascot, choices, GameTime.Now(clock), token);
+        Guid? nextTopic = null;
+        Guid? completedCourse = null;
+        if (attempt.Status == AttemptStatus.Passed && await database.Courses.AnyAsync(
+            course => course.Id == attempt.Topic.CourseId && course.IsPublished, token))
+        {
+            var topics = await progress.GetTopicsAsync(attempt.Topic.CourseId, attempt.UserId, token);
+            var index = topics.FindIndex(topic => topic.Id == attempt.TopicId);
+            if (index >= 0 && index + 1 < topics.Count && topics[index + 1].Status != "Locked")
+                nextTopic = topics[index + 1].Id;
+            if (reward?.IsFirstPass == true && index >= 0 && index == topics.Count - 1 &&
+                topics.All(topic => topic.Status == "Completed") &&
+                !await database.CourseCompletionReceipts.AnyAsync(item =>
+                    item.UserId == attempt.UserId && item.CourseId == attempt.Topic.CourseId, token))
+                completedCourse = attempt.Topic.CourseId;
+        }
         return new(attempt.Id, attempt.TopicId, attempt.AssessmentId, attempt.Topic.Title, attempt.AssessmentVersion.Assessment.Mode,
             attempt.Status, attempt.BegunAt == null && attempt.Status == AttemptStatus.Active, GameTime.Now(clock), attempt.StartedAt,
             attempt.FinishedAt, attempt.ExpiresAt, attempt.CorrectAnswers, attempt.ErrorCount, attempt.QuestionCount,
             attempt.BossHpRemaining, 100, attempt.AssessmentVersion.BossName, attempt.FinishReason,
             attempt.Scenario == null ? null : new(attempt.Scenario.Title, attempt.Scenario.Introduction, attempt.Scenario.IllustrationKey),
-            questionView, feedback, reward, review) { CharacterSkin = appearance.CharacterSkin, Mascot = mascot };
+            questionView, feedback, reward, review)
+        {
+            CharacterSkin = appearance.CharacterSkin, Mascot = mascot,
+            NextTopicId = nextTopic, CompletedCourseId = completedCourse,
+            BossIcon = attempt.AssessmentVersion.BossIcon, BossIntro = attempt.AssessmentVersion.BossIntro
+        };
     }
 }

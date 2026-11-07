@@ -36,6 +36,8 @@ public sealed class TopicConfiguration : IEntityTypeConfiguration<Topic>
 {
     public void Configure(EntityTypeBuilder<Topic> builder)
     {
+        builder.Property(topic => topic.Subtitle).HasMaxLength(200);
+        builder.Property(topic => topic.IconKey).HasMaxLength(40);
         builder.Property(topic => topic.Title).HasMaxLength(200);
         builder.Property(topic => topic.Description).HasMaxLength(2000);
         builder.HasOne(topic => topic.Course).WithMany(course => course.Topics)

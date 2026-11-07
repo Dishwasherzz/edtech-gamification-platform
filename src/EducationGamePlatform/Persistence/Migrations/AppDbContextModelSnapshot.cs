@@ -67,6 +67,13 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
+                    b.Property<DateTimeOffset?>("ConsentAcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ConsentVersion")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -164,6 +171,14 @@ namespace EducationGamePlatform.Persistence.Migrations
 
                     b.Property<Guid>("AssessmentId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BossIcon")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("BossIntro")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<int>("BossMaxHp")
                         .HasColumnType("integer");
@@ -530,6 +545,24 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Courses");
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.CourseCompletionReceipt", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AcknowledgedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "CourseId");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("CourseCompletionReceipts");
                 });
 
             modelBuilder.Entity("EducationGamePlatform.Domain.CrisisScenario", b =>
@@ -1273,6 +1306,17 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.Property<Guid?>("EquippedSkinId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("HeroKey")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("phase");
+
+                    b.Property<string>("NormalizedDisplayName")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
                     b.Property<Guid?>("SelectedMascotId")
                         .HasColumnType("uuid");
 
@@ -1282,6 +1326,10 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.HasKey("UserId");
 
                     b.HasIndex("EquippedSkinId");
+
+                    b.HasIndex("NormalizedDisplayName")
+                        .IsUnique()
+                        .HasDatabaseName("UX_PlayerProfiles_NormalizedDisplayName");
 
                     b.HasIndex("SelectedMascotId");
 
@@ -1301,6 +1349,10 @@ namespace EducationGamePlatform.Persistence.Migrations
 
                     b.Property<Guid>("AssessmentVersionId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("CalculationHint")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Explanation")
                         .IsRequired()
@@ -1361,6 +1413,9 @@ namespace EducationGamePlatform.Persistence.Migrations
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
+
+                    b.Property<long?>("TotalXpAfter")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("XpAmount")
                         .HasColumnType("integer");
@@ -1436,11 +1491,19 @@ namespace EducationGamePlatform.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<string>("IconKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Subtitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -1781,6 +1844,21 @@ namespace EducationGamePlatform.Persistence.Migrations
                     b.Navigation("Attempt");
 
                     b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("EducationGamePlatform.Domain.CourseCompletionReceipt", b =>
+                {
+                    b.HasOne("EducationGamePlatform.Domain.Course", null)
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EducationGamePlatform.Domain.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EducationGamePlatform.Domain.CrisisScenario", b =>

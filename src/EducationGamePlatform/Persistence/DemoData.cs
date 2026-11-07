@@ -9,7 +9,8 @@ public static class DemoData
     public static readonly Guid TopicId = Guid.Parse("20000000-0000-4000-8000-000000000001");
     public static readonly Guid LessonId = Guid.Parse("30000000-0000-4000-8000-000000000001");
 
-    public static async Task SeedAsync(AppDbContext database, CancellationToken cancellationToken = default, bool includePilot = false)
+    public static async Task SeedAsync(AppDbContext database, CancellationToken cancellationToken = default,
+        bool includePilot = false, bool includeAnalyst = false)
     {
         await using var transaction = await database.Database.BeginTransactionAsync(cancellationToken);
         await database.Database.ExecuteSqlRawAsync("SELECT pg_advisory_xact_lock(20261010)", cancellationToken);
@@ -44,6 +45,7 @@ public static class DemoData
         }
         await DemoGameContent.SeedAsync(database, cancellationToken);
         if (includePilot) await PilotGameContent.SeedAsync(database, cancellationToken);
+        if (includeAnalyst) await AnalystCourseContent.SeedAsync(database, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
 }

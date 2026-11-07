@@ -33,6 +33,6 @@ public static class GameEndpoints
             repeatWinXp = options.Value.RepeatWinXp, repeatWinCoins = options.Value.RepeatWinCoins,
             repeatWinPercent = options.Value.RepeatWinPercent, paidRepeatWinLimit = options.Value.PaidRepeatWinLimit,
             rankThresholds = options.Value.RankThresholds
-        }));
+        })).AllowAnonymous();
     }
 }

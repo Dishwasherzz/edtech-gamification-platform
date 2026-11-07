@@ -15,11 +15,11 @@ public sealed record CourseResponse(Guid Id, string Slug, string Title, string D
     public int ProgressPercent { get; init; }
 }
 public sealed record TopicResponse(Guid Id, string Title, string Description, int SortOrder, int LessonCount, int CompletedLessons,
-    string Status, bool IsRead);
+    string Status, bool IsRead, string? Subtitle = null, string? IconKey = null);
 public sealed record LessonSummary(Guid Id, string Title, int SortOrder);
 public sealed record AssessmentSummary(Guid Id, string Title, AssessmentMode Mode, bool IsRequired);
 public sealed record TopicDetails(Guid Id, Guid CourseId, string Title, string Description,
-    List<LessonSummary> Lessons, List<AssessmentSummary> Assessments);
+    List<LessonSummary> Lessons, List<AssessmentSummary> Assessments, string? Subtitle = null, string? IconKey = null);
 public sealed record LessonResponse(Guid Id, Guid TopicId, string Title, string ContentMarkdown, DateTimeOffset? CompletedAt)
 {
     public int AwardedXp { get; init; }
@@ -64,7 +64,7 @@ public static class CatalogEndpoints
     {
         var topics = await progress.GetTopicsAsync(courseId, user.GetUserId(), cancellationToken);
         return Results.Ok(topics.Select(topic => new TopicResponse(topic.Id, topic.Title, topic.Description,
-            topic.SortOrder, topic.LessonCount, topic.CompletedLessons, topic.Status, topic.IsRead)).ToList());
+            topic.SortOrder, topic.LessonCount, topic.CompletedLessons, topic.Status, topic.IsRead, topic.Subtitle, topic.IconKey)).ToList());
     }
 
     private static async Task<IResult> GetTopicAsync(Guid topicId, AppDbContext database, ClaimsPrincipal user,
@@ -79,7 +79,7 @@ public static class CatalogEndpoints
                 topic.Assessments.Where(assessment => assessment.IsPublished && assessment.Versions.Any(version => version.PublishedAt != null))
                     .OrderBy(assessment => assessment.Title).ThenBy(assessment => assessment.Id)
                     .Select(assessment => new AssessmentSummary(assessment.Id, assessment.Title, assessment.Mode,
-                        assessment.IsRequired)).ToList())).SingleOrDefaultAsync(cancellationToken);
+                        assessment.IsRequired)).ToList(), topic.Subtitle, topic.IconKey)).SingleOrDefaultAsync(cancellationToken);
         return topic is null ? Results.NotFound() : Results.Ok(topic);
     }
 

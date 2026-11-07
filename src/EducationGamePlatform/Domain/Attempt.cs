@@ -66,6 +66,7 @@ public sealed class RewardGrant
     public Guid AttemptId { get; set; }
     public RewardReason Reason { get; set; } = RewardReason.FirstPass;
     public int XpAmount { get; set; }
+    public long? TotalXpAfter { get; set; }
     public int CoinsAmount { get; set; }
     public DateTimeOffset GrantedAt { get; set; }
     public Attempt Attempt { get; set; } = null!;

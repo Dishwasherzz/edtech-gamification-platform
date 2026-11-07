@@ -20,6 +20,8 @@
 
     <ItemGroup>
         <Content Update="appsettings.Local.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+        <Content Remove="Persistence/Content/AnalystCourse.json" />
+        <EmbeddedResource Include="Persistence/Content/AnalystCourse.json" LogicalName="AnalystCourse.json" />
         <Content Include="../../frontend/**/*" Link="wwwroot/%(RecursiveDir)%(Filename)%(Extension)"
                  CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     </ItemGroup>

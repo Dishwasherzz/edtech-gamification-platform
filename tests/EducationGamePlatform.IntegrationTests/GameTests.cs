@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using EducationGamePlatform.Domain;
 using EducationGamePlatform.Features.Catalog;
+using EducationGamePlatform.Features.Cosmetics;
+using EducationGamePlatform.Features.Auth;
 using EducationGamePlatform.Features.Game;
 using EducationGamePlatform.Features.Profile;
 using EducationGamePlatform.Persistence;
@@ -338,18 +340,68 @@ public sealed class GameTests(ApiFixture fixture)
     public async Task PassingAllTopicsReachesOneHundredPercentAndRepeatsDoNotIncreaseIt()
     {
         using var client = await fixture.CreateStudentAsync();
+        var journeyPath = $"/api/me/courses/{DemoData.CourseId}/journey";
+        var claimPath = $"/api/me/courses/{DemoData.CourseId}/completion/claim";
+        Assert.Equal(HttpStatusCode.Conflict, (await client.PostAsJsonAsync(claimPath, new { })).StatusCode);
         for (var topic = 1; topic <= 3; topic++)
         {
+            var journey = await client.GetFromJsonAsync<CourseJourney>(journeyPath);
+            Assert.Equal("Lesson", journey!.Destination);
+            Assert.Equal(DemoGameContent.LessonId(topic), journey.LessonId);
             Assert.Equal(HttpStatusCode.OK, (await client.PutAsJsonAsync($"/api/me/lessons/{DemoGameContent.LessonId(topic)}/completion", new { })).StatusCode);
-            await Pass(client, await SendStart(client, DemoGameContent.BossId(topic)));
+            Assert.Equal("Topic", (await client.GetFromJsonAsync<CourseJourney>(journeyPath))!.Destination);
+            var attempt = await SendStart(client, DemoGameContent.BossId(topic));
+            Assert.Equal(attempt.Id, (await client.GetFromJsonAsync<CourseJourney>(journeyPath))!.AttemptId);
+            var won = await Pass(client, attempt);
+            if (topic < 3) Assert.Equal(DemoGameContent.TopicId(topic + 1), won.NextTopicId);
+            else Assert.Equal(DemoData.CourseId, won.CompletedCourseId);
         }
         var courses = (await client.GetFromJsonAsync<List<CourseResponse>>("/api/courses"))!;
         var course = courses.Single(item => item.Id == DemoData.CourseId);
         Assert.Equal(3, course.CompletedTopics);
         Assert.Equal(100, course.ProgressPercent);
+        var completed = await client.GetFromJsonAsync<CourseJourney>(journeyPath);
+        Assert.True(completed!.CompletionPending);
+        Assert.Equal(3, completed.Summary!.Attempts);
+        var claims = await Task.WhenAll(Enumerable.Range(0, 4).Select(_ => client.PostAsJsonAsync(claimPath, new { })));
+        Assert.Single(claims, claim => claim.StatusCode == HttpStatusCode.OK);
+        Assert.Equal(3, claims.Count(claim => claim.StatusCode == HttpStatusCode.NoContent));
+        Assert.False((await client.GetFromJsonAsync<CourseJourney>(journeyPath))!.CompletionPending);
         await Pass(client, await SendStart(client, DemoGameContent.BossId()));
         courses = (await client.GetFromJsonAsync<List<CourseResponse>>("/api/courses"))!;
         Assert.Equal(100, courses.Single(item => item.Id == DemoData.CourseId).ProgressPercent);
+    }
+
+    [Fact]
+    public async Task PasswordConfirmedDeletionRemovesProgressAndPurchasesAndRejectsOldSession()
+    {
+        using var client = await Ready();
+        var profile = (await client.GetFromJsonAsync<ProfileResponse>("/api/me"))!;
+        var won = await Pass(client, await SendStart(client, DemoGameContent.BossId()));
+        var purchase = await client.PostAsJsonAsync($"/api/shop/skins/{CosmeticDefaults.CopperSkinId}/purchase",
+            new PurchaseSkinRequest(Guid.NewGuid()));
+        Assert.Equal(HttpStatusCode.OK, purchase.StatusCode);
+        using var otherSession = fixture.CreateClient();
+        await ApiFixture.RefreshCsrfAsync(otherSession);
+        Assert.Equal(HttpStatusCode.NoContent, (await otherSession.PostAsJsonAsync("/api/auth/login",
+            new LoginRequest(profile.Email!, "Development123!"))).StatusCode);
+        async Task<HttpResponseMessage> Delete(string password)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Delete, "/api/me")
+            {
+                Content = JsonContent.Create(new DeleteAccountRequest(password))
+            };
+            return await client.SendAsync(request);
+        }
+        Assert.Equal(HttpStatusCode.BadRequest, (await Delete("incorrect")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/me")).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await Delete("Development123!")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await otherSession.GetAsync("/api/me")).StatusCode);
+        await using var database = fixture.CreateDatabase();
+        Assert.False(await database.Users.AnyAsync(user => user.Id == profile.UserId));
+        Assert.False(await database.Attempts.AnyAsync(attempt => attempt.Id == won.Id));
+        Assert.False(await database.LessonProgress.AnyAsync(progress => progress.UserId == profile.UserId));
+        Assert.False(await database.SkinPurchases.AnyAsync(item => item.UserId == profile.UserId));
     }
 
     [Fact]

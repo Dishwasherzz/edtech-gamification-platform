@@ -26,6 +26,8 @@ public sealed class AssessmentVersion
     public int XpReward { get; set; }
     public int CoinsReward { get; set; }
     public string BossName { get; set; } = string.Empty;
+    public string? BossIcon { get; set; }
+    public string? BossIntro { get; set; }
     public int BossMaxHp { get; set; }
     public int DamagePerCorrectAnswer { get; set; }
     public Assessment Assessment { get; set; } = null!;
@@ -42,6 +44,7 @@ public sealed class Question
     public QuestionType Type { get; set; } = QuestionType.SingleChoice;
     public int SortOrder { get; set; }
     public string Explanation { get; set; } = string.Empty;
+    public string? CalculationHint { get; set; }
     public AssessmentVersion AssessmentVersion { get; set; } = null!;
     public CrisisScenario? Scenario { get; set; }
     public List<AnswerOption> Options { get; set; } = [];

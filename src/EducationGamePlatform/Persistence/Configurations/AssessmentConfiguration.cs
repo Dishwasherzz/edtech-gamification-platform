@@ -23,6 +23,8 @@ public sealed class AssessmentVersionConfiguration : IEntityTypeConfiguration<As
         builder.HasAlternateKey(version => new { version.Id, version.AssessmentId });
         builder.HasIndex(version => new { version.AssessmentId, version.VersionNumber }).IsUnique();
         builder.Property(version => version.BossName).HasMaxLength(100);
+        builder.Property(version => version.BossIcon).HasMaxLength(32);
+        builder.Property(version => version.BossIntro).HasMaxLength(500);
         builder.HasOne(version => version.Assessment).WithMany(assessment => assessment.Versions)
             .HasForeignKey(version => version.AssessmentId).OnDelete(DeleteBehavior.Restrict);
         builder.ToTable("AssessmentVersions", table => table.HasCheckConstraint("CK_AssessmentVersion_Settings",
@@ -39,6 +41,7 @@ public sealed class QuestionConfiguration : IEntityTypeConfiguration<Question>
         builder.Property(question => question.Type).HasConversion<string>().HasMaxLength(30);
         builder.Property(question => question.Prompt).HasMaxLength(4000);
         builder.Property(question => question.Explanation).HasMaxLength(4000);
+        builder.Property(question => question.CalculationHint).HasMaxLength(1000);
         builder.HasOne(question => question.AssessmentVersion).WithMany(version => version.Questions)
             .HasForeignKey(question => question.AssessmentVersionId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(question => new { question.AssessmentVersionId, question.SortOrder }).IsUnique();

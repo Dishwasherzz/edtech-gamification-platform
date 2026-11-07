@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using EducationGamePlatform.Domain;
 using EducationGamePlatform.Features.Auth;
 using EducationGamePlatform.Features.Catalog;
@@ -14,7 +15,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
-var hostArguments = args.Where(argument => argument is not "--migrate" and not "--seed-demo" and not "--seed-pilot").ToArray();
+var hostArguments = args.Where(argument => argument is not "--migrate" and not "--seed-demo" and not "--seed-pilot"
+    and not "--seed-analyst").ToArray();
 var builder = WebApplication.CreateBuilder(hostArguments);
 // This ignored file also works when Rider and a terminal use different user-secrets profiles.
 if (builder.Environment.IsDevelopment())
@@ -31,12 +33,28 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     {
         options.User.RequireUniqueEmail = true;
-        options.Password.RequiredLength = 10;
+        options.Password.RequiredLength = AccountRules.MinimumPasswordLength;
         options.Password.RequireNonAlphanumeric = false;
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     })
     .AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(1));
+builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
+builder.Services.AddOptions<AccountOptions>().BindConfiguration("Account");
+builder.Services.AddOptions<PasswordMailOptions>().BindConfiguration("PasswordMail");
+builder.Services.AddSingleton<IPasswordResetMailer, SmtpPasswordResetMailer>();
+builder.Services.AddSingleton<PasswordResetQueue>();
+builder.Services.AddHostedService<PasswordResetWorker>();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("account-sensitive", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 20, Window = TimeSpan.FromMinutes(5), QueueLimit = 0, AutoReplenishment = true
+        }));
+});
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.Name = "edtech.auth";
@@ -90,13 +108,15 @@ builder.Services.AddHealthChecks().AddCheck<PostgresHealthCheck>("postgres", tag
 var app = builder.Build();
 // Apply migrations once explicitly, before starting API instances.
 var seedPilot = args.Contains("--seed-pilot");
-if (args.Contains("--migrate") || args.Contains("--seed-demo") || seedPilot)
+var seedAnalyst = args.Contains("--seed-analyst");
+if (seedPilot && seedAnalyst) throw new InvalidOperationException("Выбери один пакет учебных материалов.");
+if (args.Contains("--migrate") || args.Contains("--seed-demo") || seedPilot || seedAnalyst)
 {
     await using var scope = app.Services.CreateAsyncScope();
     var database = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     if (args.Contains("--migrate")) await database.Database.MigrateAsync();
-    if (args.Contains("--seed-demo") || seedPilot || builder.Configuration.GetValue<bool>("Database:SeedDemoData"))
-        await DemoData.SeedAsync(database, includePilot: seedPilot);
+    if (args.Contains("--seed-demo") || seedPilot || seedAnalyst || builder.Configuration.GetValue<bool>("Database:SeedDemoData"))
+        await DemoData.SeedAsync(database, includePilot: seedPilot, includeAnalyst: seedAnalyst);
     return;
 }
 app.UseExceptionHandler();
@@ -119,13 +139,17 @@ app.UseStatusCodePages(async context =>
         .ExecuteAsync(context.HttpContext));
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.UseMiddleware<CsrfMiddleware>();
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
 app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains("ready") });
 app.MapAuthEndpoints();
+app.MapAccountSettingsEndpoints();
+app.MapPasswordRecoveryEndpoints();
 app.MapProfileEndpoints();
 app.MapCatalogEndpoints();
+app.MapCourseJourneyEndpoints();
 app.MapGameEndpoints();
 app.MapCosmeticsEndpoints();
 app.Run();

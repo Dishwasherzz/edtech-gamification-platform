@@ -23,7 +23,7 @@ public sealed class PilotContentTests(ApiFixture fixture)
     };
 
     [Fact]
-    public async Task PilotSeedKeepsOldAttemptsAndReadingMarksAndServesBothNewAssessments()
+    public async Task ContentUpdatesKeepOldAttemptsAndReadingMarksAndPublishBothNewAssessments()
     {
         using var client = await fixture.CreateStudentAsync();
         var completion = await client.PutAsJsonAsync($"/api/me/lessons/{DemoData.LessonId}/completion", new { });
@@ -56,12 +56,55 @@ public sealed class PilotContentTests(ApiFixture fixture)
         await ReadAsync(await client.PostAsJsonAsync($"/api/attempts/{old.Id}/abandon", new { }));
         var boss = await PassAsync(client, await StartAsync(client, bossId));
         Assert.Equal(150, boss.Reward!.Xp);
+        Assert.Equal(4, boss.Reward.NewRank);
         var crisis = await PassAsync(client, await StartAsync(client, crisisId));
         Assert.Equal(25, crisis.Reward!.Xp);
         Assert.Equal(4, crisis.Review!.Count);
+        Assert.Null(crisis.Reward.NewRank);
         var profile = await client.GetFromJsonAsync<ProfileResponse>("/api/me");
         Assert.Equal(195, profile!.TotalXp);
         Assert.Equal(57, profile.CoinsBalance);
+
+        var pilotAttempt = await StartAsync(client, bossId);
+        var versionCount = await database.AssessmentVersions.CountAsync();
+        await DemoData.SeedAsync(database, includeAnalyst: true);
+        await DemoData.SeedAsync(database, includeAnalyst: true);
+        Assert.Equal(versionCount + 6, await database.AssessmentVersions.CountAsync());
+        for (var order = 1; order <= 3; order++)
+        {
+            var topicBossId = DemoGameContent.BossId(order);
+            var topicCrisisId = DemoGameContent.CrisisId(order);
+            var bossVersion = await database.AssessmentVersions.Where(version => version.AssessmentId == topicBossId)
+                .OrderByDescending(version => version.VersionNumber)
+                .Select(version => new { version.QuestionTimeLimitSeconds, Questions = version.Questions.Count }).FirstAsync();
+            Assert.Equal(50, bossVersion.QuestionTimeLimitSeconds);
+            Assert.Equal(12, bossVersion.Questions);
+            var latestCrisis = await database.AssessmentVersions.Where(version => version.AssessmentId == topicCrisisId)
+                .OrderByDescending(version => version.VersionNumber)
+                .Select(version => new { Questions = version.Questions.Count, Scenarios = version.Scenarios.Count }).FirstAsync();
+            Assert.Equal(12, latestCrisis.Questions);
+            Assert.Equal(3, latestCrisis.Scenarios);
+        }
+
+        var resumed = await ReadAsync(await client.GetAsync($"/api/attempts/{pilotAttempt.Id}"));
+        Assert.Equal(pilotAttempt.CurrentQuestion!.Id, resumed.CurrentQuestion!.Id);
+        Assert.Equal(pilotAttempt.CurrentQuestion.Prompt, resumed.CurrentQuestion.Prompt);
+        await ReadAsync(await client.PostAsJsonAsync($"/api/attempts/{pilotAttempt.Id}/abandon", new { }));
+
+        var updatedLesson = await client.GetFromJsonAsync<LessonResponse>($"/api/lessons/{DemoData.LessonId}");
+        Assert.Equal("Закон Ома и основы цепей", updatedLesson!.Title);
+        Assert.Equal(lesson.CompletedAt, updatedLesson.CompletedAt);
+        Assert.Equal(lesson.AwardedXp, updatedLesson.AwardedXp);
+
+        var current = await StartAsync(client, bossId);
+        Assert.Equal("ДРОССЕЛЬ ОМ-3000", current.BossName);
+        Assert.Equal(TimeSpan.FromSeconds(50), current.ExpiresAt - current.StartedAt);
+        Assert.NotNull(current.CurrentQuestion!.CalculationHint);
+        var victory = await PassAsync(client, current);
+        Assert.Equal(25, victory.Reward!.Xp);
+        var crisisVictory = await PassAsync(client, await StartAsync(client, crisisId));
+        Assert.Equal(25, crisisVictory.Reward!.Xp);
+        Assert.Equal(4, crisisVictory.Review!.Count);
     }
 
     private static async Task<AttemptResponse> StartAsync(HttpClient client, Guid assessmentId) =>

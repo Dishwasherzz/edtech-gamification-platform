@@ -39,7 +39,7 @@ public sealed class ApiTests(ApiFixture fixture)
     [Fact]
     public async Task RegistrationLoginAndLogoutKeepPasswordAndBalancePrivate()
     {
-        using var client = await fixture.CreateStudentAsync();
+        using var client = await fixture.CreateStudentAsync("Студент");
         var profile = await client.GetFromJsonAsync<ProfileResponse>("/api/me");
         Assert.Equal("Студент", profile!.DisplayName);
         Assert.Equal(0, profile.TotalXp);
@@ -73,7 +73,7 @@ public sealed class ApiTests(ApiFixture fixture)
         await ApiFixture.RefreshCsrfAsync(client);
         var email = $"duplicate-{Guid.NewGuid():N}@example.test";
         Assert.Equal(HttpStatusCode.Created, (await client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(email, "Development123!", "Test"))).StatusCode);
-        var duplicate = await client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(email.ToUpperInvariant(), "Development123!", "Test"));
+        var duplicate = await client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(email.ToUpperInvariant(), "Development123!", "Other-Test"));
         Assert.Equal(HttpStatusCode.BadRequest, duplicate.StatusCode);
         await using var database = fixture.CreateDatabase();
         Assert.Equal(1, await database.Users.CountAsync(user => user.NormalizedEmail == email.ToUpperInvariant()));

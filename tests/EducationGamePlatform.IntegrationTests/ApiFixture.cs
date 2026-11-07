@@ -68,12 +68,13 @@ public sealed class ApiFixture : IAsyncLifetime
         client.DefaultRequestHeaders.Add("X-CSRF-TOKEN", response!.Token);
     }
 
-    public async Task<HttpClient> CreateStudentAsync()
+    public async Task<HttpClient> CreateStudentAsync(string? nickname = null)
     {
         var client = CreateClient();
         await RefreshCsrfAsync(client);
         var email = $"student-{Guid.NewGuid():N}@example.test";
-        var register = await client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(email, "Development123!", "Студент"));
+        nickname ??= "Студент-" + Guid.NewGuid().ToString("N")[..8];
+        var register = await client.PostAsJsonAsync("/api/auth/register", new RegisterRequest(email, "Development123!", nickname));
         Assert.Equal(HttpStatusCode.Created, register.StatusCode);
         var login = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(email, "Development123!"));
         Assert.Equal(HttpStatusCode.NoContent, login.StatusCode);
