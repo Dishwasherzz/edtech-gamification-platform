@@ -7,39 +7,77 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="navbar">
-    <a class="logo-group" href="#/">
-      <span class="logo-icon"></span>
-      <span class="logo-text">
-        <span class="logo-title">логотип</span>
-        <span class="logo-subtitle">электротехника</span>
-      </span>
+  <header class="topbar">
+    <a class="brand" href="#/">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+      Электротехника
     </a>
 
-    <nav class="nav-links">
-      <a href="#/">Главная</a>
-      <a href="#/topics">Темы</a>
-      <a href="#/instructions">Инструкция</a>
-      <a href="#/profile">Профиль</a>
-      <a href="#/settings">Настройки</a>
+    <nav class="navigation" aria-label="Основная навигация">
+      <a class="nav-item" href="#/">Главная</a>
+      <a class="nav-item" href="#/demo" data-guest-nav>Пример уровня</a>
+      <a class="nav-item" href="#/topics" data-auth-nav>Темы курса</a>
+      <a class="nav-item" href="#/instructions">Инструкция</a>
     </nav>
 
-    <div class="header-actions">
-      <span id="header-progress" class="muted" hidden></span>
-      <a href="#/auth" class="btn" id="auth-btn">Войти</a>
-      <button id="logout-btn" class="btn btn-outline" hidden>Выйти</button>
+    <span class="top-context" data-context>Учебный курс</span>
+
+    <div class="account">
+      <a class="account-name" href="#/profile" data-auth-nav>
+        <span class="avatar-dot" id="header-avatar" aria-hidden="true"></span>
+        <span>Профиль</span>
+      </a>
+      <a class="action-link" href="#/auth" data-guest-nav>Войти</a>
+      <a class="btn btn-outline btn-small" href="#/auth/register" data-guest-nav>Регистрация</a>
+
+      <div class="menu-wrap">
+        <button id="menu-btn" class="menu-btn" aria-haspopup="true" aria-expanded="false">Меню</button>
+        <div id="menu-panel" class="profile-menu" hidden>
+          <p class="menu-account" data-account>Гость</p>
+          <a href="#/shop" data-auth>Магазин и гардероб</a>
+          <a href="#/character" data-auth>Сменить персонажа</a>
+          <a href="#/settings" data-auth>Настройки профиля</a>
+          <a href="#/completion" data-auth>Итог курса</a>
+          <span class="menu-separator"></span>
+          <a href="#/demo" data-guest>Пример уровня</a>
+          <a href="#/instructions" data-guest>Инструкция</a>
+          <a href="#/consent">Обработка данных</a>
+          <a href="#/auth" data-guest>Войти</a>
+          <a href="#/auth/register" data-guest>Регистрация</a>
+          <button type="button" data-logout data-auth>Выйти</button>
+        </div>
+      </div>
     </div>
+
+    <div class="mobile-menu-label">Меню</div>
   </header>
 
-  <!-- Сюда подставляются экраны -->
-  <main id="app"></main>
+  <div class="app-body">
+    <aside class="sidebar" aria-label="Учебная навигация">
+      <div class="side-section">
+        <a class="side-item" href="#/" data-side="home"><span class="side-label">Главная</span></a>
+        <a class="side-item" href="#/topics" data-side="topics" data-auth-nav><span class="side-label">Темы курса</span></a>
+        <a class="side-item" href="#/instructions" data-side="instructions"><span class="side-label">Инструкция</span></a>
+        <a class="side-item" href="#/profile" data-side="profile" data-auth-nav><span class="side-label">Профиль</span></a>
+      </div>
+
+      <div class="side-pet">
+        <a class="side-item" href="#/settings?tab=mascot" data-auth-nav><span class="side-label">Спутник</span></a>
+        <p class="small">Подсказка по экрану</p>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div id="app"></div>
+      <footer class="site-footer">
+        <span>Электротехника · учебный курс</span>
+        <a class="action-link" href="#/consent">Обработка данных</a>
+      </footer>
+    </main>
+  </div>
+
   <p id="global-error" class="error" role="alert"></p>
   <noscript>Для работы учебного модуля включи JavaScript.</noscript>
-
-  <footer class="site-footer">
-    <span>Электротехника</span>
-    <span>Учебная платформа</span>
-  </footer>
 
   <script type="module" src="js/main.js"></script>
 </body>

@@ -2,24 +2,57 @@ import { renderDashboard } from "./views/dashboard.js";
 import { renderProfile } from "./views/profile.js";
 import { renderAuth } from "./views/auth.js";
 import { renderRegister } from "./views/register.js";
-import { renderSettings } from "./views/settings.js";
-import { renderTopic, renderLesson } from "./views/theory.js";
+import { renderSettings, renderAccountDeleted } from "./views/settings.js";
+import { renderTopic, renderLesson, renderAssessmentBrief } from "./views/theory.js";
 import { renderAttempt } from "./views/attempt.js";
 import { renderInstructions } from "./views/instructions.js";
 import { renderTopics } from "./views/topics.js";
-import { state } from "./state.js";
+import { renderConsent, renderConsentDeclined } from "./views/consent.js";
+import { renderForgot, renderRecoverySent, renderReset, renderResetDone, renderResetInvalid } from "./views/recovery.js";
+import { renderCharacter } from "./views/character.js";
+import { renderShop } from "./views/shop.js";
+import { renderCompletion } from "./views/completion.js";
+import { renderDemo } from "./views/demo.js";
+import { renderSessionExpired, renderSignInRequired } from "./views/session.js";
+import { state, setContext } from "./state.js";
 
 let version = 0;
 let dispose = () => {};
 
+// Эти разделы доступны без входа: демо, инструкция, согласие и формы аккаунта.
+const PUBLIC_ROOTS = new Set(["", "auth", "instructions", "demo", "consent"]);
+
+// Название раздела для шапки и сайдбара.
+const SECTIONS = {
+  "": "Главная",
+  "demo": "Пример уровня",
+  "topics": "Темы курса",
+  "instructions": "Инструкция",
+  "profile": "Профиль",
+  "settings": "Профиль",
+  "character": "Профиль",
+  "shop": "Профиль",
+  "completion": "Профиль",
+  "topic": "Тема",
+  "lesson": "Лекция",
+  "attempt": "Испытание"
+};
+const PROFILE_SECTIONS = new Set(["profile", "settings", "character", "shop", "completion"]);
+
 // Активный пункт меню подчёркивается розовым, как в макете.
 function markActiveNav(hash) {
   const current = hash.replace(/^#\/?/, "").split("?")[0];
-  document.querySelectorAll(".nav-links a").forEach(link => {
+  document.querySelectorAll(".navigation a").forEach(link => {
     const target = link.getAttribute("href").replace(/^#\/?/, "").split("?")[0];
     if (target === current) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });
+  document.querySelectorAll(".side-item[data-side]").forEach(item => {
+    const side = item.dataset.side;
+    const active = side === current || (side === "profile" && PROFILE_SECTIONS.has(current));
+    item.classList.toggle("selected", active);
+  });
+  setContext(SECTIONS[current] ?? "");
 }
 
 export async function handleRoute() {
@@ -27,22 +60,49 @@ export async function handleRoute() {
   const currentVersion = ++version;
   const url = new URL((window.location.hash || "#/").slice(1), window.location.origin);
   const parts = url.pathname.split("/").filter(Boolean);
-  if (!state.isAuth && parts.length && parts[0] !== "auth") { window.location.hash = "#/auth"; return; }
-  if (parts[0] === "auth" && state.isAuth) { window.location.hash = "#/"; return; }
+  const root = parts[0] ?? "";
+
+  if (root === "auth" && state.isAuth && !["reset", "reset/done", "reset/invalid", "recovery/sent"].includes(parts.slice(1).join("/"))) {
+    window.location.hash = "#/";
+    return;
+  }
+
   const app = document.getElementById("app");
   app.setAttribute("aria-busy", "true"); app.textContent = "Загрузка…";
   try {
     let view;
-    if (!parts.length) view = await renderDashboard();
-    else if (parts[0] === "auth" && parts[1] === "register") view = renderRegister();
-    else if (parts[0] === "auth") view = renderAuth();
-    else if (parts[0] === "settings") view = renderSettings();
-    else if (parts[0] === "profile") view = await renderProfile(Math.max(1, Number(url.searchParams.get("page")) || 1));
-    else if (parts[0] === "topic" && parts[1]) view = await renderTopic(parts[1]);
-    else if (parts[0] === "lesson" && parts[1]) view = await renderLesson(parts[1]);
-    else if (parts[0] === "attempt" && parts[1]) view = await renderAttempt(parts[1]);
-    else if (parts[0] === "instructions") view = await renderInstructions();
-    else if (parts[0] === "topics") view = await renderTopics();
+    if (!state.isAuth && !PUBLIC_ROOTS.has(root)) {
+      // Гость открыл личный раздел: показываем вход, а не содержимое.
+      view = renderSignInRequired();
+    }
+    else if (!parts.length) view = await renderDashboard();
+    else if (root === "auth" && parts[1] === "register") view = await renderRegister();
+    else if (root === "auth" && parts[1] === "forgot") view = renderForgot();
+    else if (root === "auth" && parts[1] === "recovery" && parts[2] === "sent") view = renderRecoverySent();
+    else if (root === "auth" && parts[1] === "reset" && parts[2] === "done") view = renderResetDone();
+    else if (root === "auth" && parts[1] === "reset" && parts[2] === "invalid") view = renderResetInvalid();
+    else if (root === "auth" && parts[1] === "reset") {
+      view = renderReset(url.searchParams.get("userId"), url.searchParams.get("token"));
+    }
+    else if (root === "auth") view = renderAuth();
+    else if (root === "settings") view = await renderSettings(url.searchParams.get("tab") ?? "account");
+    else if (root === "profile") view = await renderProfile(Math.max(1, Number(url.searchParams.get("page")) || 1));
+    else if (root === "topic" && parts[1] && parts[2] === "assessment" && parts[3]) {
+      view = await renderAssessmentBrief(parts[1], parts[3]);
+    }
+    else if (root === "topic" && parts[1]) view = await renderTopic(parts[1]);
+    else if (root === "lesson" && parts[1]) view = await renderLesson(parts[1]);
+    else if (root === "attempt" && parts[1]) view = await renderAttempt(parts[1]);
+    else if (root === "instructions") view = await renderInstructions();
+    else if (root === "topics") view = await renderTopics();
+    else if (root === "consent" && parts[1] === "declined") view = renderConsentDeclined();
+    else if (root === "consent") view = await renderConsent();
+    else if (root === "character") view = await renderCharacter({ first: url.searchParams.get("first") === "1" });
+    else if (root === "shop") view = await renderShop(url.searchParams.get("tab") ?? "shop");
+    else if (root === "completion") view = await renderCompletion(parts[1] ?? null);
+    else if (root === "account" && parts[1] === "deleted") view = renderAccountDeleted();
+    else if (root === "demo") view = renderDemo();
+    else if (root === "session") view = renderSessionExpired();
     else throw new Error("Страница не найдена.");
     if (currentVersion !== version) { view.dispose?.(); return; }
     app.replaceChildren(view); dispose = () => view.dispose?.();

@@ -1,42 +1,84 @@
 import { api } from "../api.js";
+import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName } from "../ui.js";
+import { mascotPanel, mountMascot, hints } from "../mascot.js";
 
-function topicRow(topic) {
+function topicRow(topic, index) {
   // Закрытая тема остаётся div: клик по ней ничего не делает.
-  const tag = topic.status === "Locked" ? "div" : "a";
-  const href = topic.status === "Locked" ? "" : ` href="#/topic/${e(topic.id)}"`;
-  const disabled = topic.status === "Locked" ? ' aria-disabled="true"' : "";
+  const locked = topic.status === "Locked";
+  const tag = locked ? "div" : "a";
+  const href = locked ? "" : ` href="#/topic/${e(topic.id)}"`;
+  const action = topic.status === "Completed" ? "Повторить тему"
+    : topic.status === "Available" ? "Открыть тему"
+      : "Недоступно";
+  const hint = locked
+    ? `Сначала завершите тему ${index}`
+    : topic.subtitle ?? `${topic.completedLessons}/${topic.lessonCount} лекций прочитано`;
+  const aside = locked
+    ? `<span class="status">${e(statusName(topic.status))}</span><span class="status">Недоступно</span>`
+    : `<span class="status strong">${e(statusName(topic.status))}</span>
+       <a class="link action-link" href="#/topic/${e(topic.id)}">${e(action)}</a>`;
 
-  return `<${tag}${href}${disabled} class="topic-row ${topic.status === "Locked" ? "locked" : ""}">
-    <span class="topic-number">${topic.sortOrder}</span>
-    <div>
-      <h3>${e(topic.title)}</h3>
-      <span class="muted">${topic.completedLessons}/${topic.lessonCount} лекций прочитано</span>
-    </div>
-    <span class="badge">${e(statusName(topic.status))}</span>
-  </${tag}>`;
+  return `
+    <${tag}${href} class="topic-row${locked ? " locked" : ""}"${locked ? ' aria-disabled="true"' : ""}>
+      <span class="num subtle">${topic.sortOrder ?? index + 1}</span>
+      <div>
+        <h3 class="topic-title">${e(topic.title)}</h3>
+        <p class="small">${e(hint ?? "")}</p>
+      </div>
+      <div class="topic-aside">${aside}</div>
+    </${tag}>`;
 }
 
 // Полный каталог тем. Главная показывает только ближайшие, здесь — все сразу.
 export async function renderTopics() {
-  const courses = await api.courses();
+  const [user, courses] = await Promise.all([refreshProfile(), api.courses()]);
   const lists = await Promise.all(courses.map(course => api.topics(course.id)));
 
-  return element(`
-    <h1 class="page-title">Темы</h1>
+  const totals = courses.reduce((acc, course) => ({
+    topics: acc.topics + course.totalTopics,
+    done: acc.done + course.completedTopics
+  }), { topics: 0, done: 0 });
+  const percent = totals.topics ? Math.floor(totals.done * 100 / totals.topics) : 0;
 
-    ${courses.length ? courses.map((course, index) => `
-      <article class="card">
-        <div class="page-heading">
-          <h2>${e(course.title)}</h2>
-          <span class="muted">${course.progressPercent}%</span>
-        </div>
-        <p class="muted">${e(course.description)}</p>
-        ${progressBar(course.progressPercent, `Прогресс курса ${course.title}`)}
-        <p class="muted">Тем пройдено: ${course.completedTopics} из ${course.totalTopics}</p>
-        <div class="topic-list">${lists[index].map(topicRow).join("")}</div>
-      </article>`).join("")
+  const mascot = mascotPanel({
+    label: "Готов к занятию",
+    message: "Откройте доступную тему и прочитайте лекцию. Испытание появится после отметки «Прочитано».",
+    hint: hints.dashboard,
+    assetKey: [user.mascot?.assetKey, user.hero?.assetKey, user.characterSkin?.assetKey]
+  });
 
-      : `<div class="card"><p class="muted">Пока нет опубликованных курсов.</p></div>`}
+  const root = element(`
+    <header class="page-head">
+      <div>
+        <h1>Темы курса</h1>
+        <p>${totals.done ? `Пройдена ${totals.done} тема из ${totals.topics}` : `Всего ${totals.topics} тем`} · ${percent}%</p>
+      </div>
+    </header>
+
+    <div class="grid-main">
+      <div class="stack">
+        ${courses.length ? courses.map((course, index) => `
+          <section class="card">
+            <div class="between">
+              <h2>${e(course.title)}</h2>
+              <span class="num subtle">${course.progressPercent}%</span>
+            </div>
+            <p class="muted">${e(course.description)}</p>
+            ${progressBar(course.progressPercent, `Прогресс курса ${course.title}`)}
+            <p class="small" style="margin-top:12px">Тем пройдено: ${course.completedTopics} из ${course.totalTopics}</p>
+            <div class="gap"></div>
+            <div class="tight">${lists[index].map(topicRow).join("")}</div>
+          </section>`).join("")
+
+          : `<section class="card"><p class="muted">Пока нет опубликованных курсов.</p></section>`}
+      </div>
+
+      <div class="stack"><div class="mascot-column"></div></div>
+    </div>
   `);
+
+  mountMascot(root.querySelector(".mascot-column"), mascot);
+  root.dispose = () => mascot.dispose?.();
+  return root;
 }

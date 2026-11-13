@@ -1,6 +1,7 @@
-export function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
-}
+import { escapeHtml as escape } from "./markdown.js";
+
+export { escapeHtml, markdown } from "./markdown.js";
+
 export function element(html) { const root = document.createElement("section"); root.innerHTML = html; return root; }
 export function showError(root, error) {
   const target = root.querySelector("[data-error]");
@@ -8,18 +9,65 @@ export function showError(root, error) {
 }
 export function progressBar(percent, label) {
   const value = Math.max(0, Math.min(100, Number(percent) || 0));
-  return `<div class="progress" role="progressbar" aria-label="${escapeHtml(label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}"><div style="width:${value}%"></div></div>`;
+  return `<div class="progress" role="progressbar" aria-label="${escape(label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}"><div style="width:${value}%"></div></div>`;
 }
-// Escape first: a small Markdown subset, never raw HTML or executable links.
-export function markdown(text) {
-  return String(text).split(/\r?\n\s*\r?\n/).map(block => {
-    const match = block.match(/^(#{1,3})\s+([\s\S]*)$/);
-    const tag = match ? `h${match[1].length + 1}` : "p";
-    const safe = escapeHtml(match ? match[2] : block).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\r?\n/g, "<br>");
-    return `<${tag}>${safe}</${tag}>`;
-  }).join("");
+
+// Русские склонения: plural(3, "тема", "темы", "тем").
+export function plural(count, one, few, many) {
+  const abs = Math.abs(Number(count) || 0);
+  const mod100 = abs % 100;
+  const mod10 = abs % 10;
+  if (mod100 >= 11 && mod100 <= 14) return many;
+  if (mod10 === 1) return one;
+  if (mod10 >= 2 && mod10 <= 4) return few;
+  return many;
 }
+export const topicsWord = count => plural(count, "тема", "темы", "тем");
+export const lessonsWord = count => plural(count, "лекция", "лекции", "лекций");
+export const coinsWord = count => plural(count, "монета", "монеты", "монет");
+
+// Модальное окно подтверждения. Возвращает значение нажатой кнопки.
+export function askDialog({ title, body, actions = [{ label: "ОК", value: "ok", kind: "btn-cta" }] }) {
+  return new Promise(resolve => {
+    const dialog = document.createElement("dialog");
+    dialog.className = "modal";
+    const form = document.createElement("form");
+    form.method = "dialog";
+    form.className = "modal-box";
+    form.innerHTML = `<h2>${escape(title)}</h2><div class="modal-body">${body}</div>`;
+    const row = document.createElement("div");
+    row.className = "actions";
+    for (const action of actions) {
+      const button = document.createElement("button");
+      button.className = `btn ${action.kind ?? ""}`.trim();
+      button.value = action.value;
+      button.textContent = action.label;
+      row.append(button);
+    }
+    form.append(row);
+    dialog.append(form);
+    document.body.append(dialog);
+    dialog.addEventListener("close", () => { dialog.remove(); resolve(dialog.returnValue); });
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else { dialog.setAttribute("open", ""); resolve("cancel"); }
+  });
+}
+
 export const statusName = status => ({ Completed: "Пройдена", Available: "Доступна", Locked: "Закрыта", Active: "В процессе", Passed: "Победа", Failed: "Поражение", Abandoned: "Попытка прекращена" })[status] || status;
 export const modeName = mode => mode === "Boss" ? "Тест · Бой с боссом" : "Авария · QTE";
+export const shortModeName = mode => mode === "Boss" ? "Босс-тест" : "Авария (QTE)";
 export const date = value => value ? new Date(value).toLocaleString("ru-RU") : "—";
+export const dateShort = value => value ? new Date(value).toLocaleDateString("ru-RU") : "—";
+
+// Заголовок и подпись события маскота — из текста реакции сервера.
+export const mascotEventName = event => ({
+  Idle: "Готов к занятию",
+  Intro: "Знакомится с заданием",
+  CorrectAnswer: "Верный ответ",
+  WrongAnswer: "Неверный ответ",
+  TimeWarning: "Внимание, время",
+  Timeout: "Время вышло",
+  Victory: "Тема пройдена",
+  Defeat: "Попытка завершена",
+  Abandoned: "Попытка завершена"
+})[event] || "Спутник";

@@ -1,20 +1,22 @@
 import { element, escapeHtml as e, showError } from "../ui.js";
 
-// Общая разметка для входа и регистрации: заголовок страницы с розовой чертой,
-// цветные засечки по углам рамки, схема слева и форма справа.
-export function authLayout({ pageTitle, panelTitle, formHtml, altHtml = "" }) {
+// Общая разметка для входа и регистрации: слева — рассказ и персонаж, справа — карточка формы.
+export function authLayout({ pageTitle, panelTitle, formHtml, altHtml = "", steps = [], tabs = "", story = "" }) {
   return element(`
-    <h1 class="page-title">${pageTitle}</h1>
-
     <div class="auth-layout">
-      <div class="schematic">
-        <p class="schematic-label">Доступ к учебному модулю</p>
-        <div class="schematic-canvas"><span class="schematic-node"></span></div>
-      </div>
+      <section class="auth-story">
+        ${steps.length ? `<div class="step-line">${steps.map((step, index) => `
+          <span class="${index === 0 ? "selected" : ""}">${e(step)}</span>${index < steps.length - 1 ? '<span aria-hidden="true">→</span>' : ""}`).join("")}</div>
+          <div class="gap"></div>` : ""}
+        <h1>${e(pageTitle)}</h1>
+        <p class="muted">${e(story)}</p>
+        <span class="sprite auth-sprite" role="img" aria-label="Персонаж курса"
+              style="background-image:url('assets/heroes/phase.png')"></span>
+      </section>
 
-      <section class="auth-panel">
-        <h2>${panelTitle}</h2>
-        <div class="panel-skeleton" aria-hidden="true"><i></i><i></i></div>
+      <section class="auth-card">
+        ${tabs ? `<div class="auth-tabs">${tabs}</div>` : ""}
+        <h2>${e(panelTitle)}</h2>
         ${formHtml}
         ${altHtml}
       </section>
@@ -22,14 +24,48 @@ export function authLayout({ pageTitle, panelTitle, formHtml, altHtml = "" }) {
   `);
 }
 
-export function field({ label, name, type = "text", placeholder, autocomplete = "off", max = 128, hint = "" }) {
+export function field({ label, name, type = "text", placeholder, autocomplete = "off", max = 128, hint = "", required = true }) {
+  const described = hint ? ` ${e(name)}-hint` : "";
   return `
     <label class="field">
       <span>${e(label)}</span>
       <input name="${e(name)}" type="${e(type)}" placeholder="${e(placeholder)}" autocomplete="${e(autocomplete)}"
-             maxlength="${max}" aria-describedby="${e(name)}-hint" required>
-      <p class="field-hint" id="${e(name)}-hint" data-hint="${e(name)}">${e(hint)}</p>
+             maxlength="${max}"${required ? " required" : ""}${described ? ` aria-describedby="${e(name)}-hint"` : ""}>
+      ${hint ? `<p class="field-hint" id="${e(name)}-hint" data-hint="${e(name)}">${e(hint)}</p>` : ""}
     </label>
+  `;
+}
+
+// Поле с кнопкой «Показать» для пароля.
+export function passwordField({ label, name, placeholder, autocomplete = "current-password", hint = "" }) {
+  return `
+    <label class="field field-password">
+      <span>${e(label)}</span>
+      <span class="field-row">
+        <input name="${e(name)}" type="password" placeholder="${e(placeholder)}" autocomplete="${e(autocomplete)}"
+               maxlength="128" required${hint ? ` aria-describedby="${e(name)}-hint"` : ""}>
+        <button type="button" class="reveal" data-reveal aria-pressed="false">Показать</button>
+      </span>
+      ${hint ? `<p class="field-hint" id="${e(name)}-hint" data-hint="${e(name)}">${e(hint)}</p>` : ""}
+    </label>
+  `;
+}
+
+// Отметка о согласии: чекбокс, ссылка на документ и причина недоступности.
+export function consentField({ name = "consent", label = "Я даю согласие на обработку персональных данных",
+  linkText = "Прочитать согласие", linkHref = "#/consent", hint = "" }) {
+  return `
+    <div class="consent">
+      <label class="check-row">
+        <span class="checkbox" data-check><input type="checkbox" name="${e(name)}" value="yes"></span>
+        <span>${e(label)}</span>
+      </label>
+      <p class="consent-links">
+        <a class="link action-link" href="${e(linkHref)}">${e(linkText)}</a>
+        <button type="button" class="link action-link" data-why>Зачем нужно согласие</button>
+      </p>
+      <p class="field-hint" data-consent-hint>${e(hint)}</p>
+    </div>
   `;
 }
 
@@ -64,6 +100,26 @@ export function bindForm(root, onSubmit) {
   form.addEventListener("input", event => {
     event.target.removeAttribute("aria-invalid");
     clearError(root);
+  });
+
+  // «Показать» переключает видимость пароля.
+  root.querySelectorAll("[data-reveal]").forEach(button => {
+    button.onclick = () => {
+      const input = button.parentElement.querySelector("input");
+      const shown = input.type === "text";
+      input.type = shown ? "password" : "text";
+      button.textContent = shown ? "Показать" : "Скрыть";
+      button.setAttribute("aria-pressed", String(!shown));
+    };
+  });
+
+  // Чекбокс согласия: заливка при отметке.
+  root.querySelectorAll("[data-check]").forEach(box => {
+    const input = box.querySelector("input");
+    if (!input) return;
+    const sync = () => box.classList.toggle("is-checked", input.checked);
+    input.addEventListener("change", sync);
+    sync();
   });
 
   return root;
