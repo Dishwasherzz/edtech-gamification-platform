@@ -1,4 +1,4 @@
-import { renderDashboard } from "./views/dashboard.js";
+import { renderDashboard, renderGuestGate } from "./views/dashboard.js";
 import { renderProfile } from "./views/profile.js";
 import { renderAuth } from "./views/auth.js";
 import { renderRegister } from "./views/register.js";
@@ -13,7 +13,7 @@ import { renderCharacter } from "./views/character.js";
 import { renderShop } from "./views/shop.js";
 import { renderCompletion } from "./views/completion.js";
 import { renderDemo } from "./views/demo.js";
-import { renderSessionExpired, renderSignInRequired } from "./views/session.js";
+import { renderSessionExpired } from "./views/session.js";
 import { state, setContext } from "./state.js";
 
 let version = 0;
@@ -49,12 +49,17 @@ function markActiveNav(hash) {
 
   document.querySelectorAll(".navigation a").forEach(link => {
     const target = link.getAttribute("href").replace(/^#\/?/, "").split("?")[0];
-    if (target === current) link.setAttribute("aria-current", "page");
+    const root = current.split("/")[0];
+    const guestGate = !state.isAuth && !PUBLIC_ROOTS.has(root);
+    // На страницах аккаунта и под завесой для гостя подсвечена главная — как в макете.
+    const active = target === current || (guestGate && target === "") ||
+      (["auth", "consent"].includes(root) && target === "");
+    if (active) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });
   document.querySelectorAll(".side-item[data-side]").forEach(item => {
     const side = item.dataset.side;
-    const active = side === current || (side === "profile" && PROFILE_SECTIONS.has(current));
+    const active = side === (current || "home") || (side === "profile" && PROFILE_SECTIONS.has(current));
     item.classList.toggle("selected", active);
   });
   setContext(onboarding ? "Первый запуск" : (SECTIONS[current] ?? ""), onboarding);
@@ -78,8 +83,8 @@ export async function handleRoute() {
     let view;
     if (root === "account" && parts[1] === "deleted") view = renderAccountDeleted();
     else if (!state.isAuth && !PUBLIC_ROOTS.has(root)) {
-      // Гость открыл личный раздел: показываем вход, а не содержимое.
-      view = renderSignInRequired();
+      // Гость открыл личный раздел: главная под затемнением и предложением войти.
+      view = await renderGuestGate();
     }
     else if (!parts.length) view = await renderDashboard();
     else if (root === "auth" && parts[1] === "register") view = await renderRegister();
@@ -116,7 +121,7 @@ export async function handleRoute() {
     if (currentVersion !== version) return;
     const box = document.createElement("div"); box.className = "card";
     const message = document.createElement("p"); message.className = "error"; message.setAttribute("role", "alert"); message.textContent = error.message;
-    const retry = document.createElement("button"); retry.className = "btn secondary"; retry.textContent = "Повторить"; retry.onclick = handleRoute;
+    const retry = document.createElement("button"); retry.className = "btn btn-outline"; retry.textContent = "Повторить"; retry.onclick = handleRoute;
     box.append(message, retry); app.replaceChildren(box);
   } finally { if (currentVersion === version) app.removeAttribute("aria-busy"); }
 }

@@ -3,9 +3,29 @@ import { escapeHtml as escape } from "./markdown.js";
 export { escapeHtml, markdown } from "./markdown.js";
 
 export function element(html) { const root = document.createElement("section"); root.innerHTML = html; return root; }
+
+// Блок ошибки в стиле макета: розовая полоса слева, заголовок и текст.
+export function errorNotice(title = "Не удалось выполнить действие") {
+  return `<div class="notice error" data-error-box hidden>
+    <h3>${escape(title)}</h3>
+    <p data-error role="alert" hidden></p>
+  </div>`;
+}
 export function showError(root, error) {
   const target = root.querySelector("[data-error]");
-  if (target) { target.textContent = error.message || String(error); target.hidden = false; }
+  if (!target) return;
+  target.textContent = error.message || String(error);
+  target.hidden = false;
+  const box = target.closest("[data-error-box]");
+  if (box) box.hidden = false;
+}
+export function clearError(root) {
+  const target = root.querySelector("[data-error]");
+  if (!target) return;
+  target.textContent = "";
+  target.hidden = true;
+  const box = target.closest("[data-error-box]");
+  if (box) box.hidden = true;
 }
 export function progressBar(percent, label) {
   const value = Math.max(0, Math.min(100, Number(percent) || 0));

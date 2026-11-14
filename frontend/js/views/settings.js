@@ -1,7 +1,7 @@
 import { api } from "../api.js";
 import { state, clearSession, refreshProfile, setMascotVisible } from "../state.js";
 import { element, escapeHtml as e, askDialog } from "../ui.js";
-import { assetUrl } from "../assets.js";
+import { assetUrl, mascotAsset } from "../assets.js";
 
 // Правила Identity на сервере: длина от 8 символов, строчная и заглавная буквы, цифра.
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\S]{8,128}$/;
@@ -12,8 +12,8 @@ const TABS = [
   { key: "data", label: "Персональные данные" }
 ];
 
-function mascotCard(mascot, current) {
-  const image = assetUrl(mascot.assetKey);
+function mascotCard(mascot, current, user) {
+  const image = assetUrl(mascotAsset(user, mascot));
   return `
     <label class="character-card${mascot.id === current ? " selected" : ""}" data-mascot="${e(mascot.id)}">
       <input type="radio" name="mascot" value="${e(mascot.id)}" ${mascot.id === current ? "checked" : ""}>
@@ -21,8 +21,8 @@ function mascotCard(mascot, current) {
         <span class="sprite-img"${image ? ` style="background-image:url('${image}')"` : ""}></span>
       </span>
       <span class="character-name">
-        <span class="checkbox${mascot.id === current ? " is-checked" : ""}" data-mark></span>
         <h2>${e(mascot.name)}</h2>
+        <span class="checkbox${mascot.id === current ? " is-checked" : ""}" data-mark></span>
       </span>
       <span class="small" data-state>${mascot.id === current ? "✓ Выбран" : "Выбрать"}</span>
     </label>`;
@@ -35,29 +35,31 @@ export async function renderSettings(tab = "account") {
 
   const root = element(`
     <header class="page-head">
-      <div><h1>Настройки профиля</h1><p>Аккаунт, пароль, спутник и персональные данные.</p></div>
-      <div class="top-actions"><a class="btn btn-outline" href="#/profile">К профилю</a></div>
+      <div><h1>Настройки профиля</h1><p>${e(TABS.find(item => item.key === active).label)}</p></div>
+      <div class="top-actions"><a class="link action-link" href="#/profile">К профилю</a></div>
     </header>
 
     <div class="settings-layout">
       <nav class="settings-side" aria-label="Разделы настроек">
-        ${TABS.map(item => `<button type="button" class="settings-item${item.key === active ? " selected" : ""}" data-tab="${item.key}">${e(item.label)}</button>`).join("")}
+        ${TABS.map(item => `<button type="button" class="settings-item${item.key === active ? " selected" : ""}" data-tab="${item.key}"><span>${e(item.label)}</span></button>`).join("")}
       </nav>
 
       <div class="settings-content">
         <section class="card" data-panel="account" ${active === "account" ? "" : "hidden"}>
-          <h2>Аккаунт</h2>
+          <h2>Никнейм и почта</h2>
           <p data-error class="error" role="alert" hidden></p>
-          <label class="field">
-            <span>Никнейм</span>
-            <input name="displayName" type="text" maxlength="20" value="${e(user.displayName)}" autocomplete="nickname" required>
-            <p class="field-hint">От 3 до 20 букв, цифр, дефисов или подчёркиваний.</p>
-          </label>
-          <label class="field">
-            <span>Электронная почта</span>
-            <input name="email" type="email" value="${e(user.email ?? "")}" readonly>
-            <p class="field-hint">Почта используется для входа и восстановления доступа.</p>
-          </label>
+          <div class="tight">
+            <label class="field">
+              <span>Никнейм</span>
+              <input name="displayName" type="text" maxlength="20" value="${e(user.displayName)}" autocomplete="nickname" required>
+              <span class="field-note">От 3 до 20 букв, цифр, дефисов или подчёркиваний.</span>
+            </label>
+            <label class="field">
+              <span>Электронная почта</span>
+              <input name="email" type="email" value="${e(user.email ?? "")}" readonly>
+              <span class="field-note">Почта используется для входа и восстановления</span>
+            </label>
+          </div>
           <div class="actions"><button type="button" class="btn" data-save-nickname>Сохранить изменения</button></div>
           <p class="success" data-status role="status"></p>
 
@@ -73,19 +75,23 @@ export async function renderSettings(tab = "account") {
         <section class="card" data-panel="password" ${active === "password" ? "" : "hidden"}>
           <h2>Смена пароля</h2>
           <p data-error class="error" role="alert" hidden></p>
-          <label class="field field-password">
-            <span>Текущий пароль</span>
-            <input name="currentPassword" type="password" maxlength="128" autocomplete="current-password" required>
-            <p class="field-hint" data-hint="currentPassword"></p>
-          </label>
-          <label class="field field-password">
-            <span>Новый пароль</span>
-            <span class="field-row">
-              <input name="newPassword" type="password" maxlength="128" autocomplete="new-password" required>
-              <button type="button" class="reveal" data-reveal aria-pressed="false">Показать</button>
-            </span>
-            <p class="field-hint">От 8 символов, строчная и заглавная буквы, цифра.</p>
-          </label>
+          <div class="tight">
+            <label class="field field-password">
+              <span>Текущий пароль</span>
+              <span class="field-row">
+                <input name="currentPassword" type="password" maxlength="128" autocomplete="current-password" required>
+              </span>
+              <span class="field-note" data-hint="currentPassword"></span>
+            </label>
+            <label class="field field-password">
+              <span>Новый пароль</span>
+              <span class="field-row">
+                <input name="newPassword" type="password" maxlength="128" autocomplete="new-password" required>
+                <button type="button" class="reveal" data-reveal aria-pressed="false">Показать</button>
+              </span>
+              <span class="field-note">От 8 символов, строчная и заглавная буквы, цифра.</span>
+            </label>
+          </div>
           <div class="actions"><button type="button" class="btn" data-save-password>Сохранить пароль</button></div>
           <p class="success" data-status role="status"></p>
         </section>
@@ -118,7 +124,7 @@ export async function renderSettings(tab = "account") {
 
           <h2>Маскот</h2>
           <p class="muted">Маскот даёт подсказки по экрану и реагирует на события испытания.</p>
-          ${mascots.length ? `<div class="character-choice">${mascots.map(item => mascotCard(item, user.mascot?.id)).join("")}</div>`
+          ${mascots.length ? `<div class="character-choice">${mascots.map(item => mascotCard(item, user.mascot?.id, user)).join("")}</div>`
             : `<p class="muted">Маскоты пока не настроены на сервере.</p>`}
           <div class="actions"><button type="button" class="btn" data-save-mascot ${mascots.length ? "" : "disabled"}>Сохранить маскота</button></div>
         </section>
@@ -151,7 +157,7 @@ export async function renderSettings(tab = "account") {
                 <input name="deletePassword" type="password" maxlength="128" autocomplete="current-password">
                 <button type="button" class="reveal" data-reveal aria-pressed="false">Показать</button>
               </span>
-              <p class="field-hint" data-hint="deletePassword"></p>
+              <span class="field-note" data-hint="deletePassword"></span>
             </label>
             <div class="actions">
               <button type="button" class="btn is-error" data-delete-confirm>Подтвердить удаление</button>

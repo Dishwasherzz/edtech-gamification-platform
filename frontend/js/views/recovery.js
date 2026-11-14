@@ -1,5 +1,5 @@
 import { api } from "../api.js";
-import { element } from "../ui.js";
+import { element, errorNotice } from "../ui.js";
 import { authLayout, field, passwordField, bindForm } from "./auth-layout.js";
 
 const AUTH_TABS = `<a href="#/auth">Вход</a><a href="#/auth/register">Регистрация</a>`;
@@ -13,7 +13,7 @@ export function renderForgot() {
     steps: ["Аккаунт", "Персонаж", "Обучение"],
     tabs: AUTH_TABS,
     formHtml: `
-      <p data-error class="error" role="alert" hidden></p>
+      ${errorNotice("Не удалось отправить ссылку")}
       <form novalidate>
         <fieldset>
           ${field({
@@ -70,7 +70,7 @@ export function renderReset(userId, token) {
     steps: ["Аккаунт", "Персонаж", "Обучение"],
     tabs: AUTH_TABS,
     formHtml: `
-      <p data-error class="error" role="alert" hidden></p>
+      ${errorNotice("Не удалось сохранить пароль")}
       <form novalidate>
         <fieldset>
           ${passwordField({

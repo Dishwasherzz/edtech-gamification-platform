@@ -1,7 +1,6 @@
 import { api } from "../api.js";
 import { state, refreshProfile } from "../state.js";
 import { element, escapeHtml as e } from "../ui.js";
-import { mascotPanel, mountMascot, hints } from "../mascot.js";
 
 function step(number, title, body) {
   return `
@@ -33,14 +32,7 @@ function rankTable(thresholds) {
 export async function renderInstructions() {
   const rules = await api.instructions();
   const guest = !state.isAuth;
-  const user = guest ? null : await refreshProfile();
-
-  const mascot = user ? mascotPanel({
-    label: "Готов к занятию",
-    message: "Откройте доступную тему и прочитайте лекцию. Испытание появится после отметки «Прочитано».",
-    hint: hints.dashboard,
-    assetKey: [user.mascot?.assetKey, user.hero?.assetKey, user.characterSkin?.assetKey]
-  }) : null;
+  if (!guest) await refreshProfile();
 
   const root = element(`
     <header class="page-head">
@@ -50,74 +42,66 @@ export async function renderInstructions() {
       </div>
     </header>
 
-    <div class="grid-main">
-      <div class="stack">
-        <section class="card">
-          <h2>Маршрут темы</h2>
-          <div class="step-line">
-            <span class="selected">Лекция</span>
-            <span aria-hidden="true">→</span>
-            <span>Испытание</span>
-            <span aria-hidden="true">→</span>
-            <span>Следующая тема</span>
-          </div>
-          <p class="muted" style="margin-top:16px">Отметьте лекцию как прочитанную и выберите одно испытание. Первая победа в любом типе открывает следующую тему.</p>
-        </section>
-
-        <div class="grid3">
-          ${step(1, "Изучить лекцию",
-            `Прочитай лекцию в доступной теме и нажми «Отметить прочитанной». За первую отметку начислится ${rules.lessonXp} XP. Повторная отметка не даёт дополнительный опыт.`)}
-          ${step(2, "Выбрать испытание",
-            "Для каждой темы доступны «Тест» и «Авария». Одновременно можно проходить одно испытание. Заверши или прекрати текущую попытку, чтобы начать другую; число повторений не ограничено.")}
-          ${step(3, "Получить результат",
-            "Любая победа завершает тему и открывает следующую. Поражения не уменьшают XP, монеты и достигнутый прогресс.")}
+    <div class="stack">
+      <section class="card">
+        <h2>Маршрут темы</h2>
+        <div class="step-line">
+          <span class="selected">Лекция</span>
+          <span aria-hidden="true">→</span>
+          <span>Испытание</span>
+          <span aria-hidden="true">→</span>
+          <span>Следующая тема</span>
         </div>
+        <p class="muted" style="margin-top:16px">Отметьте лекцию как прочитанную и выберите одно испытание. Первая победа в любом типе открывает следующую тему.</p>
+      </section>
 
-        <div class="grid2">
-          <section class="card">
-            <h2>Босс-тест</h2>
-            <ul class="rule-list">
-              <li>До 7 расчётных вопросов по 4 варианта. На вопрос 45–60 секунд.</li>
-              <li>Верный ответ снимает 20% HP. Пять верных — победа, три ошибки — поражение.</li>
-              <li>Истечение времени считается ошибкой.</li>
-            </ul>
-          </section>
-
-          <section class="card">
-            <h2>Авария · QTE</h2>
-            <ul class="rule-list">
-              <li>4 шага, по 3 варианта. Общий отсчёт 60 секунд, включая чтение.</li>
-              <li>Верный выбор даёт +10 секунд, неверный отнимает 10 секунд и блокирует выбранный вариант.</li>
-              <li>Третья ошибка или ноль секунд — поражение.</li>
-            </ul>
-          </section>
-        </div>
-
-        <section class="card">
-          <h2>Разряды и награды</h2>
-          <p>Первая победа даёт ${rules.firstWinXp} XP и ${rules.firstWinCoins} монет. Бонус за первую победу без ошибок: +${rules.perfectBonusXp} XP и +${rules.perfectBonusCoins} монет.</p>
-          <p>За первые ${rules.paidRepeatWinLimit} повторные победы по теме — ${rules.repeatWinXp} XP и ${rules.repeatWinCoins} монет за каждую, дальше — 0. Попытки не ограничены.</p>
-          <p class="small">Значения наград предварительные и требуют согласования с командой.</p>
-          <div class="actions">
-            ${guest
-              ? `<a class="btn btn-cta" href="#/demo">Открыть пример</a>
-                 <a class="btn btn-outline" href="#/auth">Войти</a>
-                 <a class="btn btn-outline" href="#/auth/register">Регистрация</a>`
-              : `<a class="btn" href="#/topics">К темам курса</a>`}
-          </div>
-        </section>
-
-        ${rankTable(rules.rankThresholds)}
+      <div class="grid3">
+        ${step(1, "Изучить лекцию",
+          `Прочитай лекцию в доступной теме и нажми «Отметить прочитанной». За первую отметку начислится ${rules.lessonXp} XP. Повторная отметка не даёт дополнительный опыт.`)}
+        ${step(2, "Выбрать испытание",
+          "Для каждой темы доступны «Тест» и «Авария». Одновременно можно проходить одно испытание. Заверши или прекрати текущую попытку, чтобы начать другую; число повторений не ограничено.")}
+        ${step(3, "Получить результат",
+          "Любая победа завершает тему и открывает следующую. Поражения не уменьшают XP, монеты и достигнутый прогресс.")}
       </div>
 
-      <div class="stack"><div class="mascot-column"></div></div>
+      <div class="grid2">
+        <section class="card">
+          <h2>Босс-тест</h2>
+          <ul class="rule-list">
+            <li>До 7 расчётных вопросов по 4 варианта. На вопрос 45–60 секунд.</li>
+            <li>Верный ответ снимает 20% HP. Пять верных — победа, три ошибки — поражение.</li>
+            <li>Истечение времени считается ошибкой.</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>Авария · QTE</h2>
+          <ul class="rule-list">
+            <li>4 шага, по 3 варианта. Общий отсчёт 60 секунд, включая чтение.</li>
+            <li>Верный выбор даёт +10 секунд, неверный отнимает 10 секунд и блокирует выбранный вариант.</li>
+            <li>Третья ошибка или ноль секунд — поражение.</li>
+          </ul>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>Разряды и награды</h2>
+        <p>Первая победа даёт ${rules.firstWinXp} XP и ${rules.firstWinCoins} монет. Бонус за первую победу без ошибок: +${rules.perfectBonusXp} XP и +${rules.perfectBonusCoins} монет.</p>
+        <p>За первые ${rules.paidRepeatWinLimit} повторные победы по теме — ${rules.repeatWinXp} XP и ${rules.repeatWinCoins} монет за каждую, дальше — 0. Попытки не ограничены.</p>
+        <p class="small">Значения наград предварительные и требуют согласования с командой.</p>
+        <div class="actions">
+          ${guest
+            ? `<a class="btn btn-cta" href="#/demo">Открыть пример</a>
+               <a class="btn btn-outline" href="#/auth">Войти</a>
+               <a class="btn btn-outline" href="#/auth/register">Регистрация</a>`
+            : `<a class="btn" href="#/topics">К темам курса</a>`}
+        </div>
+      </section>
+
+      ${rankTable(rules.rankThresholds)}
     </div>
   `);
 
-  const column = root.querySelector(".mascot-column");
-  if (mascot) mountMascot(column, mascot);
-  else column.hidden = true;
-
-  root.dispose = () => mascot?.dispose?.();
+  root.dispose = () => {};
   return root;
 }

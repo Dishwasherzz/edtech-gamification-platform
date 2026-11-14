@@ -7,6 +7,31 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Спрайт иконок макета: menu, chevron, home, book, info, user, chat. -->
+  <svg class="icon-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-menu" viewBox="0 0 24 24">
+      <path d="M4 6h16M4 12h16M4 18h16"/>
+    </symbol>
+    <symbol id="icon-chevron" viewBox="0 0 24 24">
+      <path d="m6 9 6 6 6-6"/>
+    </symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24">
+      <path d="M3 10 12 3l9 7v10h-6v-6H9v6H3z"/>
+    </symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24">
+      <path d="M4 5h6l2 2 2-2h6v14h-6l-2 2-2-2H4zM12 7v14"/>
+    </symbol>
+    <symbol id="icon-info" viewBox="0 0 24 24">
+      <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-10v6m0-10v1"/>
+    </symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24">
+      <path d="M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21a8 8 0 0 1 16 0"/>
+    </symbol>
+    <symbol id="icon-chat" viewBox="0 0 24 24">
+      <path d="M5 5h14v11h-7l-4 4v-4H5zM9 10h.01m6 0h.01"/>
+    </symbol>
+  </svg>
+
   <header class="topbar">
     <a class="brand" href="#/">
       <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
@@ -26,6 +51,7 @@
       <a class="account-name" href="#/profile" data-auth-nav>
         <span class="avatar-dot" id="header-avatar" aria-hidden="true"></span>
         <span>Профиль</span>
+        <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-chevron" /></svg>
       </a>
       <a class="action-link" href="#/auth" data-guest-nav>Войти</a>
       <a class="btn btn-outline btn-small" href="#/auth/register" data-guest-nav>Регистрация</a>
@@ -49,20 +75,38 @@
       </div>
     </div>
 
-    <div class="mobile-menu-label">Меню</div>
+    <div class="mobile-menu-label">
+      <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-menu" /></svg>
+      Меню
+    </div>
   </header>
 
   <div class="app-body">
     <aside class="sidebar" aria-label="Учебная навигация">
       <div class="side-section">
-        <a class="side-item" href="#/" data-side="home"><span class="side-label">Главная</span></a>
-        <a class="side-item" href="#/topics" data-side="topics" data-auth-nav><span class="side-label">Темы курса</span></a>
-        <a class="side-item" href="#/instructions" data-side="instructions"><span class="side-label">Инструкция</span></a>
-        <a class="side-item" href="#/profile" data-side="profile" data-auth-nav><span class="side-label">Профиль</span></a>
+        <a class="side-item" href="#/" data-side="home">
+          <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-home" /></svg>
+          <span class="side-label">Главная</span>
+        </a>
+        <a class="side-item" href="#/topics" data-side="topics" data-auth-nav>
+          <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-book" /></svg>
+          <span class="side-label">Темы курса</span>
+        </a>
+        <a class="side-item" href="#/instructions" data-side="instructions">
+          <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-info" /></svg>
+          <span class="side-label">Инструкция</span>
+        </a>
+        <a class="side-item" href="#/profile" data-side="profile" data-auth-nav>
+          <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-user" /></svg>
+          <span class="side-label">Профиль</span>
+        </a>
       </div>
 
       <div class="side-pet">
-        <a class="side-item" href="#/settings?tab=mascot" data-auth-nav><span class="side-label">Спутник</span></a>
+        <a class="side-item" href="#/settings?tab=mascot" data-auth-nav>
+          <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-chat" /></svg>
+          <span class="side-label">Спутник</span>
+        </a>
         <p class="small">Подсказка по экрану</p>
       </div>
     </aside>

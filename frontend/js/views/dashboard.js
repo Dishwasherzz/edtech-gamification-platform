@@ -1,6 +1,7 @@
 import { api } from "../api.js";
 import { state, refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName } from "../ui.js";
+import { companionAssets } from "../assets.js";
 import { mascotPanel, mountMascot, hints } from "../mascot.js";
 
 // Строка темы в маршруте курса: номер, название, статус и действие справа.
@@ -84,8 +85,28 @@ async function renderGuestHome() {
   `);
 }
 
+// Гость открыл личный раздел: главная страница под затемнением и входом.
+export async function renderGuestGate() {
+  const view = await renderGuestHome();
+  view.append(element(`
+    <div class="modal-layer">
+      <section class="modal">
+        <h2>Войдите, чтобы начать курс</h2>
+        <p>Лекции, испытания и личный прогресс доступны после входа. Пример уровня можно посмотреть без аккаунта.</p>
+        <div class="actions">
+          <a class="btn" href="#/auth">Войти</a>
+          <a class="btn btn-outline" href="#/auth/register">Регистрация</a>
+          <a class="link action-link" href="#/demo">Остаться в демо</a>
+        </div>
+      </section>
+    </div>
+  `));
+  return view;
+}
+
 export async function renderDashboard() {
   if (!state.isAuth) return renderGuestHome();
+
 
   const [user, courses, active, rules] = await Promise.all([
     refreshProfile(),
@@ -132,7 +153,7 @@ export async function renderDashboard() {
       ? "Я не подсказываю правильный ответ и не останавливаю отсчёт."
       : "Откройте доступную тему и прочитайте лекцию. Испытание появится после отметки «Прочитано».",
     hint: active ? hints.attempt : hints.dashboard,
-    assetKey: [user.mascot?.assetKey, user.hero?.assetKey, user.characterSkin?.assetKey]
+    assetKey: companionAssets(user)
   });
 
   const root = element(`

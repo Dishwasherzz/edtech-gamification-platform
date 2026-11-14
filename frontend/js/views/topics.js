@@ -1,6 +1,7 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName } from "../ui.js";
+import { companionAssets } from "../assets.js";
 import { mascotPanel, mountMascot, hints } from "../mascot.js";
 
 function topicRow(topic, index) {
@@ -45,7 +46,7 @@ export async function renderTopics() {
     label: "Готов к занятию",
     message: "Откройте доступную тему и прочитайте лекцию. Испытание появится после отметки «Прочитано».",
     hint: hints.dashboard,
-    assetKey: [user.mascot?.assetKey, user.hero?.assetKey, user.characterSkin?.assetKey]
+    assetKey: companionAssets(user)
   });
 
   const root = element(`
@@ -59,15 +60,14 @@ export async function renderTopics() {
     <div class="grid-main">
       <div class="stack">
         ${courses.length ? courses.map((course, index) => `
-          <section class="card">
+          <section class="stack">
             <div class="between">
               <h2>${e(course.title)}</h2>
               <span class="num subtle">${course.progressPercent}%</span>
             </div>
             <p class="muted">${e(course.description)}</p>
             ${progressBar(course.progressPercent, `Прогресс курса ${course.title}`)}
-            <p class="small" style="margin-top:12px">Тем пройдено: ${course.completedTopics} из ${course.totalTopics}</p>
-            <div class="gap"></div>
+            <p class="small">Тем пройдено: ${course.completedTopics} из ${course.totalTopics}</p>
             <div class="tight">${lists[index].map(topicRow).join("")}</div>
           </section>`).join("")
 

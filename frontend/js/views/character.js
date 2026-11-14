@@ -14,8 +14,8 @@ function heroCard(hero, checked) {
         <span class="sprite-img"${image ? ` style="background-image:url('${image}')"` : ""}></span>
       </span>
       <span class="character-name">
-        <span class="checkbox${checked ? " is-checked" : ""}" data-mark></span>
         <h2>${e(HERO_LABELS[hero.key] ?? hero.name)}</h2>
+        <span class="checkbox${checked ? " is-checked" : ""}" data-mark></span>
       </span>
       <span class="small" data-state>${checked ? "✓ Выбран" : "Выбрать персонажа"}</span>
     </label>`;

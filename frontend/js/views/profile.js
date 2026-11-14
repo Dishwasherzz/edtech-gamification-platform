@@ -1,8 +1,8 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName, dateShort, shortModeName } from "../ui.js";
-import { mascotPanel, mountMascot, hints } from "../mascot.js";
-import { assetUrl } from "../assets.js";
+import { mascotMini } from "../mascot.js";
+import { assetUrl, companionAssets } from "../assets.js";
 
 function historyTable(history) {
   if (!history.length) {
@@ -17,15 +17,17 @@ function historyTable(history) {
           const result = attempt.status === "Passed" ? "Победа"
             : attempt.status === "Failed" ? "Поражение"
               : attempt.status === "Abandoned" ? "Прервана" : "В процессе";
-          const reward = attempt.xp || attempt.coins ? `+${attempt.xp} XP · +${attempt.coins} монет` : "—";
+          const reward = attempt.xp || attempt.coins
+            ? `+${attempt.xp} XP<br>+${attempt.coins} монет`
+            : "—";
           return `
             <tr>
               <td>
-                <a class="link" href="#/attempt/${e(attempt.id)}">${e(attempt.topicTitle)}</a>
-                <p class="small">${e(shortModeName(attempt.mode))} · ${e(dateShort(attempt.startedAt))}</p>
+                <a class="link" href="#/attempt/${e(attempt.id)}">${e(attempt.topicTitle)}</a><br>
+                <span class="small">${e(shortModeName(attempt.mode))} · ${e(dateShort(attempt.startedAt))}</span>
               </td>
-              <td><span class="status${attempt.status === "Passed" ? " strong" : ""}">${e(result)}</span></td>
-              <td class="num">${e(reward)}</td>
+              <td>${e(result)}</td>
+              <td class="num">${reward}</td>
             </tr>`;
         }).join("")}
       </tbody>
@@ -49,13 +51,9 @@ export async function renderProfile(page = 1) {
   const percent = totals.topics ? Math.floor(totals.done * 100 / totals.topics) : 0;
   const nextCourse = courses.find(course => course.progressPercent < 100);
 
-  const mascot = mascotPanel({
-    label: active ? "Идёт испытание" : "Готов к занятию",
-    message: active
-      ? "Я не подсказываю правильный ответ и не останавливаю отсчёт."
-      : "Откройте доступную тему и прочитайте лекцию. Испытание появится после отметки «Прочитано».",
-    hint: active ? hints.attempt : hints.dashboard,
-    assetKey: [user.mascot?.assetKey, user.hero?.assetKey, user.characterSkin?.assetKey]
+  const mascot = mascotMini({
+    label: active ? "Спутник · Идёт испытание" : "Спутник · Готов к занятию",
+    assetKey: companionAssets(user)
   });
   const heroImage = assetUrl(user.hero?.assetKey);
 
@@ -74,24 +72,22 @@ export async function renderProfile(page = 1) {
     <div class="grid-main">
       <div class="stack">
         <section class="card">
-          <div class="profile-head">
+          <div class="row">
             <span class="profile-art ${user.hero?.key === "ampere" ? "female" : "male"}">
               <span class="sprite-img"${heroImage ? ` style="background-image:url('${heroImage}')"` : ""}></span>
             </span>
-            <div class="profile-identity">
-              <h2>${e(user.displayName)}</h2>
+            <div>
+              <h2 style="margin-bottom:4px">${e(user.displayName)}</h2>
               <p class="small">${e(user.email ?? "")}</p>
-              <p class="small">Разряд ${user.rank} · ${e(user.hero?.name ?? "")}</p>
-            </div>
-            <div class="stats plain">
-              <div class="stat"><span>Прогресс курса</span><strong>${percent} <span class="unit">%</span></strong></div>
-              <div class="stat"><span>Текущий разряд</span><strong>${user.rank} <span class="unit">${ranks ? `из ${ranks}` : ""}</span></strong></div>
-              <div class="stat"><span>Опыт</span><strong>${user.totalXp} <span class="unit">XP</span></strong></div>
-              <div class="stat"><span>Баланс</span><strong>${user.coinsBalance} <span class="unit">монет</span></strong></div>
             </div>
           </div>
-          ${progressBar(percent, "Прогресс курса")}
-          <p class="small" style="margin-top:12px">${totals.done} из ${totals.topics} тем пройдено. Победа в любом испытании засчитывает тему один раз, поражение ничего не списывает.</p>
+          <div class="gap"></div>
+          <div class="stats">
+            <div class="stat"><span>Прогресс курса</span><strong>${percent} <span class="unit">%</span></strong></div>
+            <div class="stat"><span>Текущий разряд</span><strong>${user.rank} <span class="unit">${ranks ? `из ${ranks}` : ""}</span></strong></div>
+            <div class="stat"><span>Опыт</span><strong>${user.totalXp} <span class="unit">XP</span></strong></div>
+            <div class="stat"><span>Баланс</span><strong>${user.coinsBalance} <span class="unit">монет</span></strong></div>
+          </div>
         </section>
 
         <section class="card">
@@ -117,7 +113,8 @@ export async function renderProfile(page = 1) {
     </div>
   `);
 
-  mountMascot(root.querySelector(".mascot-column"), mascot);
+  const column = root.querySelector(".mascot-column");
+  column.replaceChildren(mascot);
   root.dispose = () => mascot.dispose?.();
   return root;
 }

@@ -1,7 +1,8 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, modeName, statusName, mascotEventName } from "../ui.js";
-import { mascotPanel, mountMascot, hints } from "../mascot.js";
+import { mascotMini } from "../mascot.js";
+import { companionAssets } from "../assets.js";
 
 function illustration(key) {
   // Локальная векторная схема: без внешних ресурсов и пользовательской разметки.
@@ -11,7 +12,10 @@ function illustration(key) {
 
 export async function renderAttempt(id) {
   let data = await api.attempt(id);
-  const root = element(`<div class="grid-main"><div data-main></div><div class="stack"><div class="mascot-column"></div></div></div>`);
+  // Портрет спутника соответствует выбранному герою, а не маскоту по умолчанию.
+  const user = await refreshProfile().catch(() => null);
+  const companion = [...companionAssets(user), data.mascot?.character?.assetKey, data.characterSkin?.assetKey].filter(Boolean);
+  const root = element(`<div data-main></div>`);
   const main = root.querySelector("[data-main]");
   let disposed = false;
   let busy = false;
@@ -40,14 +44,11 @@ export async function renderAttempt(id) {
     return coursePercent;
   }
 
-  const mascot = mascotPanel({
-    label: mascotEventName(data.mascot?.event),
-    message: data.mascot?.message ?? "Продолжай обучение: состояние попытки сохраняется.",
-    hint: hints.attempt,
-    assetKey: [data.mascot?.character?.assetKey, data.characterSkin?.assetKey],
-    collapsed: true
+  // Спутник во время испытания — короткой строкой в блоке босса, как в макете.
+  const mascot = mascotMini({
+    label: "Спутник · Идёт испытание",
+    assetKey: companion
   });
-  mountMascot(root.querySelector(".mascot-column"), mascot);
 
   function accept(next) {
     data = next;
@@ -57,9 +58,8 @@ export async function renderAttempt(id) {
         data.currentQuestion.options.some(option => option.id === pending.optionId && option.isDisabled))) pending = null;
     if (data.mascot) {
       mascot.update({
-        label: mascotEventName(data.mascot.event),
-        message: data.mascot.message,
-        assetKey: [data.mascot.character?.assetKey, data.characterSkin?.assetKey]
+        label: `Спутник · ${mascotEventName(data.mascot.event)}`,
+        assetKey: companion
       });
     }
   }
@@ -190,7 +190,8 @@ export async function renderAttempt(id) {
             <h2>${isBoss ? "Состояние босса" : "Состояние установки"}</h2>
             ${isBoss
               ? `<div class="media-placeholder large"><span>${e(data.bossName)}</span></div>
-                 <p class="muted">Каждый верный ответ снимает 20% HP.</p>`
+                 <p class="muted">Каждый верный ответ снимает 20% HP.</p>
+                 <div class="actions" data-pet-slot></div>`
               : `${illustration(data.scenario.illustrationKey)}
                  <p class="muted">${data.errors ? "В модели нарастает перегрузка. Выбери другое действие." : "Состояние модели стабильно."}</p>`}
           </section>
@@ -204,6 +205,8 @@ export async function renderAttempt(id) {
             <button class="text-button" data-abandon>Прекратить попытку</button>
           </section>
         </div>`;
+      const petSlot = main.querySelector("[data-pet-slot]");
+      if (petSlot) petSlot.replaceChildren(mascot);
       main.querySelectorAll("[data-option]").forEach(button => {
         button.onclick = () => {
           if (busy || pending) return;

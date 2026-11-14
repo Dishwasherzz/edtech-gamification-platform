@@ -56,26 +56,30 @@ export async function renderConsent() {
   }
 
   if (!body) {
-    body = fallbackConsent.sections.map(section => `
-      <section class="doc-copy">
-        <h2>${e(section.title)}</h2>
-        ${paragraphs(section.body)}
-      </section>`).join("");
+    body = `<div class="doc-copy">
+      <p>Рабочий текст для макета. Версия ${e(version)}. Реквизиты оператора и условия хранения требуют подтверждения.</p>
+      ${fallbackConsent.sections.map(section => `
+        <section>
+          <h2>${e(section.title)}</h2>
+          ${paragraphs(section.body)}
+        </section>`).join("")}
+    </div>`;
   }
 
   return element(`
     <header class="page-head">
       <div>
         <h1>Согласие на обработку данных</h1>
-        <p>Версия ${e(version)} · рабочий текст</p>
+        <p>Электротехника · рабочий текст</p>
       </div>
-      <div class="top-actions"><a class="btn btn-outline" href="#/auth/register">Вернуться к регистрации</a></div>
     </header>
 
-    <section class="card">${body}</section>
+    <div class="content-page">
+      <section class="card">${body}</section>
+    </div>
 
     <div class="actions">
-      <a class="btn" href="#/auth/register">Вернуться к регистрации</a>
+      <a class="btn btn-cta" href="#/auth/register">Вернуться к регистрации</a>
       <a class="btn btn-outline" href="#/demo">Продолжить без аккаунта</a>
     </div>
   `);

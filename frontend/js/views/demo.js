@@ -34,9 +34,9 @@ export function renderDemo() {
             ${DEMO.formula.map(part => `<span class="circuit-node">${e(part.value)}</span>`).join('<span aria-hidden="true">──</span>')}
           </div>
 
-          <h3 class="question-prompt">${e(DEMO.prompt)}</h3>
+          <p class="question-prompt">${e(DEMO.prompt)}</p>
           <div class="answers">
-            ${DEMO.options.map(option => `<button class="answer" data-option="${e(option.key)}"><span class="num subtle">${e(option.key)}</span> ${e(option.text)}</button>`).join("")}
+            ${DEMO.options.map(option => `<button class="answer" data-option="${e(option.key)}"><span class="num">${e(option.key)}</span><span>${e(option.text)}</span></button>`).join("")}
           </div>
 
           <p class="feedback" data-feedback role="status"></p>
@@ -71,7 +71,7 @@ export function renderDemo() {
       button.disabled = true;
       if (option.correct) {
         button.classList.add("correct");
-        button.innerHTML = `<span class="num subtle">${e(option.key)}</span> ${e(option.text)} <span class="answer-result">Верно</span>`;
+        button.innerHTML = `<span class="num">${e(option.key)}</span><span>${e(option.text)}</span><span class="answer-result">Верно</span>`;
       }
     });
     root.querySelector("[data-hp]").textContent = "80%";

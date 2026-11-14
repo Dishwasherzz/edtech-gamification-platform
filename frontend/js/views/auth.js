@@ -1,5 +1,6 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
+import { errorNotice } from "../ui.js";
 import { authLayout, field, passwordField, bindForm } from "./auth-layout.js";
 
 export function renderAuth() {
@@ -10,7 +11,7 @@ export function renderAuth() {
     steps: ["Аккаунт", "Персонаж", "Обучение"],
     tabs: `<span class="selected">Вход</span><a href="#/auth/register">Регистрация</a>`,
     formHtml: `
-      <p data-error class="error" role="alert" hidden></p>
+      ${errorNotice("Не удалось войти")}
 
       <form novalidate>
         <fieldset>

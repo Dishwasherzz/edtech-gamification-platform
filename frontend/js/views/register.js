@@ -1,6 +1,6 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
-import { escapeHtml as e, askDialog } from "../ui.js";
+import { escapeHtml as e, askDialog, errorNotice } from "../ui.js";
 import { authLayout, field, passwordField, consentField, bindForm } from "./auth-layout.js";
 
 export async function renderRegister() {
@@ -18,11 +18,11 @@ export async function renderRegister() {
   const root = authLayout({
     pageTitle: "Регистрация",
     panelTitle: "Создать профиль",
-    story: "Сохраните прогресс курса. Персонажа можно выбрать сразу после регистрации.",
+    story: "Сохраните прогресс курса и выберите персонажа.",
     steps: ["Аккаунт", "Персонаж", "Обучение"],
     tabs: `<a href="#/auth">Вход</a><span class="selected">Регистрация</span>`,
     formHtml: `
-      <p data-error class="error" role="alert" hidden></p>
+      ${errorNotice("Регистрация не завершена")}
 
       ${config.canRegister === false ? `<div class="notice error">Регистрация временно недоступна: сервер не настроен на работу с согласием.</div>` : ""}
 
@@ -61,7 +61,7 @@ export async function renderRegister() {
           })}
 
           <p class="auth-note">После регистрации ты автоматически войдёшь в свой профиль.</p>
-          <button type="submit" class="btn btn-block" ${config.canRegister === false ? "disabled" : ""}>Создать аккаунт</button>
+          <button type="submit" class="btn btn-block" ${config.canRegister === false || consentRequired ? "disabled" : ""}>Создать аккаунт</button>
         </fieldset>
       </form>
     `,
@@ -70,6 +70,8 @@ export async function renderRegister() {
 
   const checkbox = root.querySelector('input[name="consent"]');
   const hint = root.querySelector("[data-consent-hint]");
+  const submit = root.querySelector('button[type="submit"]');
+  const checkRow = root.querySelector(".check-row");
 
   root.querySelector("[data-why]").onclick = () => askDialog({
     title: "Зачем нужно согласие",
@@ -82,9 +84,14 @@ export async function renderRegister() {
     checkbox.disabled = true;
   } else {
     checkbox.onchange = () => {
-      if (consentRequired && !checkbox.checked) hint.textContent = "Отметьте согласие, чтобы продолжить.";
-      else hint.textContent = consentRequired ? "Согласие отмечено." : "Отметка желательна, но сервер её не требует.";
+      if (consentRequired) {
+        submit.disabled = !checkbox.checked;
+        hint.textContent = checkbox.checked ? "Согласие отмечено." : "Отметьте согласие, чтобы продолжить.";
+      } else {
+        hint.textContent = "Отметка желательна, но сервер её не требует.";
+      }
       hint.classList.remove("error");
+      checkRow?.classList.remove("check-error");
     };
   }
 
@@ -92,6 +99,7 @@ export async function renderRegister() {
     if (consentRequired && !values.get("consent")) {
       hint.textContent = "Отметьте согласие, чтобы продолжить.";
       hint.classList.add("error");
+      checkRow?.classList.add("check-error");
       throw new Error("Отметьте согласие на обработку персональных данных.");
     }
 
