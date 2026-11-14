@@ -69,8 +69,6 @@
   --z-overlay: 4;
   --z-menu: 5;
   --img-city: url("assets/img/city.webp");
-  --img-character-male: url("assets/img/character-male.webp");
-  --img-character-female: url("assets/img/character-female.webp");
 }
 
 *, *::before, *::after {
@@ -1045,58 +1043,20 @@ small, .small {
   border-radius: 50%;
 }
 
-.sprite {
-  position: relative;
-  overflow: hidden;
+/* Персонажи: портрет по состоянию и полный рост — отдельные файлы
+   в assets/characters. Объект вписывается в рамку без искажений. */
+.character-img {
+  display: block;
+  object-fit: contain;
   background-repeat: no-repeat;
 }
 
-.sprite--male-neutral {
-  background-image: var(--img-character-male);
-  background-size: 462.962962962963% 219.29824561403507%;
-  background-position: 70.91836734693878% 3.308823529411764%;
+.character-portrait {
+  object-position: center;
 }
 
-.sprite--male-focused {
-  background-image: var(--img-character-male);
-  background-size: 793.6507936507936% 260.4166666666667%;
-  background-position: 99.65675057208237% 83.6038961038961%;
-}
-
-.sprite--male-happy {
-  background-image: var(--img-character-male);
-  background-size: 473.93364928909955% 223.21428571428572%;
-  background-position: 98.85931558935361% 3.2608695652173907%;
-}
-
-.sprite--male-surprised {
-  background-image: var(--img-character-male);
-  background-size: 724.6376811594203% 279.3296089385475%;
-  background-position: 67.86542923433875% 80.8411214953271%;
-}
-
-.sprite--male-rest {
-  background-image: var(--img-character-male);
-  background-size: 800% 280.8988764044944%;
-  background-position: 83.77142857142857% 85.24844720496895%;
-}
-
-.sprite--male-full {
-  background-image: var(--img-character-male);
-  background-size: 431.03448275862064% 103.09278350515464%;
-  background-position: 3.3854166666666665% 39.999999999999964%;
-}
-
-.sprite--female-neutral {
-  background-image: var(--img-character-female);
-  background-size: 588.2352941176471% 333.33333333333337%;
-  background-position: 20.000000000000004% 0.4285714285714286%;
-}
-
-.sprite--female-full {
-  background-image: var(--img-character-female);
-  background-size: 432.90043290043286% 101.6260162601626%;
-  background-position: 17.29518855656697% 6.249999999999995%;
+.character-full {
+  object-position: center bottom;
 }
 
 .character-choice {
@@ -1130,9 +1090,6 @@ small, .small {
 
 .character-card > .small {
   align-self: flex-start;
-}
-
-.character-card .sprite {
 }
 
 .character-art {
@@ -1224,6 +1181,11 @@ small, .small {
 
 .pet-mini .action-link {
   margin-left: auto;
+}
+
+/* Место для спутника на экране итога попытки. */
+.pet-slot {
+  margin: var(--space-4) 0;
 }
 
 .side-pet {
@@ -1570,7 +1532,7 @@ small, .small {
   line-height: var(--lh-40);
 }
 
-.auth-story .sprite {
+.auth-story .character-img {
   margin-top: var(--space-7);
 }
 
@@ -1824,7 +1786,7 @@ small, .small {
   line-height: var(--lh-28);
 }
 
-.artboard--mobile .auth-story > .sprite {
+.artboard--mobile .auth-story > .character-img {
   display: none;
 }
 
@@ -1845,7 +1807,7 @@ small, .small {
   padding: 11px;
 }
 
-.artboard--mobile .character-card > .sprite {
+.artboard--mobile .character-card > .character-img {
   width: 104px !important;
   height: 256px !important;
 }
@@ -1862,7 +1824,7 @@ small, .small {
   min-height: 252px;
 }
 
-.artboard--mobile .character-art > .sprite {
+.artboard--mobile .character-art > .character-img {
   width: 96px !important;
   height: 224px !important;
 }

@@ -1,4 +1,5 @@
 import { element, escapeHtml as e, showError, clearError } from "../ui.js";
+import { fullAsset } from "../assets.js";
 
 // Общая разметка для входа и регистрации: слева — рассказ и персонаж, справа — карточка формы.
 export function authLayout({ pageTitle, panelTitle, formHtml, altHtml = "", steps = [], tabs = "", story = "" }) {
@@ -10,7 +11,7 @@ export function authLayout({ pageTitle, panelTitle, formHtml, altHtml = "", step
           <div class="gap"></div>` : ""}
         <h1>${e(pageTitle)}</h1>
         <p class="muted">${e(story)}</p>
-        <div class="sprite sprite--male-full" role="img" aria-label="Персонаж курса" style="width:112px;height:284px"></div>
+        <img class="character-img character-full" src="${e(fullAsset("male", "front"))}" alt="Персонаж курса" width="112" height="284">
       </section>
 
       <section class="auth-card" aria-label="${e(panelTitle)}">

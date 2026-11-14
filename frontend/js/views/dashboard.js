@@ -1,8 +1,8 @@
 import { api } from "../api.js";
 import { state, refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName } from "../ui.js";
-import { companionAssets } from "../assets.js";
-import { mascotPanel, mountMascot, hints } from "../mascot.js";
+import { companionCharacter } from "../assets.js";
+import { mascotPanel, mountMascot } from "../mascot.js";
 
 // Строка темы в маршруте курса: номер, название, статус и действие справа.
 function topicRow(topic, index) {
@@ -147,14 +147,10 @@ export async function renderDashboard() {
   }
   if (overall >= 100) { ctaLabel = "Итог курса"; description = "Курс пройден. Заберите итог и посмотрите разборы."; }
 
+  // Событие и подсказка связаны: панель сама берёт настроение и реплику персонажа.
   const mascot = mascotPanel({
     label: active ? "Идёт испытание" : "Готов к занятию",
-    message: active
-      ? "Я не подсказываю правильный ответ и не останавливаю отсчёт."
-      : "Откройте доступную тему и прочитайте лекцию. Испытание появится после отметки «Прочитано».",
-    hint: active ? hints.attempt : hints.dashboard,
-    assetKey: companionAssets(user),
-    frame: active ? "focused" : "neutral"
+    character: companionCharacter(user)
   });
 
   const root = element(`

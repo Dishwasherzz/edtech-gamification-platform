@@ -1,7 +1,7 @@
 import { api } from "../api.js";
 import { state, clearSession, refreshProfile, setMascotVisible } from "../state.js";
 import { element, escapeHtml as e, askDialog } from "../ui.js";
-import { assetUrl, mascotAsset } from "../assets.js";
+import { companionCharacter, moodAsset } from "../assets.js";
 
 // Правила Identity на сервере: длина от 8 символов, строчная и заглавная буквы, цифра.
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\S]{8,128}$/;
@@ -13,12 +13,13 @@ const TABS = [
 ];
 
 function mascotCard(mascot, current, user) {
-  const image = assetUrl(mascotAsset(user, mascot));
+  // Спутник — это выбранный персонаж, поэтому в карточке его спокойный портрет.
+  const image = moodAsset(companionCharacter(user), "calm");
   return `
     <section class="character-card${mascot.id === current ? " selected" : ""}" data-mascot="${e(mascot.id)}">
       <input type="radio" name="mascot" value="${e(mascot.id)}" ${mascot.id === current ? "checked" : ""}>
       <div class="character-art">
-        <div class="sprite sprite--male-full" role="img" aria-label="${e(mascot.name)}" style="width:80px;height:88px"></div>
+        <img class="character-img character-portrait" src="${e(image)}" alt="${e(mascot.name)}" width="80" height="88">
       </div>
       <span class="character-name">
         <h2>${e(mascot.name)}</h2>

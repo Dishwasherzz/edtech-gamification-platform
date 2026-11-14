@@ -17,6 +17,38 @@ const HERO_FACES = {
   "heroes/ampere": "heroes/ampere-face"
 };
 
+// Ключ героя → персонаж: у «Фаза» мужской, у «Ампера» женский.
+const HERO_CHARACTER = { phase: "male", ampere: "female" };
+
+// Кадры персонажа по состоянию и полные ракурсы. Имена совпадают
+// с файлами в frontend/assets/characters.
+const CHARACTER_ASSETS = {
+  male: {
+    calm: "assets/characters/male_calm.png",
+    focus: "assets/characters/male_focus.png",
+    joy: "assets/characters/male_joy.png",
+    surprise: "assets/characters/male_surprise.png",
+    support: "assets/characters/male_support.png",
+    front: "assets/characters/male_full_front.png",
+    side: "assets/characters/male_full_side.png",
+    back: "assets/characters/male_full_back.png"
+  },
+  female: {
+    calm: "assets/characters/female_calm.png",
+    focus: "assets/characters/female_focus.png",
+    joy: "assets/characters/female_joy.png",
+    surprise: "assets/characters/female_surprise.png",
+    support: "assets/characters/female_support.png",
+    front: "assets/characters/female_full_front.png",
+    side: "assets/characters/female_full_side.png",
+    back: "assets/characters/female_full_back.png"
+  }
+};
+
+// Состояния и ракурсы, для которых есть файлы.
+export const MOODS = ["calm", "focus", "joy", "surprise", "support"];
+export const VIEWS = ["front", "side", "back"];
+
 export function assetUrl(key) {
   if (!key) return null;
   const direct = ASSETS[String(key)];
@@ -56,4 +88,37 @@ export function mascotAsset(user, mascot) {
   const face = HERO_FACES[user?.hero?.assetKey];
   if (face) return face;
   return mascot?.assetKey ?? null;
+}
+
+// Пол персонажа по ключу ресурса: «heroes/ampere» — женский, «heroes/phase» — мужской.
+export function characterByAssetKey(assetKey) {
+  const key = String(assetKey ?? "").toLowerCase();
+  if (!key) return null;
+  if (key.includes("ampere") || key.includes("female")) return "female";
+  if (key.includes("phase") || key.includes("male")) return "male";
+  return null;
+}
+
+// Пол персонажа по ключу героя. Если ключ неизвестен, смотрим на assetKey.
+export function heroCharacter(hero) {
+  if (!hero) return "male";
+  if (HERO_CHARACTER[hero.key]) return HERO_CHARACTER[hero.key];
+  return characterByAssetKey(hero.assetKey) ?? "male";
+}
+
+// Персонаж, который сопровождает пользователя: выбранный герой.
+export function companionCharacter(user) {
+  return heroCharacter(user?.hero);
+}
+
+// Кадр персонажа по состоянию: спокойствие, фокус, радость, удивление, поддержка.
+export function moodAsset(character, mood) {
+  const set = CHARACTER_ASSETS[character] ?? CHARACTER_ASSETS.male;
+  return set[MOODS.includes(mood) ? mood : "calm"];
+}
+
+// Полный рост: вид спереди, сбоку или сзади.
+export function fullAsset(character, view) {
+  const set = CHARACTER_ASSETS[character] ?? CHARACTER_ASSETS.male;
+  return set[VIEWS.includes(view) ? view : "front"];
 }

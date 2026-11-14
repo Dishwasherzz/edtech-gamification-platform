@@ -1,8 +1,8 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName } from "../ui.js";
-import { companionAssets } from "../assets.js";
-import { mascotPanel, mountMascot, hints } from "../mascot.js";
+import { companionCharacter } from "../assets.js";
+import { mascotPanel, mountMascot } from "../mascot.js";
 
 function topicRow(topic, index) {
   // Закрытая тема остаётся div: клик по ней ничего не делает.
@@ -44,9 +44,7 @@ export async function renderTopics() {
 
   const mascot = mascotPanel({
     label: "Готов к занятию",
-    message: "Откройте доступную тему и прочитайте лекцию. Испытание появится после отметки «Прочитано».",
-    hint: hints.dashboard,
-    assetKey: companionAssets(user)
+    character: companionCharacter(user)
   });
 
   const root = element(`

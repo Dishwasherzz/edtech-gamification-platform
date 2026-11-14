@@ -1,8 +1,8 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, modeName, statusName, mascotEventName } from "../ui.js";
-import { mascotMini } from "../mascot.js";
-import { companionAssets } from "../assets.js";
+import { mascotMini, moodForEvent } from "../mascot.js";
+import { characterByAssetKey, companionCharacter } from "../assets.js";
 
 function illustration(key) {
   // Локальная векторная схема: без внешних ресурсов и пользовательской разметки.
@@ -14,7 +14,10 @@ export async function renderAttempt(id) {
   let data = await api.attempt(id);
   // Портрет спутника соответствует выбранному герою, а не маскоту по умолчанию.
   const user = await refreshProfile().catch(() => null);
-  const companion = [...companionAssets(user), data.mascot?.character?.assetKey, data.characterSkin?.assetKey].filter(Boolean);
+  // Персонаж испытания: сервер может назначить другого героя, иначе берём выбор игрока.
+  const character = characterByAssetKey(data.mascot?.character?.assetKey)
+    ?? characterByAssetKey(data.characterSkin?.assetKey)
+    ?? companionCharacter(user);
   const root = element(`<div data-main></div>`);
   const main = root.querySelector("[data-main]");
   let disposed = false;
@@ -47,9 +50,20 @@ export async function renderAttempt(id) {
   // Спутник во время испытания — короткой строкой в блоке босса, как в макете.
   const mascot = mascotMini({
     label: "Спутник · Идёт испытание",
-    assetKey: companion,
-    frame: "focused"
+    character,
+    mood: "focus"
   });
+
+  // Итог попытки: отдельные события для победы, повтора и поражения.
+  function outcomeEvent() {
+    if (data.status === "Passed") {
+      if (data.completedCourseId) return "Курс завершён";
+      if (data.reward && data.reward.isFirstPass === false) return "Повтор завершён";
+      return "Тема пройдена";
+    }
+    if (data.status === "Failed" || data.status === "Abandoned") return "Попытка завершена";
+    return "Готов к занятию";
+  }
 
   function accept(next) {
     data = next;
@@ -58,14 +72,10 @@ export async function renderAttempt(id) {
     if (pending && (data.status !== "Active" || data.currentQuestion?.id !== pending.questionId ||
         data.currentQuestion.options.some(option => option.id === pending.optionId && option.isDisabled))) pending = null;
     if (data.mascot) {
-      const frame = {
-        Idle: "neutral", Intro: "neutral", CorrectAnswer: "happy", WrongAnswer: "surprised",
-        TimeWarning: "focused", Timeout: "surprised", Victory: "happy", Defeat: "rest", Abandoned: "rest"
-      }[data.mascot.event] || "focused";
       mascot.update({
         label: `Спутник · ${mascotEventName(data.mascot.event)}`,
-        assetKey: companion,
-        frame
+        character,
+        mood: moodForEvent(data.mascot.event)
       });
     }
   }
@@ -82,12 +92,16 @@ export async function renderAttempt(id) {
   function draw() {
     if (disposed) return;
     if (data.status !== "Active") {
+      // Итог попытки: спутник реагирует на результат — радость или поддержка.
+      const outcome = outcomeEvent();
+      mascot.update({ label: `Спутник · ${outcome}`, character });
       main.innerHTML = `
         ${restored ? `<div class="notice info">Попытка восстановлена. Предыдущий ответ учтён.</div>` : ""}
         <section class="panel result">
           <span class="eyebrow">${e(modeName(data.mode))}</span>
           <h1>${e(statusName(data.status))}</h1>
           <h2>${e(data.topicTitle)}</h2>
+          <div class="pet-slot" data-pet-slot></div>
           <p class="muted">Верных: ${data.correctAnswers}. Ошибок: ${data.errors}.</p>
           <p class="muted">${data.finishReason === "TimeExpired" ? "Время истекло." : data.finishReason === "ThreeErrors" ? "Допущены три ошибки." : data.finishReason === "Abandoned" ? "Попытка прекращена." : ""}</p>
 
@@ -124,6 +138,8 @@ export async function renderAttempt(id) {
             </div>`).join("") || `<p class="muted">Разбор появится после завершения попытки.</p>`}
         </section>`;
       const retry = main.querySelector("[data-retry]");
+      const resultSlot = main.querySelector("[data-pet-slot]");
+      if (resultSlot) resultSlot.replaceChildren(mascot);
       if (retry) {
         retry.onclick = async event => {
           event.target.disabled = true;

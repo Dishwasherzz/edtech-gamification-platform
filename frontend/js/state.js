@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { companionAssets, firstAsset } from "./assets.js";
+import { companionCharacter, moodAsset } from "./assets.js";
 
 // Профиль, полученный с сервера: никаких локальных начислений XP или монет.
 // `user.hero` — выбранный герой, `user.mascot` — спутник, `user.characterSkin` — скин.
@@ -51,7 +51,7 @@ export function updateHeaderUI() {
   const avatar = document.getElementById("header-avatar");
   if (avatar) {
     // В шапке — портрет выбранного героя: полный рост персонажа здесь нечитаем.
-    const image = firstAsset(companionAssets(state.user));
+    const image = state.user ? moodAsset(companionCharacter(state.user), "calm") : null;
     avatar.style.backgroundImage = image ? `url("${image}")` : "";
     avatar.textContent = image ? "" : "⚡";
   }

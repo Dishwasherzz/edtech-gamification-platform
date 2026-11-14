@@ -1,6 +1,8 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar } from "../ui.js";
+import { companionCharacter } from "../assets.js";
+import { mascotPanel, mountMascot } from "../mascot.js";
 
 // Итог курса: все темы пройдены, учебные материалы и разборы остаются доступны.
 export async function renderCompletion(courseId) {
@@ -19,6 +21,12 @@ export async function renderCompletion(courseId) {
   const user = await refreshProfile();
   const summary = journey.summary;
 
+  // Курс завершён — спутник радуется вместе с игроком.
+  const mascot = mascotPanel({
+    label: "Курс завершён",
+    character: companionCharacter(user)
+  });
+
   const root = element(`
     <header class="page-head">
       <div>
@@ -32,22 +40,30 @@ export async function renderCompletion(courseId) {
       </div>
     </header>
 
-    <section class="panel result">
-      <div class="reward-grid">
-        <div class="reward-stat"><span>Опыт</span><strong>${user.totalXp}</strong></div>
-        <div class="reward-stat"><span>Монеты</span><strong>${user.coinsBalance}</strong></div>
-        <div class="reward-stat"><span>Прогресс курса</span><strong>${course.progressPercent}%</strong></div>
-      </div>
-      ${progressBar(100, "Прогресс курса")}
-      ${summary ? `<p class="small" style="margin-top:12px">Испытаний пройдено: ${summary.attempts}. Итог курса рассчитан на ${summary.totalXp} XP и ${summary.coinsBalance} монет.</p>` : ""}
+    <div class="grid-main">
+      <div class="stack">
+        <section class="panel result">
+          <div class="reward-grid">
+            <div class="reward-stat"><span>Опыт</span><strong>${user.totalXp}</strong></div>
+            <div class="reward-stat"><span>Монеты</span><strong>${user.coinsBalance}</strong></div>
+            <div class="reward-stat"><span>Прогресс курса</span><strong>${course.progressPercent}%</strong></div>
+          </div>
+          ${progressBar(100, "Прогресс курса")}
+          ${summary ? `<p class="small" style="margin-top:12px">Испытаний пройдено: ${summary.attempts}. Итог курса рассчитан на ${summary.totalXp} XP и ${summary.coinsBalance} монет.</p>` : ""}
 
-      <div class="actions">
-        <a class="button outline" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К темам курса</span></a>
-        <a class="button outline" href="#/profile"><span class="button-edge" aria-hidden="true"></span><span class="button-label">В профиль</span></a>
+          <div class="actions">
+            <a class="button outline" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К темам курса</span></a>
+            <a class="button outline" href="#/profile"><span class="button-edge" aria-hidden="true"></span><span class="button-label">В профиль</span></a>
+          </div>
+          <p data-error class="error" role="alert" hidden></p>
+        </section>
       </div>
-      <p data-error class="error" role="alert" hidden></p>
-    </section>
+
+      <div class="stack"><div class="mascot-column"></div></div>
+    </div>
   `);
+
+  mountMascot(root.querySelector(".mascot-column"), mascot);
 
   const claim = root.querySelector("[data-claim]");
   if (claim) {
@@ -80,5 +96,6 @@ export async function renderCompletion(courseId) {
     };
   }
 
+  root.dispose = () => mascot.dispose?.();
   return root;
 }

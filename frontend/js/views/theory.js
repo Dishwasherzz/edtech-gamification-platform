@@ -1,17 +1,15 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, markdown, showError, modeName, askDialog } from "../ui.js";
-import { companionAssets } from "../assets.js";
-import { mascotPanel, mountMascot, hints } from "../mascot.js";
+import { companionCharacter } from "../assets.js";
+import { mascotPanel, mountMascot } from "../mascot.js";
 
 // Экран закрытой темы: прямой переход не выдаёт доступ.
 async function lockedTopic(topic, previous, courseTitle) {
   const user = await refreshProfile().catch(() => null);
   const mascot = user ? mascotPanel({
     label: "Тема закрыта",
-    message: "Сначала победите в испытании предыдущей темы. Подойдёт тест или авария.",
-    hint: hints.locked,
-    assetKey: companionAssets(user)
+    character: companionCharacter(user)
   }) : null;
 
   const root = element(`
@@ -84,11 +82,8 @@ export async function renderTopic(id) {
 
   const mascot = mascotPanel({
     label: read ? "Лекция" : "Готов к занятию",
-    message: read
-      ? "Лекция прочитана. Теперь доступны тест и авария."
-      : "Откройте доступную тему и прочитайте лекцию. Испытание появится после отметки «Прочитано».",
-    hint: hints.lesson,
-    assetKey: companionAssets(user)
+    message: read ? "Лекция прочитана. Теперь доступны тест и авария." : null,
+    character: companionCharacter(user)
   });
 
   const root = element(`
@@ -224,8 +219,8 @@ export async function renderAssessmentBrief(topicId, assessmentId) {
     message: boss
       ? "Условия расчётных задач будут показаны по одному. Проверьте формулу, единицы и оставшееся время."
       : "После старта общий отсчёт идёт и во время чтения условия шага.",
-    hint: hints.attempt,
-    assetKey: companionAssets(user)
+    character: companionCharacter(user),
+    mood: "focus"
   });
 
   const root = element(`
@@ -302,9 +297,7 @@ export async function renderLesson(id) {
   const [lesson, rules, user] = await Promise.all([api.lesson(id), api.instructions(), refreshProfile()]);
   const mascot = mascotPanel({
     label: "Лекция",
-    message: "В конце лекции отметьте её как прочитанной. За это начисляется 20 XP один раз.",
-    hint: hints.lesson,
-    assetKey: companionAssets(user)
+    character: companionCharacter(user)
   });
 
   const root = element(`

@@ -2,7 +2,7 @@ import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName, dateShort, shortModeName } from "../ui.js";
 import { mascotMini } from "../mascot.js";
-import { assetUrl, companionAssets } from "../assets.js";
+import { companionCharacter, fullAsset } from "../assets.js";
 
 function historyTable(history) {
   if (!history.length) {
@@ -51,11 +51,13 @@ export async function renderProfile(page = 1) {
   const percent = totals.topics ? Math.floor(totals.done * 100 / totals.topics) : 0;
   const nextCourse = courses.find(course => course.progressPercent < 100);
 
+  const character = companionCharacter(user);
   const mascot = mascotMini({
     label: active ? "Спутник · Идёт испытание" : "Спутник · Готов к занятию",
-    assetKey: companionAssets(user)
+    character,
+    mood: active ? "focus" : "calm"
   });
-  const heroImage = assetUrl(user.hero?.assetKey);
+  const heroImage = fullAsset(character, "front");
 
   const root = element(`
     <header class="page-head">
@@ -73,8 +75,8 @@ export async function renderProfile(page = 1) {
       <div class="stack">
         <section class="panel">
           <div class="row">
-            <div class="character-art ${user.hero?.key === "ampere" ? "female" : "male"}">
-              <div class="sprite sprite--${user.hero?.key === "ampere" ? "female" : "male"}-full" role="img" aria-label="${e(user.displayName)}" style="width:80px;height:88px"></div>
+            <div class="character-art ${character}">
+              <img class="character-img character-full" src="${e(heroImage)}" alt="${e(user.displayName)}" width="160" height="320">
             </div>
             <div>
               <h2 style="margin-bottom:4px">${e(user.displayName)}</h2>

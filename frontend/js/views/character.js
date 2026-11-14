@@ -1,18 +1,18 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e } from "../ui.js";
-import { assetUrl } from "../assets.js";
+import { fullAsset, heroCharacter } from "../assets.js";
 
 const HERO_LABELS = { phase: "Мужской персонаж", ampere: "Женский персонаж" };
 
 function heroCard(hero, checked) {
-  const character = hero.key === "ampere" ? "female" : "male";
-  const frame = "full";
+  const character = heroCharacter(hero);
+  const label = HERO_LABELS[hero.key] ?? hero.name;
   return `
     <section class="character-card${checked ? " selected" : ""}" data-hero="${e(hero.key)}">
       <input type="radio" name="hero" value="${e(hero.key)}" ${checked ? "checked" : ""} style="display:none;position:absolute">
       <div class="character-art ${character}">
-        <div class="sprite sprite--${character}-${frame}" role="img" aria-label="${e(HERO_LABELS[hero.key] ?? hero.name)}" style="width:152px;height:360px"></div>
+        <img class="character-img character-full" src="${e(fullAsset(character, "front"))}" alt="${e(label)}" width="152" height="360">
       </div>
       <div class="between character-name">
         <h2>${e(HERO_LABELS[hero.key] ?? hero.name)}</h2>

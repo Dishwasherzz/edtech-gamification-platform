@@ -38,10 +38,9 @@ fieldset { min-inline-size: 0; border: 0; margin: 0; padding: 0; }
 .auth-card .button:not(:disabled):not(.outline) .button-edge { background: transparent; }
 .auth-card .button:disabled { cursor: not-allowed; background: #777; color: var(--text-secondary); }
 .auth-card .button:disabled .button-edge { background: var(--bg-raised); }
-.auth-story .sprite--male-full {
-  background-image: url("assets/figma/characters.png");
-  background-size: 482.69px 292.8px;
-  background-position: -12.55px -3.51px;
+.auth-story .character-img {
+  width: 112px;
+  height: 284px;
 }
 .panel, .card, .demo-level { border-style: solid; border-radius: 4px; }
 .site-footer { padding: 24px 48px 32px; flex-wrap: wrap; }
@@ -63,7 +62,7 @@ fieldset { min-inline-size: 0; border: 0; margin: 0; padding: 0; }
   .content, .app-body.is-public .content { padding: 24px 20px; }
   .auth-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; margin: 0; }
   .auth-story h1 { font-size: 28px; line-height: 36px; margin-bottom: 16px; }
-  .auth-story > .sprite { display: none; }
+  .auth-story > .character-img { display: none; }
   .auth-card { padding: 24px; }
   .auth-tabs { gap: 20px; }
   .grid-main, .grid2, .grid3, .battle-grid, .settings-layout, .character-choice { grid-template-columns: minmax(0, 1fr); }
