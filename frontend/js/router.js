@@ -41,7 +41,12 @@ const PROFILE_SECTIONS = new Set(["profile", "settings", "character", "shop", "c
 
 // Активный пункт меню подчёркивается розовым, как в макете.
 function markActiveNav(hash) {
-  const current = hash.replace(/^#\/?/, "").split("?")[0];
+  const [path, query] = hash.replace(/^#\/?/, "").split("?");
+  const current = path.split("?")[0];
+  // Первый запуск: отдельная подпись в шапке и без основной навигации.
+  const onboarding = current === "character" && /(^|&)first=1(&|$)/.test(query ?? "");
+  document.body.classList.toggle("is-onboarding", onboarding);
+
   document.querySelectorAll(".navigation a").forEach(link => {
     const target = link.getAttribute("href").replace(/^#\/?/, "").split("?")[0];
     if (target === current) link.setAttribute("aria-current", "page");
@@ -52,7 +57,7 @@ function markActiveNav(hash) {
     const active = side === current || (side === "profile" && PROFILE_SECTIONS.has(current));
     item.classList.toggle("selected", active);
   });
-  setContext(SECTIONS[current] ?? "");
+  setContext(onboarding ? "Первый запуск" : (SECTIONS[current] ?? ""), onboarding);
 }
 
 export async function handleRoute() {

@@ -25,10 +25,10 @@ export function setMascotVisible(value) {
   return state.mascotVisible;
 }
 
-// Заголовок раздела в шапке: «Учебный курс / Главная».
-export function setContext(text) {
+// Заголовок раздела в шапке: «Учебный курс / Главная» или отдельная подпись онбординга.
+export function setContext(text, plain = false) {
   const target = document.querySelector("[data-context]");
-  if (target) target.textContent = text ? `Учебный курс / ${text}` : "Учебный курс";
+  if (target) target.textContent = plain ? text : text ? `Учебный курс / ${text}` : "Учебный курс";
 }
 
 export function updateHeaderUI() {

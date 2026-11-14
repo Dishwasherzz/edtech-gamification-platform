@@ -30,9 +30,20 @@ export async function renderCharacter(options = {}) {
 
   const heroes = config.heroes ?? [];
   const current = user.hero?.key ?? config.defaultHeroKey ?? heroes[0]?.key;
-  let selected = current;
+  // При первом запуске персонаж ещё не выбран: подтверждать нечего.
+  let selected = first ? null : current;
 
   const root = element(`
+    <div class="step-line">
+      <span>Аккаунт</span>
+      <span aria-hidden="true">→</span>
+      <span class="selected">Персонаж</span>
+      <span aria-hidden="true">→</span>
+      <span>Обучение</span>
+    </div>
+
+    <div class="gap"></div>
+
     <header class="page-head character-head">
       <div>
         <h1>${first ? "Кем будете играть?" : "Сменить персонажа"}</h1>
@@ -43,7 +54,7 @@ export async function renderCharacter(options = {}) {
     <p data-error class="error" role="alert" hidden></p>
 
     <div class="character-choice">
-      ${heroes.map(hero => heroCard(hero, hero.key === current)).join("")}
+      ${heroes.map(hero => heroCard(hero, hero.key === selected)).join("")}
     </div>
 
     <div class="character-actions">

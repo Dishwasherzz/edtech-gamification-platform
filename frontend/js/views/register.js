@@ -1,36 +1,16 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { escapeHtml as e, askDialog } from "../ui.js";
-import { assetUrl } from "../assets.js";
 import { authLayout, field, passwordField, consentField, bindForm } from "./auth-layout.js";
 
-const HERO_LABELS = { phase: "Мужской персонаж", ampere: "Женский персонаж" };
-
-function heroCard(hero, checked) {
-  const image = assetUrl(hero.assetKey);
-  return `
-    <label class="character-card${checked ? " selected" : ""}" data-hero="${e(hero.key)}">
-      <input type="radio" name="heroKey" value="${e(hero.key)}" ${checked ? "checked" : ""}>
-      <span class="character-art ${hero.key === "ampere" ? "female" : "male"}">
-        <span class="sprite-img"${image ? ` style="background-image:url('${image}')"` : ""}></span>
-      </span>
-      <span class="character-name">
-        <span class="checkbox${checked ? " is-checked" : ""}" data-mark></span>
-        <h2>${e(HERO_LABELS[hero.key] ?? hero.name)}</h2>
-      </span>
-      <span class="small" data-state>${checked ? "✓ Выбран" : "Выбрать персонажа"}</span>
-    </label>`;
-}
-
 export async function renderRegister() {
-  let config = { heroes: [], defaultHeroKey: "phase", minimumPasswordLength: 8, requiresConsent: false, canRegister: true, consent: null };
+  let config = { minimumPasswordLength: 8, requiresConsent: false, canRegister: true, consent: null };
   try {
     config = await api.registration();
   } catch {
     // Без конфигурации сервера показываем базовую форму.
   }
 
-  const heroes = config.heroes ?? [];
   const consent = config.consent ?? null;
   const consentRequired = Boolean(config.requiresConsent && consent);
   const consentDisabled = !consent;
@@ -38,7 +18,7 @@ export async function renderRegister() {
   const root = authLayout({
     pageTitle: "Регистрация",
     panelTitle: "Создать профиль",
-    story: "Сохраните прогресс курса и выберите персонажа.",
+    story: "Сохраните прогресс курса. Персонажа можно выбрать сразу после регистрации.",
     steps: ["Аккаунт", "Персонаж", "Обучение"],
     tabs: `<a href="#/auth">Вход</a><span class="selected">Регистрация</span>`,
     formHtml: `
@@ -71,13 +51,6 @@ export async function renderRegister() {
             placeholder: "Введите пароль",
             hint: `От ${config.minimumPasswordLength ?? 8} символов, строчная и заглавная буквы, цифра.`
           })}
-
-          ${heroes.length ? `
-            <div class="field">
-              <span>Кем будете играть?</span>
-              <div class="character-choice">${heroes.map(hero => heroCard(hero, hero.key === (config.defaultHeroKey ?? heroes[0].key))).join("")}</div>
-              <p class="field-hint">Персонаж сопровождает в курсе и объясняет экран. Выбор не меняет задания или награды.</p>
-            </div>` : ""}
 
           ${consentField({
             hint: consentDisabled
@@ -115,19 +88,6 @@ export async function renderRegister() {
     };
   }
 
-  // Выбор персонажа в форме регистрации.
-  root.querySelectorAll("[data-hero]").forEach(card => {
-    card.onclick = () => {
-      root.querySelectorAll("[data-hero]").forEach(other => {
-        const checked = other === card;
-        other.classList.toggle("selected", checked);
-        other.querySelector("input").checked = checked;
-        other.querySelector("[data-mark]").classList.toggle("is-checked", checked);
-        other.querySelector("[data-state]").textContent = checked ? "✓ Выбран" : "Выбрать персонажа";
-      });
-    };
-  });
-
   return bindForm(root, async values => {
     if (consentRequired && !values.get("consent")) {
       hint.textContent = "Отметьте согласие, чтобы продолжить.";
@@ -138,9 +98,9 @@ export async function renderRegister() {
     const email = values.get("email").trim();
     const password = values.get("password");
     const displayName = values.get("displayName").trim();
-    const heroKey = values.get("heroKey") || config.defaultHeroKey;
 
-    const payload = { email, password, displayName, heroKey };
+    // Персонажа выбирают на отдельной странице после регистрации.
+    const payload = { email, password, displayName };
     if (!consentDisabled && values.get("consent")) {
       payload.acceptConsent = true;
       payload.consentVersion = consent.version;
