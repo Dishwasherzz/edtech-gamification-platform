@@ -10,6 +10,13 @@ const ASSETS = {
 
 export function assetUrl(key) {
   if (!key) return null;
+  if (Array.isArray(key)) {
+    for (const candidate of key) {
+      const url = assetUrl(candidate);
+      if (url) return url;
+    }
+    return null;
+  }
   const direct = ASSETS[String(key)];
   if (direct) return direct;
   // «mascots/spark/idle» → «mascots/spark», если есть такой файл.

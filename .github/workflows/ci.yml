@@ -35,4 +35,47 @@ jobs:
       - run: dotnet ef migrations has-pending-model-changes --project src/EducationGamePlatform/EducationGamePlatform.csproj
       - run: dotnet test EducationGamePlatform.sln -c Release --no-build --logger "trx;LogFileName=integration.trx"
       - run: docker compose --env-file deploy/.env.example -f deploy/compose.yml --profile app config --quiet
+      - run: docker compose --env-file deploy/.env.example -f deploy/compose.yml -f deploy/compose.release.yml --profile app config --quiet
+      - run: bash -n deploy/update.sh
       - run: docker build -f deploy/Dockerfile -t edtech-api:ci .
+      - name: Start the release stack and check the published course
+        env:
+          EDTECH_IMAGE: edtech-api:ci
+        run: |
+          set -euo pipefail
+          compose=(docker compose --env-file deploy/.env.example -f deploy/compose.yml -f deploy/compose.release.yml --profile app)
+          "${compose[@]}" up -d --no-build api
+          curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 http://127.0.0.1:5244/health/ready
+          curl --fail --silent --show-error http://127.0.0.1:5244/ >/dev/null
+          curl --fail --silent --show-error http://127.0.0.1:5244/api/public/courses | jq -e 'any(.[]; .slug == "electrical-engineering")'
+
+  publish:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    concurrency:
+      group: publish-main
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish the verified main version
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          current=$(git ls-remote --exit-code origin refs/heads/main | cut -f1)
+          if [[ "$current" != "$GITHUB_SHA" ]]; then
+            echo "A newer commit is already on main."
+            exit 0
+          fi
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker build -f deploy/Dockerfile \
+            --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            -t "$image:$GITHUB_SHA" -t "$image:main" .
+          docker push "$image:$GITHUB_SHA"
+          docker push "$image:main"

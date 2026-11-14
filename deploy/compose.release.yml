@@ -1,0 +1,17 @@
+services:
+  migrate:
+    image: ${EDTECH_IMAGE:-ghcr.io/dishwasherzz/edtech-gamification-platform:main}
+    command: ["--migrate", "--seed-analyst"]
+  api:
+    image: ${EDTECH_IMAGE:-ghcr.io/dishwasherzz/edtech-gamification-platform:main}
+    environment:
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      Account__RequireConsent: "${Account__RequireConsent:-true}"
+      Account__ConsentVersion: "${Account__ConsentVersion:-}"
+      Account__ConsentText: "${Account__ConsentText:-}"
+      PasswordMail__Host: "${PasswordMail__Host:-}"
+      PasswordMail__Port: "${PasswordMail__Port:-587}"
+      PasswordMail__From: "${PasswordMail__From:-}"
+      PasswordMail__Username: "${PasswordMail__Username:-}"
+      PasswordMail__Password: "${PasswordMail__Password:-}"
+      PasswordMail__ResetPageUrl: "${PasswordMail__ResetPageUrl:-}"

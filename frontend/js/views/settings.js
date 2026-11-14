@@ -1,5 +1,5 @@
 import { api } from "../api.js";
-import { state, refreshProfile, setMascotVisible } from "../state.js";
+import { state, clearSession, refreshProfile, setMascotVisible } from "../state.js";
 import { element, escapeHtml as e, askDialog } from "../ui.js";
 import { assetUrl } from "../assets.js";
 
@@ -125,6 +125,7 @@ export async function renderSettings(tab = "account") {
 
         <section class="card" data-panel="data" ${active === "data" ? "" : "hidden"}>
           <h2>Персональные данные</h2>
+          <p data-error class="error" role="alert" hidden></p>
           <p class="muted">Сведения об аккаунте и прохождении курса не видны другим пользователям.</p>
           <div class="settings-row">
             <p>Прочитать согласие на обработку данных.</p>
@@ -280,6 +281,7 @@ export async function renderSettings(tab = "account") {
       await refreshProfile();
       error.className = "success";
       error.textContent = "Маскот сохранён.";
+      error.hidden = false;
     } catch (problem) {
       error.className = "error";
       error.textContent = problem.message;
@@ -323,6 +325,7 @@ export async function renderSettings(tab = "account") {
     event.target.disabled = true;
     try {
       await api.deleteAccount(password);
+      clearSession();
       window.location.hash = "#/account/deleted";
     } catch (problem) {
       error.textContent = `Не удалось отправить запрос. ${problem.message} Аккаунт и данные пока не удалены.`;
