@@ -26,6 +26,8 @@ export async function renderAttempt(id) {
   // Процент курса нужен только на экране итога: считаем его один раз.
   async function loadCoursePercent() {
     if (coursePercent !== null) return coursePercent;
+    // Даже при недоступном каталоге результат должен оставаться на экране.
+    coursePercent = undefined;
     try {
       const courses = await api.courses();
       for (const course of courses) {
@@ -86,7 +88,7 @@ export async function renderAttempt(id) {
           ${data.reward ? `<div class="reward-grid">
               <div class="reward-stat"><span>Опыт</span><strong>+${data.reward.xp}</strong></div>
               <div class="reward-stat"><span>Монеты</span><strong>+${data.reward.coins}</strong></div>
-              <div class="reward-stat"><span>Прогресс курса</span><strong>${coursePercent === null ? "—" : `${coursePercent}%`}</strong></div>
+              <div class="reward-stat"><span>Прогресс курса</span><strong>${coursePercent == null ? "—" : `${coursePercent}%`}</strong></div>
             </div>
             <p class="small" style="margin-top:12px">${data.reward.isFirstPass ? "Первая победа по теме" : "Повторная победа"}${data.reward.perfectBonus ? " · Бонус без ошибок" : ""}</p>
             ${data.reward.repeatLimitReached ? '<p class="small">Лимит наград за повторы в этой теме исчерпан.</p>' : ""}

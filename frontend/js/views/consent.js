@@ -36,7 +36,7 @@ export const fallbackConsent = {
 function paragraphs(text) {
   return String(text ?? "")
     .split(/\r?\n\s*\r?\n/)
-    .map(block => `<p>${e(block.trim())}</p>`)
+    .map(block => `<p>${e(block.trim()).replace(/\r?\n/g, "<br>")}</p>`)
     .join("");
 }
 

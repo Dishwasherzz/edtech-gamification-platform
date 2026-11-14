@@ -81,4 +81,33 @@ docker compose --env-file deploy/.env -f deploy/compose.yml --profile app up -d 
 ```
 
 Бэкапы хранить вне контейнерных томов и проверять восстановление.
-Раздельные роли миграций/API, университетский вход и восстановление пароля через почту — последующий этап.
+
+## Автодеплой на Ubuntu
+
+После проверок коммита в `main` GitHub Actions публикует образ в GHCR с тегом коммита и тегом `main`. Ubuntu скачивает его по HTTPS каждые пять минут. Сборка выполняется на GitHub. Для VDS ТПУ первоначальную установку можно выполнить по SSH с компьютера кампуса.
+
+На VDS должны быть Docker Engine, плагин Compose, Git и curl. Настрой DNS и HTTPS-прокси для имени, выданного ТПУ. Прокси направляет запросы на `127.0.0.1:5244` при стандартном порте API и задаёт `Host`, `X-Forwarded-Proto` и `X-Forwarded-For`. На прокси перезаписывай входящие заголовки `X-Forwarded-*` значениями из соединения. Порт API в Compose привязан к loopback.
+
+```bash
+sudo git clone https://github.com/Dishwasherzz/edtech-gamification-platform.git /opt/edtech-gamification-platform
+cd /opt/edtech-gamification-platform
+sudo test -e deploy/.env || sudo install -m 0600 deploy/.env.example deploy/.env
+sudoedit deploy/.env
+```
+
+Если репозиторий уже размещён по этому пути, обнови его и сохрани существующий `deploy/.env`. Для уже запущенного Compose используй прежние имя проекта и параметры базы, чтобы подключить существующие тома. В `deploy/.env` задай новый случайный пароль для **новой** БД, `ASPNETCORE_ENVIRONMENT=Production` и `SEED_DEMO_DATA=false`. Для регистрации на пилоте доступен встроенный рабочий текст согласия. После согласования задай утверждённый текст. Для восстановления доступа настрой почту. [Настройки аккаунтов](analyst-integration.md#настройки-запуска).
+
+Первый пакет GHCR может быть закрытым. Сделай его публичным в настройках пакета или выполни `sudo docker login ghcr.io` с токеном чтения пакетов. Сервис запускается от root и использует его Docker-конфигурацию. [Доступ к GHCR](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
+
+```bash
+sudo install -m 0644 deploy/edtech-deploy.service deploy/edtech-deploy.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl start edtech-deploy.service
+sudo systemctl enable --now edtech-deploy.timer
+sudo journalctl -u edtech-deploy.service -n 50 --no-pager
+curl --fail http://127.0.0.1:5244/health/ready
+```
+
+При обновлении скрипт фиксирует digest образа, останавливает API, делает резервную копию БД, применяет миграции, загружает учебный пакет и запускает API. Проверка `/health/ready` завершает обновление. Повтор запуска с той же рабочей версией проходит без перезапуска. Резервные копии находятся в `/var/lib/edtech-deploy`. Копии старше 14 дней убираются после успешного обновления, последний снимок сохраняется.
+
+При ошибке смотри журнал сервиса и логи контейнера. Для ручного восстановления останови таймер через `sudo systemctl stop edtech-deploy.timer`. Версию API и состояние базы восстанавливай совместно по журналу и резервной копии. Изменения самих файлов Compose, скрипта или systemd обновляются на сервере отдельно.

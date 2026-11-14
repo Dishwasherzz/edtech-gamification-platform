@@ -1,0 +1,10 @@
+[Unit]
+Description=Deploy the verified EducationGamePlatform image
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+StateDirectory=edtech-deploy
+ExecStart=/usr/bin/bash /opt/edtech-gamification-platform/deploy/update.sh

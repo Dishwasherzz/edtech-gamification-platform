@@ -107,7 +107,6 @@ export async function renderRegister() {
     }
 
     await api.register(payload);
-    await api.login(email, password);
     await refreshProfile();
     window.location.hash = "#/character?first=1";
   });

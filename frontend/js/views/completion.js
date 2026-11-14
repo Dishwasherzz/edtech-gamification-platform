@@ -7,11 +7,12 @@ export async function renderCompletion(courseId) {
   const courses = await api.courses();
   const course = courseId
     ? courses.find(item => item.id === courseId)
-    : courses.find(item => item.progressPercent === 100) ?? courses[0];
+    : courses.find(item => item.progressPercent === 100);
 
-  if (!course) {
-    return element(`<header class="page-head"><div><h1>Курс завершён</h1></div></header>
-      <section class="card"><p class="muted">Пока нет опубликованных курсов.</p></section>`);
+  if (!course || course.progressPercent < 100) {
+    return element(`<header class="page-head"><div><h1>Итог курса</h1></div></header>
+      <section class="card"><p class="muted">Итог появится после прохождения всех тем.</p>
+        <a class="btn btn-outline" href="#/topics">К темам курса</a></section>`);
   }
 
   const journey = await api.journey(course.id);

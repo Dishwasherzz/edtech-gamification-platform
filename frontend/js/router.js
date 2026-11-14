@@ -20,7 +20,7 @@ let version = 0;
 let dispose = () => {};
 
 // Эти разделы доступны без входа: демо, инструкция, согласие и формы аккаунта.
-const PUBLIC_ROOTS = new Set(["", "auth", "instructions", "demo", "consent"]);
+const PUBLIC_ROOTS = new Set(["", "auth", "instructions", "demo", "consent", "session"]);
 
 // Название раздела для шапки и сайдбара.
 const SECTIONS = {
@@ -76,7 +76,8 @@ export async function handleRoute() {
   app.setAttribute("aria-busy", "true"); app.textContent = "Загрузка…";
   try {
     let view;
-    if (!state.isAuth && !PUBLIC_ROOTS.has(root)) {
+    if (root === "account" && parts[1] === "deleted") view = renderAccountDeleted();
+    else if (!state.isAuth && !PUBLIC_ROOTS.has(root)) {
       // Гость открыл личный раздел: показываем вход, а не содержимое.
       view = renderSignInRequired();
     }
@@ -105,7 +106,6 @@ export async function handleRoute() {
     else if (root === "character") view = await renderCharacter({ first: url.searchParams.get("first") === "1" });
     else if (root === "shop") view = await renderShop(url.searchParams.get("tab") ?? "shop");
     else if (root === "completion") view = await renderCompletion(parts[1] ?? null);
-    else if (root === "account" && parts[1] === "deleted") view = renderAccountDeleted();
     else if (root === "demo") view = renderDemo();
     else if (root === "session") view = renderSessionExpired();
     else throw new Error("Страница не найдена.");

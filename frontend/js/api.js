@@ -52,7 +52,10 @@ async function request(path, method = "GET", body, retried = false) {
 export const api = {
   // --- Аккаунт -------------------------------------------------------
   registration: () => request("/auth/registration"),
-  register: payload => request("/auth/register", "POST", payload),
+  register: async payload => {
+    await request("/auth/register", "POST", { ...payload, signIn: true });
+    csrfToken = undefined;
+  },
   login: async (email, password) => { await request("/auth/login", "POST", { email, password }); csrfToken = undefined; await refreshCsrf(); },
   logout: async () => { await request("/auth/logout", "POST", {}); csrfToken = undefined; },
   forgotPassword: email => request("/auth/forgot-password", "POST", { email }),
