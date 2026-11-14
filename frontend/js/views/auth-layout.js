@@ -10,8 +10,7 @@ export function authLayout({ pageTitle, panelTitle, formHtml, altHtml = "", step
           <div class="gap"></div>` : ""}
         <h1>${e(pageTitle)}</h1>
         <p class="muted">${e(story)}</p>
-        <span class="sprite auth-sprite" role="img" aria-label="Персонаж курса"
-              style="background-image:url('assets/heroes/phase.png')"></span>
+        <div class="sprite sprite--male-full" role="img" aria-label="Персонаж курса" style="width:112px;height:284px"></div>
       </section>
 
       <section class="auth-card" aria-label="${e(panelTitle)}">
@@ -26,27 +25,30 @@ export function authLayout({ pageTitle, panelTitle, formHtml, altHtml = "", step
 export function field({ label, name, type = "text", placeholder, autocomplete = "off", max = 128, hint = "", required = true }) {
   const described = hint ? ` ${e(name)}-hint` : "";
   return `
-    <label class="field">
-      <span>${e(label)}</span>
-      <input name="${e(name)}" type="${e(type)}" placeholder="${e(placeholder)}" autocomplete="${e(autocomplete)}"
-             maxlength="${max}"${required ? " required" : ""}${described ? ` aria-describedby="${e(name)}-hint"` : ""}>
-      ${hint ? `<p class="field-hint" id="${e(name)}-hint" data-hint="${e(name)}">${e(hint)}</p>` : ""}
-    </label>
+    <div class="field">
+      <span class="field-label">${e(label)}</span>
+      <div class="field-value">
+        <input name="${e(name)}" type="${e(type)}" placeholder="${e(placeholder)}" autocomplete="${e(autocomplete)}"
+               maxlength="${max}"${required ? " required" : ""}${described ? ` aria-describedby="${e(name)}-hint"` : ""}>
+      </div>
+      ${hint ? `<span class="field-note" id="${e(name)}-hint" data-hint="${e(name)}">${e(hint)}</span>` : ""}
+    </div>
   `;
 }
 
 // Поле с кнопкой «Показать» для пароля.
 export function passwordField({ label, name, placeholder, autocomplete = "current-password", hint = "" }) {
+  const described = hint ? ` ${e(name)}-hint` : "";
   return `
-    <label class="field field-password">
-      <span>${e(label)}</span>
-      <span class="field-row">
+    <div class="field field-password">
+      <span class="field-label">${e(label)}</span>
+      <div class="field-value">
         <input name="${e(name)}" type="password" placeholder="${e(placeholder)}" autocomplete="${e(autocomplete)}"
                maxlength="128" required${hint ? ` aria-describedby="${e(name)}-hint"` : ""}>
-        <button type="button" class="reveal" data-reveal aria-pressed="false">Показать</button>
-      </span>
-      ${hint ? `<p class="field-hint" id="${e(name)}-hint" data-hint="${e(name)}">${e(hint)}</p>` : ""}
-    </label>
+        <a class="action-link reveal" data-reveal href="#">Показать</a>
+      </div>
+      ${hint ? `<span class="field-note" id="${e(name)}-hint" data-hint="${e(name)}">${e(hint)}</span>` : ""}
+    </div>
   `;
 }
 
@@ -56,13 +58,13 @@ export function consentField({ name = "consent", label = "Я даю соглас
   linkText = "Прочитать согласие", linkHref = "#/consent", hint = "" }) {
   return `
     <div class="consent">
-      <label class="check-row">
-        <span class="checkbox" data-check><input type="checkbox" name="${e(name)}" value="yes"></span>
+      <div class="check-row">
+        <span class="checkbox" data-check><input type="checkbox" name="${e(name)}" value="yes" style="display:none;position:absolute"></span>
         <span>${e(label)}</span>
-      </label>
+      </div>
       <a class="link action-link" href="${e(linkHref)}">${e(linkText)}</a>
-      <p class="field-hint" data-consent-hint>${e(hint)}</p>
-      <button type="button" class="link action-link" data-why>Зачем нужно согласие</button>
+      <p class="small" data-consent-hint>${e(hint)}</p>
+      <a class="link action-link" data-why>${e(linkText === "Прочитать согласие" ? "Зачем нужно согласие" : "Зачем нужно согласие")}</a>
     </div>
   `;
 }
@@ -102,7 +104,8 @@ export function bindForm(root, onSubmit) {
 
   // «Показать» переключает видимость пароля.
   root.querySelectorAll("[data-reveal]").forEach(button => {
-    button.onclick = () => {
+    button.onclick = event => {
+      event.preventDefault();
       const input = button.parentElement.querySelector("input");
       const shown = input.type === "text";
       input.type = shown ? "password" : "text";
@@ -115,7 +118,7 @@ export function bindForm(root, onSubmit) {
   root.querySelectorAll("[data-check]").forEach(box => {
     const input = box.querySelector("input");
     if (!input) return;
-    const sync = () => box.classList.toggle("is-checked", input.checked);
+    const sync = () => box.classList.toggle("checked", input.checked);
     input.addEventListener("change", sync);
     sync();
   });

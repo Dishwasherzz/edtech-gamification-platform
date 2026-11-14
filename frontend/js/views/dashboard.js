@@ -45,7 +45,7 @@ async function renderGuestHome() {
         <h1>Электротехника в испытаниях</h1>
         <p>Изучайте схемы, решайте задачи в бою с боссом и принимайте решения в аварийных сценариях.</p>
         <div class="actions">
-          <a class="btn" href="#/auth">Начать обучение</a>
+          <a class="button" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Начать обучение</span></a>
           <a class="link action-link" href="#/instructions">Как устроен курс</a>
         </div>
       </div>
@@ -60,8 +60,8 @@ async function renderGuestHome() {
           <span class="circuit-node">6 Ом</span>
         </div>
         <div class="between"><span class="small">HP босса</span><span class="num">100%</span></div>
-        <div class="progress"><div style="width:100%"></div></div>
-        <div class="actions"><a class="btn btn-cta" href="#/demo">Открыть пример</a></div>
+        <div class="bar"><div class="bar-fill" style="width:100%"></div></div>
+        <div class="actions"><a class="button blue" href="#/demo"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Открыть пример</span></a></div>
       </div>
     </section>
 
@@ -71,14 +71,14 @@ async function renderGuestHome() {
         <span class="small">${topics.length ? `${topics.length} темы · тест или авария в каждой` : "Темы пока не опубликованы."}</span>
       </div>
       ${topics.length ? `<div class="grid3">${topics.map(topic => `
-        <section class="card">
+        <section class="panel">
           <h2>${e(topic.title)}</h2>
           <p class="muted">${e(topic.subtitle ?? topic.description)}</p>
           <div class="skeleton"></div>
           <div class="skeleton mid"></div>
           <div class="skeleton short"></div>
         </section>`).join("")}</div>`
-        : `<div class="card"><p class="muted">Пока нет опубликованных тем.</p></div>`}
+        : `<div class="panel"><p class="muted">Пока нет опубликованных тем.</p></div>`}
     </section>
 
     <p class="small">Без профиля, настроек и спутника. «Пример уровня» не требует регистрации.</p>
@@ -94,8 +94,8 @@ export async function renderGuestGate() {
         <h2>Войдите, чтобы начать курс</h2>
         <p>Лекции, испытания и личный прогресс доступны после входа. Пример уровня можно посмотреть без аккаунта.</p>
         <div class="actions">
-          <a class="btn" href="#/auth">Войти</a>
-          <a class="btn btn-outline" href="#/auth/register">Регистрация</a>
+          <a class="button" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Войти</span></a>
+          <a class="button outline" href="#/auth/register"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Регистрация</span></a>
           <a class="link action-link" href="#/demo">Остаться в демо</a>
         </div>
       </section>
@@ -153,7 +153,8 @@ export async function renderDashboard() {
       ? "Я не подсказываю правильный ответ и не останавливаю отсчёт."
       : "Откройте доступную тему и прочитайте лекцию. Испытание появится после отметки «Прочитано».",
     hint: active ? hints.attempt : hints.dashboard,
-    assetKey: companionAssets(user)
+    assetKey: companionAssets(user),
+    frame: active ? "focused" : "neutral"
   });
 
   const root = element(`
@@ -162,7 +163,7 @@ export async function renderDashboard() {
         <h1>${e(headline)}</h1>
         <p>${e(description)}</p>
       </div>
-      <div class="top-actions"><a class="btn" href="${e(ctaHref)}">${e(ctaLabel)}</a></div>
+      <div class="top-actions"><a class="button" href="${e(ctaHref)}"><span class="button-edge" aria-hidden="true"></span><span class="button-label">${e(ctaLabel)}</span></a></div>
     </header>
 
     ${active ? `<div class="notice info">Незавершённое испытание ждёт. <a class="link action-link" href="#/attempt/${e(active.id)}">Вернуться к попытке</a></div>` : ""}
@@ -176,7 +177,7 @@ export async function renderDashboard() {
           <div class="stat"><span>Баланс</span><strong>${user.coinsBalance} <span class="unit">монет</span></strong></div>
         </div>
 
-        <section class="card">
+        <section class="panel">
           <div class="between">
             <h2>Маршрут курса</h2>
             <span class="small">Лекция → Испытание → Следующая тема</span>
@@ -195,12 +196,12 @@ export async function renderDashboard() {
       </div>
 
       <div class="stack">
-        ${user.nextRankXp ? `<section class="card">
+        ${user.nextRankXp ? `<section class="panel">
           <h2>До следующего разряда</h2>
           <div class="between"><span>Разряд ${user.rank + 1}</span><strong class="num">${user.xpToNextRank ?? 0} XP</strong></div>
-          ${progressBar(user.rankProgressPercent, "Прогресс до следующего разряда")}
+          <div class="bar"><div class="bar-fill" style="width:${user.rankProgressPercent ?? 0}%"></div></div>
           <p class="small" style="margin-top:12px">${user.totalXp} XP · следующий порог ${user.nextRankXp} XP</p>
-        </section>` : `<section class="card"><h2>Высший разряд</h2><p class="muted">Достигнут максимальный разряд курса.</p></section>`}
+        </section>` : `<section class="panel"><h2>Высший разряд</h2><p class="muted">Достигнут максимальный разряд курса.</p></section>`}
 
         <div class="mascot-column"></div>
       </div>

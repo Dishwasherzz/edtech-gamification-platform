@@ -75,12 +75,12 @@ export async function renderConsent() {
     </header>
 
     <div class="content-page">
-      <section class="card">${body}</section>
+      <section class="panel">${body}</section>
     </div>
 
     <div class="actions">
-      <a class="btn btn-cta" href="#/auth/register">Вернуться к регистрации</a>
-      <a class="btn btn-outline" href="#/demo">Продолжить без аккаунта</a>
+      <a class="button blue" href="#/auth/register"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Вернуться к регистрации</span></a>
+      <a class="button outline" href="#/demo"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Продолжить без аккаунта</span></a>
     </div>
   `);
 }
@@ -92,13 +92,13 @@ export function renderConsentDeclined() {
       <div><h1>Аккаунт не создан</h1><p>Согласие не предоставлено</p></div>
     </header>
 
-    <section class="card">
+    <section class="panel">
       <h2>Согласие не предоставлено</h2>
       <p class="muted">Регистрация не отправлена. Данные формы не передаются.</p>
       <p class="small">Отказ не закрывает бесплатный демо-маршрут: пример уровня доступен без входа.</p>
       <div class="actions">
-        <a class="btn" href="#/demo">Открыть пример</a>
-        <a class="btn btn-outline" href="#/auth/register">Вернуться к регистрации</a>
+        <a class="button" href="#/demo"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Открыть пример</span></a>
+        <a class="button outline" href="#/auth/register"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Вернуться к регистрации</span></a>
       </div>
     </section>
   `);

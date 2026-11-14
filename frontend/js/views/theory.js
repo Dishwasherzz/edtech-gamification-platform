@@ -24,13 +24,13 @@ async function lockedTopic(topic, previous, courseTitle) {
 
     <div class="grid-main">
       <div class="stack">
-        <section class="card">
+        <section class="panel">
           <span class="eyebrow">Тема закрыта</span>
           <h2>Сначала победите в предыдущей теме</h2>
           <p class="muted">Чтобы открыть эту тему, победите в тесте или аварии по теме${previous ? ` «${e(previous.title)}»` : " перед ней"}. Подойдёт любой тип испытания.</p>
           <div class="actions">
-            ${previous ? `<a class="btn" href="#/topic/${e(previous.id)}">Открыть предыдущую тему</a>` : ""}
-            <a class="btn btn-outline" href="#/topics">Все темы</a>
+            ${previous ? `<a class="button" href="#/topic/${e(previous.id)}">Открыть предыдущую тему</a>` : ""}
+            <a class="button outline" href="#/topics">Все темы</a>
           </div>
         </section>
       </div>
@@ -113,7 +113,7 @@ export async function renderTopic(id) {
 
     <div class="grid-main">
       <div class="stack">
-        ${lesson ? `<section class="card">
+        ${lesson ? `<section class="panel">
           <div class="between">
             <h2>${e(lesson.title)}</h2>
             <span class="small">${lesson.awardedXp ? "Прочитано" : "Материал лекции"}</span>
@@ -121,14 +121,14 @@ export async function renderTopic(id) {
           <div class="lesson-content">${markdown(lesson.contentMarkdown)}</div>
           <p data-error class="error" role="alert" hidden></p>
           <div class="actions">
-            <button type="button" class="btn" data-complete ${lesson.awardedXp > 0 ? "disabled" : ""}>
+            <button type="button" class="button${lesson.awardedXp > 0 ? " is-disabled" : ""}" data-complete ${lesson.awardedXp > 0 ? "disabled" : ""}>
               ${lesson.awardedXp > 0 ? "Прочитано" : "Отметить прочитанной · +20 XP"}</button>
             <a class="link action-link" href="#/lesson/${e(lesson.id)}">Открыть лекцию</a>
           </div>
           <p class="success" data-reward role="status"></p>
-        </section>` : `<section class="card"><p class="muted">Лекции пока не опубликованы.</p></section>`}
+        </section>` : `<section class="panel"><p class="muted">Лекции пока не опубликованы.</p></section>`}
 
-        ${lessons.length > 1 ? `<section class="card">
+        ${lessons.length > 1 ? `<section class="panel">
           <h2>Все лекции темы</h2>
           <div class="tight">${lessons.map(item => `
             <div class="feed-row">
@@ -137,16 +137,16 @@ export async function renderTopic(id) {
             </div>`).join("")}</div>
         </section>` : ""}
 
-        ${nextTopic ? `<section class="card">
+        ${nextTopic ? `<section class="panel">
           <h2>Следующая тема</h2>
           <p class="muted">${e(nextTopic.title)}</p>
           <p class="small">${nextTopic.status === "Locked" ? "Откроется после победы в этом испытании." : "Тема уже доступна."}</p>
-          ${nextTopic.status !== "Locked" ? `<div class="actions"><a class="btn btn-outline" href="#/topic/${e(nextTopic.id)}">Открыть тему</a></div>` : ""}
-        </section>` : `<section class="card"><h2>Это последняя тема курса</h2><p class="muted">После победы откроется итог курса.</p></section>`}
+          ${nextTopic.status !== "Locked" ? `<div class="actions"><a class="button outline" href="#/topic/${e(nextTopic.id)}">Открыть тему</a></div>` : ""}
+        </section>` : `<section class="panel"><h2>Это последняя тема курса</h2><p class="muted">После победы откроется итог курса.</p></section>`}
       </div>
 
       <div class="stack">
-        <section class="card">
+        <section class="panel">
           <h2>Допуск к испытанию</h2>
           <p class="muted">${read
             ? "Выберите тест или аварию. Победа в любом режиме засчитывает тему пройденной."
@@ -166,7 +166,7 @@ export async function renderTopic(id) {
               </div>`).join("") || `<p class="muted">Испытания ещё не опубликованы.</p>`}
           </div>
 
-          ${topic.assessments.length > 1 ? `<div class="actions"><button type="button" class="btn btn-outline" data-compare>Сравнить испытания</button></div>` : ""}
+          ${topic.assessments.length > 1 ? `<div class="actions"><button type="button" class="button outline" data-compare>Сравнить испытания</button></div>` : ""}
         </section>
 
         <div class="mascot-column"></div>
@@ -240,7 +240,7 @@ export async function renderAssessmentBrief(topicId, assessmentId) {
 
     <div class="grid-main">
       <div class="stack">
-        <section class="card">
+        <section class="panel">
           <h2>${boss ? "Перед боем" : "Сценарий 1 из 3"}</h2>
           <div class="media-placeholder large"><span>${boss ? "Босс" : "Сценарий аварии"}</span></div>
           <p class="muted">${e(boss
@@ -248,14 +248,14 @@ export async function renderAssessmentBrief(topicId, assessmentId) {
             : "В распределительном щите замечены признаки аварии. Нужно выбрать безопасный порядок действий.")}</p>
           <p data-error class="error" role="alert" hidden></p>
           <div class="actions">
-            <button type="button" class="btn" data-start="${e(assessment.id)}">${boss ? "В бой" : "Действовать"}</button>
+            <button type="button" class="button" data-start="${e(assessment.id)}">${boss ? "В бой" : "Действовать"}</button>
             <a class="link action-link" href="#/topic/${e(topic.id)}">Назад к выбору</a>
           </div>
         </section>
       </div>
 
       <div class="stack">
-        <section class="card">
+        <section class="panel">
           <h2>Условия испытания</h2>
           <div class="metric-list">
             ${(boss ? [
@@ -316,12 +316,12 @@ export async function renderLesson(id) {
 
     <div class="grid-main">
       <div class="stack">
-        <section class="card lesson-content">${markdown(lesson.contentMarkdown)}</section>
+        <section class="panel lesson-content">${markdown(lesson.contentMarkdown)}</section>
         <p data-error class="error" role="alert" hidden></p>
         <div class="actions">
-          <button type="button" class="btn" data-complete ${lesson.awardedXp > 0 ? "disabled" : ""}>
+          <button type="button" class="button${lesson.awardedXp > 0 ? " is-disabled" : ""}" data-complete ${lesson.awardedXp > 0 ? "disabled" : ""}>
             ${lesson.awardedXp > 0 ? "Прочитано" : `Отметить прочитанной · +${rules.lessonXp} XP`}</button>
-          <a class="btn btn-outline" href="#/topic/${e(lesson.topicId)}">К испытаниям</a>
+          <a class="button outline" href="#/topic/${e(lesson.topicId)}">К испытаниям</a>
         </div>
         <p class="success" data-reward role="status"></p>
       </div>

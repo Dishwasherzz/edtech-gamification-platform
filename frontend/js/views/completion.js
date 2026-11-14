@@ -11,8 +11,8 @@ export async function renderCompletion(courseId) {
 
   if (!course || course.progressPercent < 100) {
     return element(`<header class="page-head"><div><h1>Итог курса</h1></div></header>
-      <section class="card"><p class="muted">Итог появится после прохождения всех тем.</p>
-        <a class="btn btn-outline" href="#/topics">К темам курса</a></section>`);
+      <section class="panel"><p class="muted">Итог появится после прохождения всех тем.</p>
+        <a class="button outline" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К темам курса</span></a></section>`);
   }
 
   const journey = await api.journey(course.id);
@@ -27,12 +27,12 @@ export async function renderCompletion(courseId) {
       </div>
       <div class="top-actions">
         ${journey.completionPending
-          ? `<button type="button" class="btn" data-claim>Забрать итог курса</button>`
+          ? `<button type="button" class="button" data-claim><span class="button-edge" aria-hidden="true"></span><span class="button-label">Забрать итог курса</span></button>`
           : `<span class="status strong">Итог курса уже получен</span>`}
       </div>
     </header>
 
-    <section class="card result">
+    <section class="panel result">
       <div class="reward-grid">
         <div class="reward-stat"><span>Опыт</span><strong>${user.totalXp}</strong></div>
         <div class="reward-stat"><span>Монеты</span><strong>${user.coinsBalance}</strong></div>
@@ -42,8 +42,8 @@ export async function renderCompletion(courseId) {
       ${summary ? `<p class="small" style="margin-top:12px">Испытаний пройдено: ${summary.attempts}. Итог курса рассчитан на ${summary.totalXp} XP и ${summary.coinsBalance} монет.</p>` : ""}
 
       <div class="actions">
-        <a class="btn btn-outline" href="#/topics">К темам курса</a>
-        <a class="btn btn-outline" href="#/profile">В профиль</a>
+        <a class="button outline" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К темам курса</span></a>
+        <a class="button outline" href="#/profile"><span class="button-edge" aria-hidden="true"></span><span class="button-label">В профиль</span></a>
       </div>
       <p data-error class="error" role="alert" hidden></p>
     </section>

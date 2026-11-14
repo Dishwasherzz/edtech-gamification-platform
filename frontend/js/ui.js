@@ -29,7 +29,7 @@ export function clearError(root) {
 }
 export function progressBar(percent, label) {
   const value = Math.max(0, Math.min(100, Number(percent) || 0));
-  return `<div class="progress" role="progressbar" aria-label="${escape(label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}"><div style="width:${value}%"></div></div>`;
+  return `<div class="bar" role="progressbar" aria-label="${escape(label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}"><div class="bar-fill" style="width:${value}%"></div></div>`;
 }
 
 // Русские склонения: plural(3, "тема", "темы", "тем").
@@ -47,19 +47,19 @@ export const lessonsWord = count => plural(count, "лекция", "лекции"
 export const coinsWord = count => plural(count, "монета", "монеты", "монет");
 
 // Модальное окно подтверждения. Возвращает значение нажатой кнопки.
-export function askDialog({ title, body, actions = [{ label: "ОК", value: "ok", kind: "btn-cta" }] }) {
+export function askDialog({ title, body, actions = [{ label: "ОК", value: "ok", kind: "button" }] }) {
   return new Promise(resolve => {
     const dialog = document.createElement("dialog");
     dialog.className = "modal";
     const form = document.createElement("form");
     form.method = "dialog";
-    form.className = "modal-box";
+    // Класс .modal-box в макете отсутствует; форма наследует стили от .modal.
     form.innerHTML = `<h2>${escape(title)}</h2><div class="modal-body">${body}</div>`;
     const row = document.createElement("div");
     row.className = "actions";
     for (const action of actions) {
       const button = document.createElement("button");
-      button.className = `btn ${action.kind ?? ""}`.trim();
+      button.className = `button ${action.kind ?? ""}`.trim();
       button.value = action.value;
       button.textContent = action.label;
       row.append(button);

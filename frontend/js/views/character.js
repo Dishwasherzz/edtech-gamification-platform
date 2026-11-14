@@ -6,19 +6,20 @@ import { assetUrl } from "../assets.js";
 const HERO_LABELS = { phase: "Мужской персонаж", ampere: "Женский персонаж" };
 
 function heroCard(hero, checked) {
-  const image = assetUrl(hero.assetKey);
+  const character = hero.key === "ampere" ? "female" : "male";
+  const frame = "full";
   return `
-    <label class="character-card${checked ? " selected" : ""}" data-hero="${e(hero.key)}">
-      <input type="radio" name="hero" value="${e(hero.key)}" ${checked ? "checked" : ""}>
-      <span class="character-art ${hero.key === "ampere" ? "female" : "male"}">
-        <span class="sprite-img"${image ? ` style="background-image:url('${image}')"` : ""}></span>
-      </span>
-      <span class="character-name">
+    <section class="character-card${checked ? " selected" : ""}" data-hero="${e(hero.key)}">
+      <input type="radio" name="hero" value="${e(hero.key)}" ${checked ? "checked" : ""} style="display:none;position:absolute">
+      <div class="character-art ${character}">
+        <div class="sprite sprite--${character}-${frame}" role="img" aria-label="${e(HERO_LABELS[hero.key] ?? hero.name)}" style="width:152px;height:360px"></div>
+      </div>
+      <div class="between character-name">
         <h2>${e(HERO_LABELS[hero.key] ?? hero.name)}</h2>
-        <span class="checkbox${checked ? " is-checked" : ""}" data-mark></span>
-      </span>
-      <span class="small" data-state>${checked ? "✓ Выбран" : "Выбрать персонажа"}</span>
-    </label>`;
+        <span class="checkbox${checked ? " checked" : ""}">${checked ? "✓" : ""}</span>
+      </div>
+      <span class="small" data-state>${checked ? "Выбран" : "Выбрать персонажа"}</span>
+    </section>`;
 }
 
 export async function renderCharacter(options = {}) {
@@ -58,7 +59,7 @@ export async function renderCharacter(options = {}) {
     </div>
 
     <div class="character-actions">
-      <button type="button" class="btn" data-save ${selected ? "" : "disabled"}>${first ? "Подтвердить выбор" : "Сохранить выбор"}</button>
+      <button type="button" class="button${selected ? "" : " is-disabled"}" data-save ${selected ? "" : "disabled"}><span class="button-edge" aria-hidden="true"></span><span class="button-label">${first ? "Подтвердить выбор" : "Сохранить выбор"}</span></button>
       ${first ? `<a class="link action-link" href="#/">Выбрать позже</a>` : `<a class="link action-link" href="#/profile">Отмена</a>`}
     </div>
   `);
@@ -71,11 +72,13 @@ export async function renderCharacter(options = {}) {
       if (event.target.tagName === "A") return;
       selected = card.dataset.hero;
       root.querySelectorAll("[data-hero]").forEach(other => {
-        const checked = other === card;
-        other.classList.toggle("selected", checked);
-        other.querySelector("input").checked = checked;
-        other.querySelector("[data-mark]").classList.toggle("is-checked", checked);
-        other.querySelector("[data-state]").textContent = checked ? "✓ Выбран" : "Выбрать персонажа";
+        const isChecked = other === card;
+        other.classList.toggle("selected", isChecked);
+        other.querySelector("input").checked = isChecked;
+        const box = other.querySelector(".checkbox");
+        box.classList.toggle("checked", isChecked);
+        box.textContent = isChecked ? "✓" : "";
+        other.querySelector("[data-state]").textContent = isChecked ? "✓ Выбран" : "Выбрать персонажа";
       });
       save.disabled = false;
       error.hidden = true;
@@ -98,7 +101,7 @@ export async function renderCharacter(options = {}) {
   };
 
   if (!heroes.length) {
-    root.querySelector(".character-choice").innerHTML = `<section class="card"><p class="muted">Персонажи пока не настроены на сервере.</p></section>`;
+    root.querySelector(".character-choice").innerHTML = `<section class="panel"><p class="muted">Персонажи пока не настроены на сервере.</p></section>`;
     save.disabled = true;
   }
 

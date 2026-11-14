@@ -2,10 +2,24 @@ import { escapeHtml as e } from "./ui.js";
 import { state } from "./state.js";
 import { firstAsset } from "./assets.js";
 
+// Кадры спутника из листа character-male.webp (макет components-pet).
+// Женский персонаж в исходнике имеет только нейтральный кадр.
+const MALE_FRAMES = new Set(["neutral", "focused", "happy", "surprised", "rest"]);
+const FEMALE_FRAMES = new Set(["neutral"]);
+
+function spriteClass(character, frame) {
+  const safeFrame = (character === "female" ? FEMALE_FRAMES : MALE_FRAMES).has(frame) ? frame : "neutral";
+  return `sprite sprite--${character}-${safeFrame}`;
+}
+
+function detectCharacter(assetKey) {
+  return String(assetKey || "").includes("female") ? "female" : "male";
+}
+
 // Панель спутника: портрет, реакция на событие и подсказка по текущему экрану.
-// Режимы присутствия из макета: открыт в колонке, свёрнут в строку или скрыт настройкой.
 export function mascotPanel({ label = "Готов к занятию", message = "", hint = "", assetKey = null,
-  href = "#/settings?tab=mascot", hrefLabel = "Настроить спутника", collapsed = false } = {}) {
+  frame = "neutral", href = "#/settings?tab=mascot", hrefLabel = "Настроить спутника", collapsed = false } = {}) {
+  const character = detectCharacter(assetKey);
   const root = document.createElement("aside");
   root.className = `pet-panel${collapsed ? " is-collapsed" : ""}`;
   root.setAttribute("data-mascot", "");
@@ -16,7 +30,7 @@ export function mascotPanel({ label = "Готов к занятию", message = 
       <button type="button" class="link action-link" data-collapse>${collapsed ? "Открыть" : "Свернуть"}</button>
     </header>
     <div class="pet-portrait">
-      <span class="avatar-dot mascot-avatar" data-avatar aria-hidden="true"></span>
+      <div class="${spriteClass(character, frame)} mascot-sprite" role="img" aria-label="Спутник" data-sprite style="width:64px;height:72px"></div>
       <div>
         <p class="white" data-label>${e(label)}</p>
         <p class="small">Подсказка по экрану</p>
@@ -25,15 +39,7 @@ export function mascotPanel({ label = "Готов к занятию", message = 
     <p class="pet-message" data-message>${e(message)}</p>
     <div class="actions"><a class="link action-link" href="${e(href)}">${e(hrefLabel)}</a></div>`;
 
-  const avatar = root.querySelector("[data-avatar]");
-  const image = firstAsset(assetKey);
-  if (image) {
-    avatar.style.backgroundImage = `url("${image}")`;
-    avatar.textContent = "";
-  } else {
-    avatar.textContent = "⚡";
-  }
-
+  const sprite = root.querySelector("[data-sprite]");
   const toggle = root.querySelector("[data-collapse]");
   toggle.onclick = () => {
     const isCollapsed = root.classList.toggle("is-collapsed");
@@ -50,12 +56,12 @@ export function mascotPanel({ label = "Готов к занятию", message = 
     if (!next) return;
     if (next.label !== undefined) root.querySelector("[data-label]").textContent = next.label;
     if (next.message !== undefined) root.querySelector("[data-message]").textContent = next.message;
-    if (next.assetKey !== undefined) {
-      const url = firstAsset(next.assetKey);
-      if (url) { avatar.style.backgroundImage = `url("${url}")`; avatar.textContent = ""; }
+    if (next.frame !== undefined || next.assetKey !== undefined) {
+      const ch = next.assetKey !== undefined ? detectCharacter(next.assetKey) : character;
+      const fr = next.frame !== undefined ? next.frame : frame;
+      sprite.className = `${spriteClass(ch, fr)} mascot-sprite`;
     }
   };
-  // Подсказка по экрану живёт в тексте сообщения — отдельного блока нет.
   root.setHint = text => {
     root.querySelector("[data-message]").textContent = text;
   };
@@ -68,34 +74,26 @@ export function mascotPanel({ label = "Готов к занятию", message = 
 }
 
 // Компактная строка спутника: портрет, подпись и ссылка «Открыть».
-// В макете так выглядит спутник на странице профиля и во время испытания.
-export function mascotMini({ label = "Спутник", assetKey = null, href = "#/settings?tab=mascot" } = {}) {
+export function mascotMini({ label = "Спутник", assetKey = null, frame = "neutral", href = "#/settings?tab=mascot" } = {}) {
+  const character = detectCharacter(assetKey);
   const root = document.createElement("aside");
   root.className = "pet-mini";
   root.setAttribute("data-pet", "mini");
   root.innerHTML = `
-    <span class="avatar-dot" data-avatar aria-hidden="true"></span>
+    <div class="${spriteClass(character, frame)} mascot-sprite" role="img" aria-label="Спутник" data-sprite style="width:32px;height:36px"></div>
     <span data-label>${e(label)}</span>
     <a class="link action-link" href="${e(href)}">Открыть</a>`;
 
-  const avatar = root.querySelector("[data-avatar]");
-  const image = firstAsset(assetKey);
-  if (image) {
-    avatar.style.backgroundImage = `url("${image}")`;
-    avatar.textContent = "";
-  } else {
-    avatar.textContent = "⚡";
-  }
-
+  const sprite = root.querySelector("[data-sprite]");
   root.update = next => {
     if (!next) return;
     if (next.label !== undefined) root.querySelector("[data-label]").textContent = next.label;
-    if (next.assetKey !== undefined) {
-      const url = firstAsset(next.assetKey);
-      if (url) { avatar.style.backgroundImage = `url("${url}")`; avatar.textContent = ""; }
+    if (next.frame !== undefined || next.assetKey !== undefined) {
+      const ch = next.assetKey !== undefined ? detectCharacter(next.assetKey) : character;
+      const fr = next.frame !== undefined ? next.frame : frame;
+      sprite.className = `${spriteClass(ch, fr)} mascot-sprite`;
     }
   };
-  // Спутник может быть выключен в настройках — тогда строка прячется.
   root.hidden = !state.mascotVisible;
   const onVisibility = () => { root.hidden = !state.mascotVisible; };
   window.addEventListener("mascot-visibility", onVisibility);
@@ -103,7 +101,6 @@ export function mascotMini({ label = "Спутник", assetKey = null, href = "
   return root;
 }
 
-// Панель спутника в колонке страницы. Скрытый спутник убирает и колонку.
 export function mountMascot(column, mascot) {
   column.replaceChildren(mascot);
   const sync = () => { column.hidden = !state.mascotVisible; };
@@ -114,10 +111,9 @@ export function mountMascot(column, mascot) {
   return mascot;
 }
 
-// Текст-подсказка для экранов курса.
 export const hints = {
   dashboard: "Откройте доступную тему и прочитайте лекцию. Испытание появится после отметки «Прочитано».",
-  lesson: "В конце лекции отметьте её как прочитанной. За это начисляется 20 XP один раз.",
+  lesson: "В конце лекции отметьте её как прочитанную. За это начисляется 20 XP один раз.",
   locked: "Сначала победите в испытании предыдущей темы. Подойдёт тест или авария.",
   attempt: "Я не подсказываю правильный ответ и не останавливаю отсчёт.",
   correct: "Проверьте, как изменились показатели испытания, и переходите дальше.",

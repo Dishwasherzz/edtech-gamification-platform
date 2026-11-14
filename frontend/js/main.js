@@ -18,7 +18,7 @@ async function logout() {
     body: "<p>Сохранённый прогресс останется в профиле. Если идёт испытание, его отсчёт не остановится.</p>",
     actions: [
       { label: "Выйти", value: "logout", kind: "" },
-      { label: "Остаться", value: "stay", kind: "btn-outline" }
+      { label: "Остаться", value: "stay", kind: "outline" }
     ]
   });
   if (answer !== "logout") return;

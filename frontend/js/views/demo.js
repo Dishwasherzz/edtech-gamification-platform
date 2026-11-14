@@ -28,7 +28,7 @@ export function renderDemo() {
 
     <div class="grid-main">
       <div class="stack">
-        <section class="card">
+        <section class="panel">
           <h2>${e(DEMO.title)}</h2>
           <div class="circuit" aria-label="Пример цепи: источник 12 вольт и сопротивление 6 ом">
             ${DEMO.formula.map(part => `<span class="circuit-node">${e(part.value)}</span>`).join('<span aria-hidden="true">──</span>')}
@@ -44,7 +44,7 @@ export function renderDemo() {
       </div>
 
       <div class="stack">
-        <section class="card">
+        <section class="panel">
           <h2>Демо-показатели</h2>
           <div class="metric-list">
             <div class="metric-row"><span>HP босса</span><strong class="num" data-hp>100%</strong></div>
@@ -52,7 +52,7 @@ export function renderDemo() {
           ${progressBar(100, "HP босса")}
           <p class="small" style="margin-top:12px">Демо не записывается в прогресс и не начисляет XP или монеты.</p>
           <div class="actions">
-            <button type="button" class="btn btn-cta" data-reveal>Показать ответ</button>
+            <button type="button" class="button blue" data-reveal><span class="button-edge" aria-hidden="true"></span><span class="button-label">Показать ответ</span></button>
             <a class="link action-link" href="#/auth/register">Зарегистрироваться</a>
             <a class="link action-link" href="#/">На главную</a>
           </div>
@@ -62,8 +62,9 @@ export function renderDemo() {
   `);
 
   const feedback = root.querySelector("[data-feedback]");
-  const bar = root.querySelector(".progress > div");
+  const bar = root.querySelector(".bar .bar-fill");
   const reveal = root.querySelector("[data-reveal]");
+  const revealLabel = reveal.querySelector(".button-label");
 
   reveal.onclick = () => {
     root.querySelectorAll("[data-option]").forEach(button => {
@@ -78,7 +79,7 @@ export function renderDemo() {
     bar.style.width = "80%";
     feedback.textContent = DEMO.explanation;
     reveal.disabled = true;
-    reveal.textContent = "Ответ показан";
+    revealLabel.textContent = "Ответ показан";
   };
 
   return root;

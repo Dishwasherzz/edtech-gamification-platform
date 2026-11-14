@@ -10,13 +10,13 @@ function skinCard(skin, balance) {
   const action = skin.isEquipped
     ? `<span class="status strong">Надето</span>`
     : skin.isOwned
-      ? `<button type="button" class="btn btn-outline" data-equip="${e(skin.id)}">Надеть</button>`
+      ? `<button type="button" class="button outline" data-equip="${e(skin.id)}">Надеть</button>`
       : skin.isForSale
-        ? `<button type="button" class="btn" data-buy="${e(skin.id)}" ${balance < skin.priceCoins ? "disabled" : ""}>Купить · ${skin.priceCoins}</button>`
+        ? `<button type="button" class="button${balance < skin.priceCoins ? " is-disabled" : ""}" data-buy="${e(skin.id)}" ${balance < skin.priceCoins ? "disabled" : ""}>Купить · ${skin.priceCoins}</button>`
         : `<span class="status">Нет в продаже</span>`;
 
   return `
-    <section class="card skin-card" data-skin="${e(skin.id)}">
+    <section class="panel skin-card" data-skin="${e(skin.id)}">
       <div class="media-placeholder skin-art"><span>${e(skin.assetKey)}</span></div>
       <h3>${e(skin.name)}</h3>
       <p class="muted">${e(skin.description)}</p>

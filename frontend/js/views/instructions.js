@@ -4,7 +4,7 @@ import { element, escapeHtml as e } from "../ui.js";
 
 function step(number, title, body) {
   return `
-    <section class="card">
+    <section class="panel">
       <h2>${number}. ${title}</h2>
       <p class="muted">${body}</p>
     </section>`;
@@ -20,7 +20,7 @@ function rankTable(thresholds) {
       <td class="muted">${index === thresholds.length - 1 ? "Высший разряд" : `Следующий: ${thresholds[index + 1]} XP`}</td>
     </tr>`).join("");
   return `
-    <section class="card">
+    <section class="panel">
       <h2>Разряды</h2>
       <table class="history-table">
         <thead><tr><th>Разряд</th><th>Порог</th><th>Следующая отметка</th></tr></thead>
@@ -43,7 +43,7 @@ export async function renderInstructions() {
     </header>
 
     <div class="stack">
-      <section class="card">
+      <section class="panel">
         <h2>Маршрут темы</h2>
         <div class="step-line">
           <span class="selected">Лекция</span>
@@ -65,7 +65,7 @@ export async function renderInstructions() {
       </div>
 
       <div class="grid2">
-        <section class="card">
+        <section class="panel">
           <h2>Босс-тест</h2>
           <ul class="rule-list">
             <li>До 7 расчётных вопросов по 4 варианта. На вопрос 45–60 секунд.</li>
@@ -74,7 +74,7 @@ export async function renderInstructions() {
           </ul>
         </section>
 
-        <section class="card">
+        <section class="panel">
           <h2>Авария · QTE</h2>
           <ul class="rule-list">
             <li>4 шага, по 3 варианта. Общий отсчёт 60 секунд, включая чтение.</li>
@@ -84,17 +84,17 @@ export async function renderInstructions() {
         </section>
       </div>
 
-      <section class="card">
+      <section class="panel">
         <h2>Разряды и награды</h2>
         <p>Первая победа даёт ${rules.firstWinXp} XP и ${rules.firstWinCoins} монет. Бонус за первую победу без ошибок: +${rules.perfectBonusXp} XP и +${rules.perfectBonusCoins} монет.</p>
         <p>За первые ${rules.paidRepeatWinLimit} повторные победы по теме — ${rules.repeatWinXp} XP и ${rules.repeatWinCoins} монет за каждую, дальше — 0. Попытки не ограничены.</p>
         <p class="small">Значения наград предварительные и требуют согласования с командой.</p>
         <div class="actions">
           ${guest
-            ? `<a class="btn btn-cta" href="#/demo">Открыть пример</a>
-               <a class="btn btn-outline" href="#/auth">Войти</a>
-               <a class="btn btn-outline" href="#/auth/register">Регистрация</a>`
-            : `<a class="btn" href="#/topics">К темам курса</a>`}
+            ? `<a class="button blue" href="#/demo"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Открыть пример</span></a>
+               <a class="button outline" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Войти</span></a>
+               <a class="button outline" href="#/auth/register"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Регистрация</span></a>`
+            : `<a class="button" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К темам курса</span></a>`}
         </div>
       </section>
 

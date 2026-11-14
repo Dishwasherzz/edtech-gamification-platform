@@ -60,8 +60,8 @@ export async function renderRegister() {
                 : "Отметка желательна, но сервер её не требует."
           })}
 
-          <p class="auth-note">После регистрации ты автоматически войдёшь в свой профиль.</p>
-          <button type="submit" class="btn btn-block" ${config.canRegister === false || consentRequired ? "disabled" : ""}>Создать аккаунт</button>
+          <p class="small">После регистрации ты автоматически войдёшь в свой профиль.</p>
+          <button type="submit" class="button${config.canRegister === false || consentRequired || consentDisabled ? " is-disabled" : ""}"${config.canRegister === false || consentRequired || consentDisabled ? " disabled" : ""}><span class="button-edge" aria-hidden="true"></span><span class="button-label">Создать аккаунт</span></button>
         </fieldset>
       </form>
     `,

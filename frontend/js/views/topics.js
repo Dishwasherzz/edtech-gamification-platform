@@ -71,7 +71,7 @@ export async function renderTopics() {
             <div class="tight">${lists[index].map(topicRow).join("")}</div>
           </section>`).join("")
 
-          : `<section class="card"><p class="muted">Пока нет опубликованных курсов.</p></section>`}
+          : `<section class="panel"><p class="muted">Пока нет опубликованных тем.</p></section>`}
       </div>
 
       <div class="stack"><div class="mascot-column"></div></div>

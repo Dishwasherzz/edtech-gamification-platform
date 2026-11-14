@@ -24,8 +24,8 @@ export function renderForgot() {
             placeholder: "name@example.com",
             max: 256
           })}
-          <p class="auth-note">Укажите почту, с которой регистрировались.</p>
-          <button type="submit" class="btn btn-block">Отправить ссылку</button>
+          <p class="small">Укажите почту, с которой регистрировались.</p>
+          <button type="submit" class="button"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Отправить ссылку</span></button>
         </fieldset>
       </form>
     `,
@@ -45,12 +45,12 @@ export function renderRecoverySent() {
       <div><h1>Проверьте почту</h1><p>Письмо для восстановления</p></div>
     </header>
 
-    <section class="card">
+    <section class="panel">
       <h2>Письмо для восстановления</h2>
       <p class="muted">Если на этот адрес зарегистрирован аккаунт, придёт письмо со ссылкой для смены пароля. Проверьте также папку «Спам».</p>
       <div class="actions">
-        <a class="btn" href="#/auth">Ко входу</a>
-        <a class="btn btn-outline" href="#/auth/forgot">Отправить ещё раз</a>
+        <a class="button" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Ко входу</span></a>
+        <a class="button outline" href="#/auth/forgot"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Отправить ещё раз</span></a>
       </div>
     </section>
   `);
@@ -80,8 +80,8 @@ export function renderReset(userId, token) {
             placeholder: "Введите пароль",
             hint: "От 8 символов, строчная и заглавная буквы, цифра."
           })}
-          <p class="auth-note">Создайте новый пароль для входа в аккаунт.</p>
-          <button type="submit" class="btn btn-block">Сохранить пароль</button>
+          <p class="small">Создайте новый пароль для входа в аккаунт.</p>
+          <button type="submit" class="button"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Сохранить пароль</span></button>
         </fieldset>
       </form>
     `,
@@ -108,10 +108,10 @@ export function renderResetDone() {
       <div><h1>Пароль изменён</h1><p>Войдите заново</p></div>
     </header>
 
-    <section class="card">
+    <section class="panel">
       <h2>Войдите заново</h2>
       <p class="muted">Используйте новый пароль для входа в аккаунт.</p>
-      <div class="actions"><a class="btn" href="#/auth">Перейти ко входу</a></div>
+      <div class="actions"><a class="button" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Перейти ко входу</span></a></div>
     </section>
   `);
 }
@@ -122,12 +122,12 @@ export function renderResetInvalid() {
       <div><h1>Ссылка недействительна</h1><p>Запросите новую ссылку</p></div>
     </header>
 
-    <section class="card">
+    <section class="panel">
       <h2>Запросите новую ссылку</h2>
       <p class="muted">Текущая ссылка уже использована или срок её действия истёк.</p>
       <div class="actions">
-        <a class="btn" href="#/auth/forgot">Запросить ссылку</a>
-        <a class="btn btn-outline" href="#/auth">Войти</a>
+        <a class="button" href="#/auth/forgot"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Запросить ссылку</span></a>
+        <a class="button outline" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Войти</span></a>
       </div>
     </section>
   `);

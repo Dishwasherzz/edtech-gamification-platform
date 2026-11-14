@@ -7,7 +7,7 @@ import { assetUrl, companionAssets } from "../assets.js";
 function historyTable(history) {
   if (!history.length) {
     return `<p class="muted">Пока нет завершенных попыток.</p>
-      <div class="actions"><a class="btn btn-outline" href="#/topics">Открыть первую тему</a></div>`;
+      <div class="actions"><a class="button outline" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Открыть первую тему</span></a></div>`;
   }
   return `
     <table class="history-table">
@@ -64,18 +64,18 @@ export async function renderProfile(page = 1) {
         <p>${e(user.displayName)}${user.email ? ` · ${e(user.email)}` : ""}</p>
       </div>
       <div class="top-actions">
-        <a class="btn btn-outline" href="#/settings">Настройки профиля</a>
-        <a class="btn" href="${nextCourse ? "#/" : "#/instructions"}">Продолжить обучение</a>
+        <a class="button outline" href="#/settings"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Настройки профиля</span></a>
+        <a class="button" href="${nextCourse ? "#/" : "#/instructions"}"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Продолжить обучение</span></a>
       </div>
     </header>
 
     <div class="grid-main">
       <div class="stack">
-        <section class="card">
+        <section class="panel">
           <div class="row">
-            <span class="profile-art ${user.hero?.key === "ampere" ? "female" : "male"}">
-              <span class="sprite-img"${heroImage ? ` style="background-image:url('${heroImage}')"` : ""}></span>
-            </span>
+            <div class="character-art ${user.hero?.key === "ampere" ? "female" : "male"}">
+              <div class="sprite sprite--${user.hero?.key === "ampere" ? "female" : "male"}-full" role="img" aria-label="${e(user.displayName)}" style="width:80px;height:88px"></div>
+            </div>
             <div>
               <h2 style="margin-bottom:4px">${e(user.displayName)}</h2>
               <p class="small">${e(user.email ?? "")}</p>
@@ -90,18 +90,18 @@ export async function renderProfile(page = 1) {
           </div>
         </section>
 
-        <section class="card">
+        <section class="panel">
           <h2>История испытаний</h2>
           ${historyTable(history)}
           ${page > 1 || history.length === 20 ? `<div class="actions">
-            ${page > 1 ? `<a class="btn btn-outline" href="#/profile?page=${page - 1}">Назад</a>` : ""}
-            ${history.length === 20 ? `<a class="btn btn-outline" href="#/profile?page=${page + 1}">Дальше</a>` : ""}
+            ${page > 1 ? `<a class="button outline" href="#/profile?page=${page - 1}"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Назад</span></a>` : ""}
+            ${history.length === 20 ? `<a class="button outline" href="#/profile?page=${page + 1}"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Дальше</span></a>` : ""}
           </div>` : ""}
         </section>
       </div>
 
       <div class="stack">
-        ${user.nextRankXp ? `<section class="card">
+        ${user.nextRankXp ? `<section class="panel">
           <h2>До следующего разряда</h2>
           <div class="between"><span>Разряд ${user.rank + 1}</span><strong class="num">${user.xpToNextRank ?? 0} XP</strong></div>
           ${progressBar(user.rankProgressPercent, "Прогресс до следующего разряда")}

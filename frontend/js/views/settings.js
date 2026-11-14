@@ -15,14 +15,14 @@ const TABS = [
 function mascotCard(mascot, current, user) {
   const image = assetUrl(mascotAsset(user, mascot));
   return `
-    <label class="character-card${mascot.id === current ? " selected" : ""}" data-mascot="${e(mascot.id)}">
+    <section class="character-card${mascot.id === current ? " selected" : ""}" data-mascot="${e(mascot.id)}">
       <input type="radio" name="mascot" value="${e(mascot.id)}" ${mascot.id === current ? "checked" : ""}>
-      <span class="character-art">
-        <span class="sprite-img"${image ? ` style="background-image:url('${image}')"` : ""}></span>
-      </span>
+      <div class="character-art">
+        <div class="sprite sprite--male-full" role="img" aria-label="${e(mascot.name)}" style="width:80px;height:88px"></div>
+      </div>
       <span class="character-name">
         <h2>${e(mascot.name)}</h2>
-        <span class="checkbox${mascot.id === current ? " is-checked" : ""}" data-mark></span>
+        <span class="checkbox${mascot.id === current ? " checked" : ""}">${mascot.id === current ? "✓" : ""}</span>
       </span>
       <span class="small" data-state>${mascot.id === current ? "✓ Выбран" : "Выбрать"}</span>
     </label>`;
@@ -45,7 +45,7 @@ export async function renderSettings(tab = "account") {
       </nav>
 
       <div class="settings-content">
-        <section class="card" data-panel="account" ${active === "account" ? "" : "hidden"}>
+        <section class="panel" data-panel="account" ${active === "account" ? "" : "hidden"}>
           <h2>Никнейм и почта</h2>
           <p data-error class="error" role="alert" hidden></p>
           <div class="tight">
@@ -60,7 +60,7 @@ export async function renderSettings(tab = "account") {
               <span class="field-note">Почта используется для входа и восстановления</span>
             </label>
           </div>
-          <div class="actions"><button type="button" class="btn" data-save-nickname>Сохранить изменения</button></div>
+          <div class="actions"><button type="button" class="button" data-save-nickname>Сохранить изменения</button></div>
           <p class="success" data-status role="status"></p>
 
           <div class="rule"></div>
@@ -72,31 +72,31 @@ export async function renderSettings(tab = "account") {
           </div>
         </section>
 
-        <section class="card" data-panel="password" ${active === "password" ? "" : "hidden"}>
+        <section class="panel" data-panel="password" ${active === "password" ? "" : "hidden"}>
           <h2>Смена пароля</h2>
           <p data-error class="error" role="alert" hidden></p>
           <div class="tight">
             <label class="field field-password">
               <span>Текущий пароль</span>
-              <span class="field-row">
+              <div class="field-value">
                 <input name="currentPassword" type="password" maxlength="128" autocomplete="current-password" required>
-              </span>
+              </div>
               <span class="field-note" data-hint="currentPassword"></span>
             </label>
             <label class="field field-password">
               <span>Новый пароль</span>
-              <span class="field-row">
+              <div class="field-value">
                 <input name="newPassword" type="password" maxlength="128" autocomplete="new-password" required>
-                <button type="button" class="reveal" data-reveal aria-pressed="false">Показать</button>
-              </span>
+                <a class="action-link reveal" data-reveal href="#">Показать</a>
+              </div>
               <span class="field-note">От 8 символов, строчная и заглавная буквы, цифра.</span>
             </label>
           </div>
-          <div class="actions"><button type="button" class="btn" data-save-password>Сохранить пароль</button></div>
+          <div class="actions"><button type="button" class="button" data-save-password>Сохранить пароль</button></div>
           <p class="success" data-status role="status"></p>
         </section>
 
-        <section class="card" data-panel="mascot" ${active === "mascot" ? "" : "hidden"}>
+        <section class="panel" data-panel="mascot" ${active === "mascot" ? "" : "hidden"}>
           <h2>Видимость спутника</h2>
           <p data-error class="error" role="alert" hidden></p>
           <div class="settings-row">
@@ -126,10 +126,10 @@ export async function renderSettings(tab = "account") {
           <p class="muted">Маскот даёт подсказки по экрану и реагирует на события испытания.</p>
           ${mascots.length ? `<div class="character-choice">${mascots.map(item => mascotCard(item, user.mascot?.id, user)).join("")}</div>`
             : `<p class="muted">Маскоты пока не настроены на сервере.</p>`}
-          <div class="actions"><button type="button" class="btn" data-save-mascot ${mascots.length ? "" : "disabled"}>Сохранить маскота</button></div>
+          <div class="actions"><button type="button" class="button${mascots.length ? "" : " is-disabled"}" data-save-mascot ${mascots.length ? "" : "disabled"}>Сохранить маскота</button></div>
         </section>
 
-        <section class="card" data-panel="data" ${active === "data" ? "" : "hidden"}>
+        <section class="panel" data-panel="data" ${active === "data" ? "" : "hidden"}>
           <h2>Персональные данные</h2>
           <p data-error class="error" role="alert" hidden></p>
           <p class="muted">Сведения об аккаунте и прохождении курса не видны другим пользователям.</p>
@@ -146,22 +146,22 @@ export async function renderSettings(tab = "account") {
 
           <h2>Удаление аккаунта</h2>
           <p class="muted">После подтверждения доступ и сохранённый прогресс будут утрачены.</p>
-          <div class="actions"><button type="button" class="btn is-error" data-delete>Удалить аккаунт</button></div>
+          <div class="actions"><button type="button" class="button is-error" data-delete>Удалить аккаунт</button></div>
 
           <div class="danger-zone" data-delete-panel hidden>
             <h3>Удалить аккаунт?</h3>
             <p class="muted">Вы потеряете доступ к аккаунту, истории испытаний и накопленному прогрессу. Отменить удаление после подтверждения нельзя.</p>
             <label class="field field-password">
               <span>Пароль</span>
-              <span class="field-row">
+              <div class="field-value">
                 <input name="deletePassword" type="password" maxlength="128" autocomplete="current-password">
-                <button type="button" class="reveal" data-reveal aria-pressed="false">Показать</button>
-              </span>
+                <a class="action-link reveal" data-reveal href="#">Показать</a>
+              </div>
               <span class="field-note" data-hint="deletePassword"></span>
             </label>
             <div class="actions">
-              <button type="button" class="btn is-error" data-delete-confirm>Подтвердить удаление</button>
-              <button type="button" class="btn btn-outline" data-delete-cancel>Отмена</button>
+              <button type="button" class="button is-error" data-delete-confirm>Подтвердить удаление</button>
+              <button type="button" class="button outline" data-delete-cancel>Отмена</button>
             </div>
           </div>
         </section>
@@ -203,7 +203,8 @@ export async function renderSettings(tab = "account") {
 
   /* --- Пароль ------------------------------------------------------- */
   root.querySelectorAll("[data-reveal]").forEach(button => {
-    button.onclick = () => {
+    button.onclick = event => {
+      event.preventDefault();
       const input = button.parentElement.querySelector("input");
       const shown = input.type === "text";
       input.type = shown ? "password" : "text";
@@ -270,7 +271,9 @@ export async function renderSettings(tab = "account") {
         const checked = other === card;
         other.classList.toggle("selected", checked);
         other.querySelector("input").checked = checked;
-        other.querySelector("[data-mark]").classList.toggle("is-checked", checked);
+        const box = other.querySelector(".checkbox");
+        box.classList.toggle("checked", checked);
+        box.textContent = checked ? "✓" : "";
         other.querySelector("[data-state]").textContent = checked ? "✓ Выбран" : "Выбрать";
       });
     };
@@ -306,7 +309,7 @@ export async function renderSettings(tab = "account") {
       body: "<p>Вы потеряете доступ к аккаунту, истории испытаний и накопленному прогрессу. Отменить удаление после подтверждения нельзя.</p>",
       actions: [
         { label: "Подтвердить удаление", value: "delete", kind: "is-error" },
-        { label: "Отмена", value: "cancel", kind: "btn-outline" }
+        { label: "Отмена", value: "cancel", kind: "outline" }
       ]
     });
     if (answer !== "delete") return;
@@ -350,10 +353,10 @@ export function renderAccountDeleted() {
       <div><h1>Запрос принят</h1><p>Удаление аккаунта</p></div>
     </header>
 
-    <section class="card">
+    <section class="panel">
       <h2>Удаление аккаунта</h2>
       <p class="muted">Вы вышли из аккаунта. Порядок и сроки обработки запроса будут указаны в согласованном тексте оператора.</p>
-      <div class="actions"><a class="btn" href="#/">На главную</a></div>
+      <div class="actions"><a class="button" href="#/">На главную</a></div>
     </section>
   `);
 }
