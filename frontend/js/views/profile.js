@@ -2,7 +2,7 @@ import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName, dateShort, shortModeName } from "../ui.js";
 import { mascotMini } from "../mascot.js";
-import { companionCharacter, fullAsset } from "../assets.js";
+import { companionCharacter, fullAsset, skinAsset } from "../assets.js";
 
 function historyTable(history) {
   if (!history.length) {
@@ -57,7 +57,8 @@ export async function renderProfile(page = 1) {
     character,
     mood: active ? "focus" : "calm"
   });
-  const heroImage = fullAsset(character, "front");
+  const skinImage = user.characterSkin ? skinAsset(user.characterSkin) : null;
+  const heroImage = skinImage ?? fullAsset(character, "front");
 
   const root = element(`
     <header class="page-head">

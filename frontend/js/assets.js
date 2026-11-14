@@ -82,6 +82,21 @@ export function companionAssets(user) {
   ].filter(Boolean);
 }
 
+// Изображение скина: реальный файл, если есть, иначе заглушка.
+export function skinAsset(skin) {
+  if (!skin) return null;
+  const key = String(skin.assetKey ?? "");
+  const direct = ASSETS[key];
+  if (direct) return direct;
+  // «characters/engineer/copper» → assets/characters/engineer/copper.png (если файл есть)
+  const parts = key.split("/");
+  if (parts.length >= 2) {
+    const candidate = `assets/${key}.png`;
+    return candidate;
+  }
+  return null;
+}
+
 // Портрет выбранного маскота. Для женского героя набора мимики нет:
 // показываем исходный портрет, как в макете.
 export function mascotAsset(user, mascot) {

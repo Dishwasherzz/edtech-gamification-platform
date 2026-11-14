@@ -10,7 +10,8 @@
 :root { --font-sans: Inter, Arial, sans-serif; --bg-app: #111; }
 /* Author display rules must not override semantic visibility. */
 [hidden]:not([hidden="until-found"]) { display: none !important; }
-.is-guest .top-context { display: none; }
+body.has-sidebar .topbar .navigation { display: none; }
+body.has-sidebar .topbar { gap: var(--space-4); }
 .is-guest .navigation { margin-left: auto; }
 fieldset { min-inline-size: 0; border: 0; margin: 0; padding: 0; }
 .auth-card fieldset { display: grid; gap: 24px; }
@@ -74,7 +75,7 @@ fieldset { min-inline-size: 0; border: 0; margin: 0; padding: 0; }
   .stats, .timer-hud { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
   .page-head, .between { flex-wrap: wrap; }
   .topic-row { grid-template-columns: 24px minmax(0, 1fr); }
-  .topic-aside { grid-column: 2; text-align: left; }
+  .topic-aside { grid-column: 2; align-items: flex-start; }
   .settings-side { flex-direction: row; flex-wrap: wrap; }
   .site-footer { padding: 24px 20px; gap: 12px; }
   .modal { max-width: calc(100vw - 40px); padding: 24px; }

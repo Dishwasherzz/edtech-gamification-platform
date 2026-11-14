@@ -1,6 +1,7 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, dateShort } from "../ui.js";
+import { skinAsset } from "../assets.js";
 
 // requestId покупки живёт до определённого ответа сервера: повтор с тем же id
 // не списывает монеты второй раз (см. docs/cosmetics-and-shop.md).
@@ -17,7 +18,9 @@ function skinCard(skin, balance) {
 
   return `
     <section class="panel skin-card" data-skin="${e(skin.id)}">
-      <div class="media-placeholder skin-art"><span>${e(skin.assetKey)}</span></div>
+      <div class="media-placeholder skin-art">
+        ${skinAsset(skin) ? `<img class="character-img character-portrait" src="${e(skinAsset(skin))}" alt="${e(skin.name)}" width="80" height="88">` : `<span class="picture-mark">${e(skin.name)}</span>`}
+      </div>
       <h3>${e(skin.name)}</h3>
       <p class="muted">${e(skin.description)}</p>
       <p class="small">${skin.isStarter ? "Базовый скин" : `${skin.priceCoins} монет`}</p>
@@ -120,8 +123,11 @@ export async function renderShop(tab = "shop") {
             : `Списано ${result?.coinsSpent ?? 0} монет. Баланс: ${balance}.`;
           error.hidden = false;
         } catch (problem) {
-          // Ошибка «недостаточно монет» не резервирует идентификатор: покупку можно повторить позже.
-          if (problem.code !== "InsufficientCoins") purchaseIds.delete(skinId);
+          // Сбрасываем идентификатор только на окончательные ошибки (недостаточно монет, валидация).
+          // При обрыве связи или 5xx сохраняем ID — сервер мог уже обработать покупку.
+          if (problem.code === "InsufficientCoins" || (problem.status && problem.status >= 400 && problem.status < 500)) {
+            purchaseIds.delete(skinId);
+          }
           showProblem(problem);
           button.disabled = false;
         }
@@ -141,17 +147,22 @@ export async function renderShop(tab = "shop") {
     };
   });
 
-  const loadPurchases = async () => {
+  const loadPurchases = async (page = 1) => {
     const panel = root.querySelector("[data-purchases]");
     try {
-      const purchases = await api.purchases(1);
+      const purchases = await api.purchases(page);
+      const hasMore = purchases.length === 20;
       panel.innerHTML = purchases.length
         ? `<table class="history-table">
             <thead><tr><th>Скин</th><th>Дата</th><th>Цена</th></tr></thead>
             <tbody>${purchases.map(item => `
               <tr><td>${e(item.skinName)}</td><td class="muted">${e(dateShort(item.purchasedAt))}</td><td class="num">−${item.coinsSpent} монет</td></tr>`).join("")}</tbody>
-          </table>`
+          </table>${hasMore ? `<div class="actions"><button type="button" class="button outline" data-purchases-page="${page + 1}">Показать ещё</button></div>` : ""}`
         : `<p class="muted">Покупок пока нет.</p>`;
+      const more = panel.querySelector("[data-purchases-page]");
+      if (more) {
+        more.onclick = () => loadPurchases(Number(more.dataset.purchasesPage));
+      }
     } catch (problem) {
       panel.innerHTML = `<p class="error">${e(problem.message)}</p>`;
     }

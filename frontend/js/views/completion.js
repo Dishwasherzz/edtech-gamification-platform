@@ -49,13 +49,13 @@ export async function renderCompletion(courseId) {
             <div class="reward-stat"><span>Прогресс курса</span><strong>${course.progressPercent}%</strong></div>
           </div>
           ${progressBar(100, "Прогресс курса")}
-          ${summary ? `<p class="small" style="margin-top:12px">Испытаний пройдено: ${summary.attempts}. Итог курса рассчитан на ${summary.totalXp} XP и ${summary.coinsBalance} монет.</p>` : ""}
+          ${summary ? `<p class="small" style="margin-top:12px">Всего попыток: ${summary.attempts}. Итог курса рассчитан на ${summary.totalXp} XP и ${summary.coinsBalance} монет.</p>` : ""}
 
           <div class="actions">
             <a class="button outline" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К темам курса</span></a>
             <a class="button outline" href="#/profile"><span class="button-edge" aria-hidden="true"></span><span class="button-label">В профиль</span></a>
           </div>
-          <p data-error class="error" role="alert" hidden></p>
+          <p data-claim-status class="success" role="status" hidden></p>
         </section>
       </div>
 
@@ -69,14 +69,19 @@ export async function renderCompletion(courseId) {
   if (claim) {
     claim.onclick = async () => {
       claim.disabled = true;
-      const error = root.querySelector("[data-error]");
-      error.hidden = true;
+      const status = root.querySelector("[data-claim-status]");
+      status.hidden = true;
+      status.textContent = "";
+      status.className = "success";
+      status.setAttribute("role", "status");
       try {
         const result = await api.claimCompletion(course.id);
         await refreshProfile();
         if (!result) {
-          error.textContent = "Итог курса уже получен: повторный вызов ничего не начисляет.";
-          error.hidden = false;
+          status.textContent = "Итог курса уже получен: повторный вызов ничего не начисляет.";
+          status.className = "error";
+          status.setAttribute("role", "alert");
+          status.hidden = false;
           claim.disabled = true;
           claim.textContent = "Итог курса уже получен";
           return;
@@ -86,11 +91,13 @@ export async function renderCompletion(courseId) {
           <div class="reward-stat"><span>Монеты</span><strong>${result.coinsBalance}</strong></div>
           <div class="reward-stat"><span>Разряд</span><strong>${result.rank}</strong></div>`;
         claim.remove();
-        error.textContent = "Итог курса сохранён.";
-        error.hidden = false;
+        status.textContent = "Итог курса сохранён.";
+        status.hidden = false;
       } catch (problem) {
-        error.textContent = problem.message;
-        error.hidden = false;
+        status.textContent = problem.message;
+        status.className = "error";
+        status.setAttribute("role", "alert");
+        status.hidden = false;
         claim.disabled = false;
       }
     };

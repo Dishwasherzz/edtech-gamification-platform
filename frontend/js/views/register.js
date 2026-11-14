@@ -69,6 +69,35 @@ export async function renderRegister() {
   const submit = root.querySelector('button[type="submit"]');
   const checkRow = root.querySelector(".check-row");
 
+  // F16 fix: открывать текст согласия в диалоге, чтобы не потерять заполненные поля формы.
+  const consentLink = root.querySelector('.consent .link.action-link[href="#/consent"]');
+  if (consentLink) {
+    consentLink.onclick = async event => {
+      event.preventDefault();
+      try {
+        const config = await api.registration();
+        const consent = config.consent;
+        let body = "";
+        if (consent?.text) {
+          body = consent.text.split(/\r?\n\s*\r?\n/).map(block => `<p>${e(block.trim())}</p>`).join("");
+        } else {
+          body = "<p>Рабочий текст согласия. Полный текст требует подтверждения оператором.</p>";
+        }
+        await askDialog({
+          title: "Согласие на обработку персональных данных",
+          body,
+          actions: [{ label: "Понятно", value: "ok", kind: "" }]
+        });
+      } catch (error) {
+        await askDialog({
+          title: "Согласие на обработку персональных данных",
+          body: "<p>Не удалось загрузить текст согласия. Попробуйте позже.</p>",
+          actions: [{ label: "ОК", value: "ok", kind: "" }]
+        });
+      }
+    };
+  }
+
   root.querySelector("[data-why]").onclick = () => askDialog({
     title: "Зачем нужно согласие",
     body: "<p>Аккаунт хранит почту, никнейм и данные о прохождении курса: прочитанные лекции, пройденные темы, историю попыток, ответы в испытаниях, XP, монеты и разряд.</p><p>Без согласия аккаунт не создаётся. Пример уровня доступен без регистрации.</p>",

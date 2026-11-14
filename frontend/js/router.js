@@ -3,7 +3,7 @@ import { renderProfile } from "./views/profile.js";
 import { renderAuth } from "./views/auth.js";
 import { renderRegister } from "./views/register.js";
 import { renderSettings, renderAccountDeleted } from "./views/settings.js";
-import { renderTopic, renderLesson, renderAssessmentBrief } from "./views/theory.js";
+import { renderTopic, renderLesson, renderAssessmentBrief, renderAssessmentSelect } from "./views/theory.js";
 import { renderAttempt } from "./views/attempt.js";
 import { renderInstructions } from "./views/instructions.js";
 import { renderTopics } from "./views/topics.js";
@@ -59,10 +59,20 @@ function markActiveNav(hash) {
   });
   document.querySelectorAll(".side-item[data-side]").forEach(item => {
     const side = item.dataset.side;
-    const active = side === (current || "home") || (side === "profile" && PROFILE_SECTIONS.has(current));
+    const currentRoot = current.split("/")[0];
+    // Вложенные учебные страницы относятся к разделу «Темы курса».
+    const navRoot = currentRoot === "topic" || currentRoot === "lesson" || currentRoot === "attempt"
+      ? "topics"
+      : (currentRoot === "topic" && current.split("/")[2] === "assessment" ? "topics" : currentRoot);
+    const active = side === (navRoot || "home") || (side === "profile" && PROFILE_SECTIONS.has(navRoot));
     item.classList.toggle("selected", active);
   });
-  setContext(onboarding ? "Первый запуск" : (SECTIONS[current] ?? ""), onboarding);
+  const currentRoot = current.split("/")[0];
+  // Вложенные учебные страницы показывают контекст родительского раздела.
+  const contextRoot = currentRoot === "topic" || currentRoot === "lesson" || currentRoot === "attempt"
+    ? "topics"
+    : (currentRoot === "topic" && current.split("/")[2] === "assessment" ? "topics" : currentRoot);
+  setContext(onboarding ? "Первый запуск" : (SECTIONS[contextRoot] ?? ""), onboarding);
 }
 
 export async function handleRoute() {
@@ -76,6 +86,7 @@ export async function handleRoute() {
   // Гостевые, auth-, demo-, consent- и session-экраны показываются без сайдбара (как в макетах).
   const needsSidebar = state.isAuth && !["auth", "demo", "consent", "session"].includes(root);
   document.querySelector(".app-body")?.classList.toggle("is-public", !needsSidebar);
+  document.body.classList.toggle("has-sidebar", needsSidebar);
 
   if (root === "auth" && state.isAuth && !["reset", "reset/done", "reset/invalid", "recovery/sent"].includes(parts.slice(1).join("/"))) {
     window.location.hash = "#/";
@@ -105,6 +116,9 @@ export async function handleRoute() {
     else if (root === "profile") view = await renderProfile(Math.max(1, Number(url.searchParams.get("page")) || 1));
     else if (root === "topic" && parts[1] && parts[2] === "assessment" && parts[3]) {
       view = await renderAssessmentBrief(parts[1], parts[3]);
+    }
+    else if (root === "topic" && parts[1] && parts[2] === "assessment") {
+      view = await renderAssessmentSelect(parts[1]);
     }
     else if (root === "topic" && parts[1]) view = await renderTopic(parts[1]);
     else if (root === "lesson" && parts[1]) view = await renderLesson(parts[1]);

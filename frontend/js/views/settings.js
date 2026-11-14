@@ -26,7 +26,7 @@ function mascotCard(mascot, current, user) {
         <span class="checkbox${mascot.id === current ? " checked" : ""}">${mascot.id === current ? "✓" : ""}</span>
       </span>
       <span class="small" data-state>${mascot.id === current ? "✓ Выбран" : "Выбрать"}</span>
-    </label>`;
+    </section>`;
 }
 
 export async function renderSettings(tab = "account") {
@@ -36,7 +36,7 @@ export async function renderSettings(tab = "account") {
 
   const root = element(`
     <header class="page-head">
-      <div><h1>Настройки профиля</h1><p>${e(TABS.find(item => item.key === active).label)}</p></div>
+      <div><h1>Настройки профиля</h1><p data-settings-subtitle>${e(TABS.find(item => item.key === active).label)}</p></div>
       <div class="top-actions"><a class="link action-link" href="#/profile">К профилю</a></div>
     </header>
 
@@ -176,6 +176,8 @@ export async function renderSettings(tab = "account") {
       const key = button.dataset.tab;
       root.querySelectorAll("[data-tab]").forEach(other => other.classList.toggle("selected", other === button));
       root.querySelectorAll("[data-panel]").forEach(panel => { panel.hidden = panel.dataset.panel !== key; });
+      const subtitle = root.querySelector("[data-settings-subtitle]");
+      if (subtitle) subtitle.textContent = TABS.find(item => item.key === key).label;
       history.replaceState(null, "", `#/settings?tab=${key}`);
     };
   });

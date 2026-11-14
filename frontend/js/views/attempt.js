@@ -22,6 +22,8 @@ export async function renderAttempt(id) {
   const main = root.querySelector("[data-main]");
   let disposed = false;
   let busy = false;
+  let sending = false;
+  let lastCorrect = null;
   let offset = Date.parse(data.serverNow) - Date.now();
   let pending = null;
   let errorMessage = "";
@@ -68,7 +70,10 @@ export async function renderAttempt(id) {
   function accept(next) {
     data = next;
     offset = Date.parse(next.serverNow) - Date.now();
-    if (next.feedback) feedback = next.feedback.message;
+    if (next.feedback) {
+      feedback = next.feedback.message;
+      lastCorrect = next.feedback.isCorrect ?? null;
+    }
     if (pending && (data.status !== "Active" || data.currentQuestion?.id !== pending.questionId ||
         data.currentQuestion.options.some(option => option.id === pending.optionId && option.isDisabled))) pending = null;
     if (data.mascot) {
@@ -142,9 +147,10 @@ export async function renderAttempt(id) {
       if (resultSlot) resultSlot.replaceChildren(mascot);
       if (retry) {
         retry.onclick = async event => {
-          event.target.disabled = true;
+          const button = event.currentTarget;
+          button.disabled = true;
           try { const next = await api.start(data.assessmentId); window.location.hash = `#/attempt/${next.id}`; }
-          catch (error) { main.querySelector("[data-error]").textContent = error.message; event.target.disabled = false; }
+          catch (error) { main.querySelector("[data-error]").textContent = error.message; button.disabled = false; }
         };
       }
       if (coursePercent === null) {
@@ -163,7 +169,7 @@ export async function renderAttempt(id) {
           ${illustration(data.scenario.illustrationKey)}
           <p class="muted">${e(data.scenario.introduction)}</p>
           <div class="actions">
-            <button class="button${busy ? " is-disabled" : ""}" data-begin ${busy ? "disabled" : ""}><span class="button-edge" aria-hidden="true"></span><span class="button-label">Действовать</span></button>
+            <button class="button${busy ? " is-disabled" : ""}" data-begin ${busy ? "disabled" : ""}><span class="button-edge" aria-hidden="true"></span><span class="button-label">Начать отсчёт</span></button>
             <button class="button outline" data-abandon><span class="button-edge" aria-hidden="true"></span><span class="button-label">Отменить подготовку</span></button>
           </div>
           <p class="error" data-error role="alert">${e(errorMessage)}</p>
@@ -214,13 +220,18 @@ export async function renderAttempt(id) {
               ? `<div class="media-placeholder large"><span>${e(data.bossName)}</span></div>
                  <p class="muted">Каждый верный ответ снимает 20% HP.</p>
                  <div class="actions" data-pet-slot></div>`
-              : `${illustration(data.scenario.illustrationKey)}
-                 <p class="muted">${data.errors ? "В модели нарастает перегрузка. Выбери другое действие." : "Состояние модели стабильно."}</p>`}
+              : `<div class="media-placeholder large" aria-hidden="true">${illustration(data.scenario.illustrationKey)}</div>
+                 <p class="muted small">${e(data.scenario.title)}</p>
+                 <p class="muted">${e(data.scenario.introduction)}</p>
+                 <p class="muted">${lastCorrect !== null
+                   ? lastCorrect ? "Верно! Переходите к следующему шагу." : "Не верно. Выберите другое действие."
+                   : data.errors ? "В модели нарастает перегрузка. Выберите другое действие." : "Состояние модели стабильно."}</p>
+                 <div class="actions" data-pet-slot></div>`}
           </section>
 
           <section class="panel">
             <h2 class="question-prompt">${e(question.prompt)}</h2>
-            <div class="answers">${question.options.map(option => `<button class="answer" data-option="${e(option.id)}" ${option.isDisabled || pending || busy ? "disabled" : ""}>${e(option.text)}${option.isDisabled ? " · уже выбрано" : ""}</button>`).join("")}</div>
+            <div class="answers">${question.options.map(option => `<button class="answer" data-option="${e(option.id)}" ${option.isDisabled || pending || sending ? "disabled" : ""}>${e(option.text)}${option.isDisabled ? " · уже выбрано" : ""}</button>`).join("")}</div>
             <p class="feedback" role="status">${e(feedback)}</p>
             <p class="error" data-error role="alert">${e(errorMessage)}</p>
             ${pending ? '<button class="button outline" data-resend><span class="button-edge" aria-hidden="true"></span><span class="button-label">Повторить отправку ответа</span></button>' : ""}
@@ -231,7 +242,7 @@ export async function renderAttempt(id) {
       if (petSlot) petSlot.replaceChildren(mascot);
       main.querySelectorAll("[data-option]").forEach(button => {
         button.onclick = () => {
-          if (busy || pending) return;
+          if (sending || pending) return;
           pending = { questionId: data.currentQuestion.id, optionId: button.dataset.option, requestId: crypto.randomUUID() };
           sendPending();
         };
@@ -263,8 +274,8 @@ export async function renderAttempt(id) {
   }
 
   async function sendPending() {
-    if (busy || !pending || disposed) return;
-    busy = true; draw();
+    if (sending || !pending || disposed) return;
+    sending = true; draw();
     const answer = pending;
     try {
       accept(await api.answer(id, answer.questionId, answer.optionId, answer.requestId));
@@ -275,7 +286,7 @@ export async function renderAttempt(id) {
       offline = error.status === undefined;
       if (error.status && error.status < 500) pending = null;
     }
-    finally { busy = false; draw(); }
+    finally { sending = false; draw(); }
   }
 
   function tick() {
@@ -304,6 +315,7 @@ export async function renderAttempt(id) {
       offline = true;
       const target = main.querySelector("[data-error]");
       if (target) target.textContent = errorMessage;
+      draw();
     }
     finally { busy = false; }
   }

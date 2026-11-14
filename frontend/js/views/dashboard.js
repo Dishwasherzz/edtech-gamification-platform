@@ -14,22 +14,26 @@ function topicRow(topic, index) {
   const hint = locked
     ? `Сначала завершите тему ${index}`
     : topic.subtitle ?? topic.description;
-  const tag = locked ? "div" : "a";
-  const href = locked ? "" : ` href="#/topic/${e(topic.id)}"`;
+  const href = `#/topic/${e(topic.id)}`;
   const aside = locked
     ? `<span class="status">${e(statusName(status))}</span><span class="status">Недоступно</span>`
     : `<span class="status strong">${e(statusName(status))}</span>
-       <a class="link action-link" href="#/topic/${e(topic.id)}">${e(action)}</a>`;
+       <a class="link action-link" href="${href}">${e(action)}</a>`;
+  // Ссылка растянута на всю строку, но не вложена в другую ссылку:
+  // так строка остаётся кликабельной, а статус и действие не разрывают разметку.
+  const title = locked
+    ? `<h3 class="topic-title">${e(topic.title)}</h3>`
+    : `<h3 class="topic-title"><a class="topic-row-link" href="${href}">${e(topic.title)}</a></h3>`;
 
   return `
-    <${tag}${href} class="topic-row${locked ? " locked" : ""}"${locked ? ' aria-disabled="true"' : ""}>
+    <div class="topic-row${locked ? " locked" : ""}"${locked ? ' aria-disabled="true"' : ""}>
       <span class="num subtle">${topic.sortOrder ?? index + 1}</span>
       <div>
-        <h3 class="topic-title">${e(topic.title)}</h3>
+        ${title}
         <p class="small">${e(hint ?? "")}</p>
       </div>
       <div class="topic-aside">${aside}</div>
-    </${tag}>`;
+    </div>`;
 }
 
 // Гостевая главная: механика курса, пример уровня и маршрут без аккаунта.

@@ -9,8 +9,8 @@ function heroCard(hero, checked) {
   const character = heroCharacter(hero);
   const label = HERO_LABELS[hero.key] ?? hero.name;
   return `
-    <section class="character-card${checked ? " selected" : ""}" data-hero="${e(hero.key)}">
-      <input type="radio" name="hero" value="${e(hero.key)}" ${checked ? "checked" : ""} style="display:none;position:absolute">
+    <section class="character-card${checked ? " selected" : ""}" data-hero="${e(hero.key)}" role="radio" aria-checked="${checked ? "true" : "false"}" tabindex="0">
+      <input type="radio" name="hero" value="${e(hero.key)}" ${checked ? "checked" : ""}" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">
       <div class="character-art ${character}">
         <img class="character-img character-full" src="${e(fullAsset(character, "front"))}" alt="${e(label)}" width="152" height="360">
       </div>
@@ -68,26 +68,38 @@ export async function renderCharacter(options = {}) {
   const error = root.querySelector("[data-error]");
 
   root.querySelectorAll("[data-hero]").forEach(card => {
-    card.onclick = event => {
-      if (event.target.tagName === "A") return;
+    const selectCard = () => {
       selected = card.dataset.hero;
       root.querySelectorAll("[data-hero]").forEach(other => {
         const isChecked = other === card;
         other.classList.toggle("selected", isChecked);
         other.querySelector("input").checked = isChecked;
+        other.setAttribute("aria-checked", String(isChecked));
         const box = other.querySelector(".checkbox");
         box.classList.toggle("checked", isChecked);
         box.textContent = isChecked ? "✓" : "";
         other.querySelector("[data-state]").textContent = isChecked ? "✓ Выбран" : "Выбрать персонажа";
       });
       save.disabled = false;
+      save.classList.toggle("is-disabled", false);
       error.hidden = true;
+    };
+    card.onclick = event => {
+      if (event.target.tagName === "A") return;
+      selectCard();
+    };
+    card.onkeydown = event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        selectCard();
+      }
     };
   });
 
   save.onclick = async () => {
     if (!selected) return;
     save.disabled = true;
+    save.classList.toggle("is-disabled", true);
     error.hidden = true;
     try {
       await api.updateHero(selected);
@@ -97,12 +109,14 @@ export async function renderCharacter(options = {}) {
       error.textContent = problem.message;
       error.hidden = false;
       save.disabled = false;
+      save.classList.toggle("is-disabled", false);
     }
   };
 
   if (!heroes.length) {
     root.querySelector(".character-choice").innerHTML = `<section class="panel"><p class="muted">Персонажи пока не настроены на сервере.</p></section>`;
     save.disabled = true;
+    save.classList.toggle("is-disabled", true);
   }
 
   return root;
