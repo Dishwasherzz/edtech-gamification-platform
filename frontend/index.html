@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Электротехника — Учебный модуль</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="frontend-fixes.css">
 </head>
 <body>
   <!-- Спрайт иконок макета: menu, chevron, home, book, info, user, chat. -->
@@ -60,13 +61,16 @@
         <button id="menu-btn" class="menu-btn" aria-haspopup="true" aria-expanded="false">Меню</button>
         <div id="menu-panel" class="profile-menu" hidden>
           <p class="menu-account" data-account>Гость</p>
+          <a href="#/">Главная</a>
+          <a href="#/topics" data-auth>Темы курса</a>
+          <a href="#/profile" data-auth>Профиль</a>
           <a href="#/shop" data-auth>Магазин и гардероб</a>
           <a href="#/character" data-auth>Сменить персонажа</a>
           <a href="#/settings" data-auth>Настройки профиля</a>
           <a href="#/completion" data-auth>Итог курса</a>
           <span class="menu-separator"></span>
           <a href="#/demo" data-guest>Пример уровня</a>
-          <a href="#/instructions" data-guest>Инструкция</a>
+          <a href="#/instructions">Инструкция</a>
           <a href="#/consent">Обработка данных</a>
           <a href="#/auth" data-guest>Войти</a>
           <a href="#/auth/register" data-guest>Регистрация</a>

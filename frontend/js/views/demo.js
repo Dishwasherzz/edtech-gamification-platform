@@ -66,21 +66,37 @@ export function renderDemo() {
   const reveal = root.querySelector("[data-reveal]");
   const revealLabel = reveal.querySelector(".button-label");
 
-  reveal.onclick = () => {
+  let answered = false;
+  function showAnswer(selected) {
+    if (answered) return;
+    answered = true;
+    const correct = Boolean(selected?.correct);
     root.querySelectorAll("[data-option]").forEach(button => {
       const option = DEMO.options.find(item => item.key === button.dataset.option);
       button.disabled = true;
+      button.classList.toggle("correct", Boolean(option.correct));
+      button.classList.toggle("wrong", option === selected && !correct);
       if (option.correct) {
-        button.classList.add("correct");
-        button.innerHTML = `<span class="num">${e(option.key)}</span><span>${e(option.text)}</span><span class="answer-result">Верно</span>`;
+        const result = document.createElement("span");
+        result.className = "answer-result";
+        result.textContent = "Верно";
+        button.append(result);
       }
     });
-    root.querySelector("[data-hp]").textContent = "80%";
-    bar.style.width = "80%";
-    feedback.textContent = DEMO.explanation;
+    const hp = correct ? 80 : 100;
+    root.querySelector("[data-hp]").textContent = hp + "%";
+    bar.style.width = hp + "%";
+    root.querySelector('[role="progressbar"]').setAttribute("aria-valuenow", String(hp));
+    feedback.textContent = selected
+      ? (correct ? "Верно. " : "Неверно. HP босса осталось прежним. ") + DEMO.explanation
+      : "Решение показано. " + DEMO.explanation;
     reveal.disabled = true;
     revealLabel.textContent = "Ответ показан";
-  };
+  }
+  root.querySelectorAll("[data-option]").forEach(button => {
+    button.onclick = () => showAnswer(DEMO.options.find(item => item.key === button.dataset.option));
+  });
+  reveal.onclick = () => showAnswer(null);
 
   return root;
 }

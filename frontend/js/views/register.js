@@ -4,16 +4,11 @@ import { escapeHtml as e, askDialog, errorNotice } from "../ui.js";
 import { authLayout, field, passwordField, consentField, bindForm } from "./auth-layout.js";
 
 export async function renderRegister() {
-  let config = { minimumPasswordLength: 8, requiresConsent: false, canRegister: true, consent: null };
-  try {
-    config = await api.registration();
-  } catch {
-    // Без конфигурации сервера показываем базовую форму.
-  }
-
+  const config = await api.registration();
   const consent = config.consent ?? null;
-  const consentRequired = Boolean(config.requiresConsent && consent);
+  const consentRequired = Boolean(config.requiresConsent);
   const consentDisabled = !consent;
+  const unavailable = config.canRegister === false || (consentRequired && consentDisabled);
 
   const root = authLayout({
     pageTitle: "Регистрация",
@@ -24,7 +19,7 @@ export async function renderRegister() {
     formHtml: `
       ${errorNotice("Регистрация не завершена")}
 
-      ${config.canRegister === false ? `<div class="notice error">Регистрация временно недоступна: сервер не настроен на работу с согласием.</div>` : ""}
+      ${unavailable ? `<div class="notice error">Регистрация временно недоступна: сервер не настроен на работу с согласием.</div>` : ""}
 
       <form novalidate>
         <fieldset>
@@ -60,8 +55,9 @@ export async function renderRegister() {
                 : "Отметка желательна, но сервер её не требует."
           })}
 
-          <p class="small">После регистрации ты автоматически войдёшь в свой профиль.</p>
-          <button type="submit" class="button${config.canRegister === false || consentRequired || consentDisabled ? " is-disabled" : ""}"${config.canRegister === false || consentRequired || consentDisabled ? " disabled" : ""}><span class="button-edge" aria-hidden="true"></span><span class="button-label">Создать аккаунт</span></button>
+
+
+          <button type="submit" class="button${unavailable || consentRequired ? " is-disabled" : ""}"${unavailable || consentRequired ? " disabled" : ""}><span class="button-edge" aria-hidden="true"></span><span class="button-label">Создать аккаунт</span></button>
         </fieldset>
       </form>
     `,
@@ -90,12 +86,15 @@ export async function renderRegister() {
       } else {
         hint.textContent = "Отметка желательна, но сервер её не требует.";
       }
+      submit.disabled = unavailable || (consentRequired && !checkbox.checked);
+      submit.classList.toggle("is-disabled", submit.disabled);
       hint.classList.remove("error");
       checkRow?.classList.remove("check-error");
     };
   }
 
   return bindForm(root, async values => {
+    if (unavailable) throw new Error("Регистрация временно недоступна.");
     if (consentRequired && !values.get("consent")) {
       hint.textContent = "Отметьте согласие, чтобы продолжить.";
       hint.classList.add("error");

@@ -26,9 +26,9 @@ export function field({ label, name, type = "text", placeholder, autocomplete = 
   const described = hint ? ` ${e(name)}-hint` : "";
   return `
     <div class="field">
-      <span class="field-label">${e(label)}</span>
+      <label class="field-label" for="${e(name)}">${e(label)}</label>
       <div class="field-value">
-        <input name="${e(name)}" type="${e(type)}" placeholder="${e(placeholder)}" autocomplete="${e(autocomplete)}"
+        <input id="${e(name)}" name="${e(name)}" type="${e(type)}" placeholder="${e(placeholder)}" autocomplete="${e(autocomplete)}"
                maxlength="${max}"${required ? " required" : ""}${described ? ` aria-describedby="${e(name)}-hint"` : ""}>
       </div>
       ${hint ? `<span class="field-note" id="${e(name)}-hint" data-hint="${e(name)}">${e(hint)}</span>` : ""}
@@ -41,11 +41,11 @@ export function passwordField({ label, name, placeholder, autocomplete = "curren
   const described = hint ? ` ${e(name)}-hint` : "";
   return `
     <div class="field field-password">
-      <span class="field-label">${e(label)}</span>
+      <label class="field-label" for="${e(name)}">${e(label)}</label>
       <div class="field-value">
-        <input name="${e(name)}" type="password" placeholder="${e(placeholder)}" autocomplete="${e(autocomplete)}"
+        <input id="${e(name)}" name="${e(name)}" type="password" placeholder="${e(placeholder)}" autocomplete="${e(autocomplete)}"
                maxlength="128" required${hint ? ` aria-describedby="${e(name)}-hint"` : ""}>
-        <a class="action-link reveal" data-reveal href="#">Показать</a>
+        <button type="button" class="action-link reveal" data-reveal aria-controls="${e(name)}" aria-pressed="false">Показать</button>
       </div>
       ${hint ? `<span class="field-note" id="${e(name)}-hint" data-hint="${e(name)}">${e(hint)}</span>` : ""}
     </div>
@@ -58,13 +58,13 @@ export function consentField({ name = "consent", label = "Я даю соглас
   linkText = "Прочитать согласие", linkHref = "#/consent", hint = "" }) {
   return `
     <div class="consent">
-      <div class="check-row">
-        <span class="checkbox" data-check><input type="checkbox" name="${e(name)}" value="yes" style="display:none;position:absolute"></span>
+      <label class="check-row">
+        <input class="consent-checkbox" type="checkbox" name="${e(name)}" value="yes">
         <span>${e(label)}</span>
-      </div>
+      </label>
       <a class="link action-link" href="${e(linkHref)}">${e(linkText)}</a>
       <p class="small" data-consent-hint>${e(hint)}</p>
-      <a class="link action-link" data-why>${e(linkText === "Прочитать согласие" ? "Зачем нужно согласие" : "Зачем нужно согласие")}</a>
+      <button type="button" class="link action-link consent-why" data-why>Зачем нужно согласие</button>
     </div>
   `;
 }
@@ -82,17 +82,22 @@ export function bindForm(root, onSubmit) {
     const values = new FormData(form);
     fieldset.disabled = true;
     clearError(root);
-    const label = button.textContent;
-    button.textContent = "Отправка…";
+    const label = button.querySelector(".button-label") ?? button;
+    const originalLabel = label.textContent;
+    label.textContent = "Отправка…";
+    form.setAttribute("aria-busy", "true");
     try {
       await onSubmit(values);
     } catch (error) {
       showError(root, error);
-      // Сервер не различает поля в тексте ошибки: подсвечиваем все заполненные.
-      form.querySelectorAll("input").forEach(input => input.setAttribute("aria-invalid", "true"));
+      for (const name of Object.keys(error.errors ?? {})) {
+        const control = Array.from(form.elements).find(item => item.name?.toLowerCase() === name.toLowerCase());
+        control?.setAttribute("aria-invalid", "true");
+      }
     } finally {
       fieldset.disabled = false;
-      button.textContent = label;
+      label.textContent = originalLabel;
+      form.removeAttribute("aria-busy");
     }
   };
 
@@ -125,4 +130,3 @@ export function bindForm(root, onSubmit) {
 
   return root;
 }
-

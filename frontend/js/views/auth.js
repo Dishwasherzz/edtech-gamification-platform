@@ -17,12 +17,12 @@ export function renderAuth() {
         <fieldset>
           ${field({ label: "Электронная почта", name: "email", type: "email", autocomplete: "username", placeholder: "name@example.com" })}
           ${passwordField({ label: "Пароль", name: "password", autocomplete: "current-password", placeholder: "Введите пароль" })}
-          <p class="small">После входа можно продолжить обучение с сохранённым прогрессом.</p>
+
           <button type="submit" class="button"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Войти</span></button>
         </fieldset>
       </form>
     `,
-    altHtml: `<a class="link action-link" href="#/auth/register">Нет аккаунта? Зарегистрироваться</a>`,
+    altHtml: `<a class="link action-link" href="#/auth/forgot">Забыли пароль?</a>`,
   });
 
   return bindForm(root, async values => {

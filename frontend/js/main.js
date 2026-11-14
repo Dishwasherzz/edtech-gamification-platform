@@ -53,5 +53,5 @@ document.addEventListener("keydown", event => { if (event.key === "Escape") clos
 try { await refreshProfile(); }
 catch (error) { clearSession(); if (error.status !== 401) document.getElementById("global-error").textContent = error.message; }
 updateHeaderUI();
-window.addEventListener("hashchange", handleRoute);
+window.addEventListener("hashchange", () => { closeMenu(); handleRoute(); });
 await handleRoute();

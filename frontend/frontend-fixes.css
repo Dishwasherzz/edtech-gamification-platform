@@ -1,0 +1,93 @@
+/* Reviewed against Figma 395:1500, 395:1767 and 395:410.
+   Load after style.css. Responsive layout uses the existing design tokens. */
+@font-face {
+  font-family: Inter;
+  src: url("assets/fonts/Inter.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+:root { --font-sans: Inter, Arial, sans-serif; --bg-app: #111; }
+/* Author display rules must not override semantic visibility. */
+[hidden]:not([hidden="until-found"]) { display: none !important; }
+.is-guest .top-context { display: none; }
+.is-guest .navigation { margin-left: auto; }
+fieldset { min-inline-size: 0; border: 0; margin: 0; padding: 0; }
+.auth-card fieldset { display: grid; gap: 24px; }
+.auth-card { border: 1px solid var(--border-solid); border-radius: 4px; }
+.field-value { align-items: center; }
+.field input {
+  width: 100%; min-width: 0; flex: 1; padding: 0;
+  border: 0; background: transparent; color: var(--text-primary);
+}
+.field input::placeholder { color: var(--text-secondary); opacity: 1; }
+.field-value:focus-within { border-bottom-style: solid; border-bottom-color: var(--accent-pink); }
+.field input:focus-visible { outline: none; }
+.field-value:has(input:focus-visible) { outline: 2px solid white; outline-offset: 4px; }
+.field-value:has([aria-invalid="true"]) { border-color: var(--accent-blue); border-bottom-style: solid; }
+.consent-checkbox {
+  appearance: none; width: 20px; height: 20px; min-width: 20px; margin: 2px 0 0;
+  border: 1px solid var(--border-input); background: transparent; cursor: pointer;
+  display: grid; place-content: center;
+}
+.consent-checkbox:checked { background: var(--accent-pink); border-color: var(--accent-pink); }
+.consent-checkbox:checked::before { content: "✓"; color: #111; line-height: 1; }
+.consent-checkbox:focus-visible { outline: 2px solid white; outline-offset: 4px; }
+.check-row { cursor: pointer; align-items: flex-start; }
+.consent-why { border: 0; background: none; padding: 0; color: inherit; text-align: left; cursor: pointer; align-self: flex-start; }
+.auth-card .button:not(:disabled):not(.outline) .button-edge { background: transparent; }
+.auth-card .button:disabled { cursor: not-allowed; background: #777; color: var(--text-secondary); }
+.auth-card .button:disabled .button-edge { background: var(--bg-raised); }
+.auth-story .sprite--male-full {
+  background-image: url("assets/figma/characters.png");
+  background-size: 482.69px 292.8px;
+  background-position: -12.55px -3.51px;
+}
+.panel, .card, .demo-level { border-style: solid; border-radius: 4px; }
+.site-footer { padding: 24px 48px 32px; flex-wrap: wrap; }
+.menu-btn { min-height: 44px; color: var(--text-primary); border: 1px solid var(--border-solid); background: var(--bg-surface); padding: 8px 12px; cursor: pointer; }
+.profile-menu { top: calc(100% + 8px); right: 0; max-width: calc(100vw - 32px); }
+.answer.wrong { border-color: var(--accent-pink); background: #342129; }
+@media (min-width: 1001px) { .is-guest .menu-wrap { display: none; } }
+@media (max-width: 1000px) {
+  .topbar { gap: 16px; padding-inline: 20px; }
+  .topbar .navigation, .topbar .top-context, .topbar .account > a { display: none; }
+  .topbar .account { margin-left: auto; }
+  .auth-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; }
+  .auth-story { padding: 0; }
+  .sidebar { display: none; }
+}
+@media (max-width: 700px) {
+  .topbar { height: 64px; }
+  .brand { font-size: 16px; white-space: nowrap; }
+  .content, .app-body.is-public .content { padding: 24px 20px; }
+  .auth-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; margin: 0; }
+  .auth-story h1 { font-size: 28px; line-height: 36px; margin-bottom: 16px; }
+  .auth-story > .sprite { display: none; }
+  .auth-card { padding: 24px; }
+  .auth-tabs { gap: 20px; }
+  .grid-main, .grid2, .grid3, .battle-grid, .settings-layout, .character-choice { grid-template-columns: minmax(0, 1fr); }
+  .landing-hero { display: flex; flex-direction: column; align-items: stretch; padding: 16px 0 32px; gap: 24px; }
+  .landing-hero h1 { font-size: 36px; line-height: 40px; }
+  .landing-hero p { font-size: 16px; line-height: 24px; }
+  .hero-backdrop { display: none; }
+  .panel, .demo-level { padding: 20px; }
+  .stats, .timer-hud { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .page-head, .between { flex-wrap: wrap; }
+  .topic-row { grid-template-columns: 24px minmax(0, 1fr); }
+  .topic-aside { grid-column: 2; text-align: left; }
+  .settings-side { flex-direction: row; flex-wrap: wrap; }
+  .site-footer { padding: 24px 20px; gap: 12px; }
+  .modal { max-width: calc(100vw - 40px); padding: 24px; }
+  .answer { white-space: normal; }
+  .answer-result { white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+.auth-layout h1 { font-weight: 400; }
+.auth-card .field input { min-height: 28px; }
+.auth-tabs { font-weight: 400; }
+.button:not(:disabled):not(.is-disabled):not(.outline):not(.ghost) .button-edge { background: transparent; }
+.topbar .btn-outline { background: var(--bg-raised); border: 1px solid #666; }
