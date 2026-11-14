@@ -41,7 +41,14 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     .AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(1));
 builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.Zero);
-builder.Services.AddOptions<AccountOptions>().BindConfiguration("Account");
+builder.Services.AddOptions<AccountOptions>().BindConfiguration("Account").PostConfigure(options =>
+{
+    if (string.IsNullOrWhiteSpace(options.ConsentVersion) && string.IsNullOrWhiteSpace(options.ConsentText))
+    {
+        options.ConsentVersion = builder.Configuration["Account:DraftConsentVersion"];
+        options.ConsentText = builder.Configuration["Account:DraftConsentText"];
+    }
+});
 builder.Services.AddOptions<PasswordMailOptions>().BindConfiguration("PasswordMail");
 builder.Services.AddSingleton<IPasswordResetMailer, SmtpPasswordResetMailer>();
 builder.Services.AddSingleton<PasswordResetQueue>();

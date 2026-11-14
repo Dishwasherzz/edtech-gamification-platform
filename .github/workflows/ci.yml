@@ -49,6 +49,8 @@ jobs:
           curl --fail --silent --show-error --retry 20 --retry-all-errors --retry-delay 2 --max-time 3 http://127.0.0.1:5244/health/ready
           curl --fail --silent --show-error http://127.0.0.1:5244/ >/dev/null
           curl --fail --silent --show-error http://127.0.0.1:5244/api/public/courses | jq -e 'any(.[]; .slug == "electrical-engineering")'
+          curl --fail --silent --show-error http://127.0.0.1:5244/api/auth/registration |
+            jq -e '.canRegister and .requiresConsent and (.consent.version | endswith("-draft")) and (.consent.text | length > 0)'
 
   publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
