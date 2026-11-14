@@ -44,8 +44,9 @@ jobs:
         run: |
           set -euo pipefail
           compose=(docker compose --env-file deploy/.env.example -f deploy/compose.yml -f deploy/compose.release.yml --profile app)
+          trap '"${compose[@]}" logs --no-color --tail 80' ERR
           "${compose[@]}" up -d --no-build api
-          curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 http://127.0.0.1:5244/health/ready
+          curl --fail --silent --show-error --retry 20 --retry-all-errors --retry-delay 2 --max-time 3 http://127.0.0.1:5244/health/ready
           curl --fail --silent --show-error http://127.0.0.1:5244/ >/dev/null
           curl --fail --silent --show-error http://127.0.0.1:5244/api/public/courses | jq -e 'any(.[]; .slug == "electrical-engineering")'
 

@@ -54,7 +54,7 @@ else
     "${compose[@]}" stop api
 fi
 
-"${compose[@]}" run --rm --no-deps --pull never migrate
+"${compose[@]}" run --rm --no-deps -T --pull never migrate
 "${compose[@]}" up -d --no-deps --no-build --pull never api
 for (( attempt = 0; attempt < 30; attempt++ )); do
     if is_ready; then
