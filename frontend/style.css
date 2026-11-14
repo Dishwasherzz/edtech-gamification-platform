@@ -1074,6 +1074,8 @@ small, .small {
   width: 48px;
   height: 48px;
   background: var(--bg-sunken);
+  background-size: cover;
+  background-position: center;
   border-radius: 50%;
 }
 

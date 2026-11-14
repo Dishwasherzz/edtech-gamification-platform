@@ -1,13 +1,13 @@
 // Логические ключи ресурсов из API и файлы в папке frontend/assets.
 // assetKey — это идентификатор ресурса, а не готовый URL: сопоставление живёт здесь.
 const ASSETS = {
-  "heroes/phase": "assets/heroes/phase.png",
-  "heroes/ampere": "assets/heroes/ampere.png",
-  "heroes/phase-face": "assets/heroes/phase-face.png",
-  "heroes/ampere-face": "assets/heroes/ampere-face.png",
-  "mascots/spark": "assets/mascots/spark.png",
-  "mascots/ohm": "assets/mascots/ohm.png",
-  "mascots/relay": "assets/mascots/relay.png"
+  "heroes/phase": "/assets/heroes/phase.png",
+  "heroes/ampere": "/assets/heroes/ampere.png",
+  "heroes/phase-face": "/assets/heroes/phase-face.png",
+  "heroes/ampere-face": "/assets/heroes/ampere-face.png",
+  "mascots/spark": "/assets/mascots/spark.png",
+  "mascots/ohm": "/assets/mascots/ohm.png",
+  "mascots/relay": "/assets/mascots/relay.png"
 };
 
 // Портрет героя: в макете спутник — это сам персонаж, поэтому подсказки
@@ -24,24 +24,24 @@ const HERO_CHARACTER = { phase: "male", ampere: "female" };
 // с файлами в frontend/assets/characters.
 const CHARACTER_ASSETS = {
   male: {
-    calm: "assets/characters/male_calm.png",
-    focus: "assets/characters/male_focus.png",
-    joy: "assets/characters/male_joy.png",
-    surprise: "assets/characters/male_surprise.png",
-    support: "assets/characters/male_support.png",
-    front: "assets/characters/male_full_front.png",
-    side: "assets/characters/male_full_side.png",
-    back: "assets/characters/male_full_back.png"
+    calm: "/assets/characters/male_calm.png",
+    focus: "/assets/characters/male_focus.png",
+    joy: "/assets/characters/male_joy.png",
+    surprise: "/assets/characters/male_surprise.png",
+    support: "/assets/characters/male_support.png",
+    front: "/assets/characters/male_full_front.png",
+    side: "/assets/characters/male_full_side.png",
+    back: "/assets/characters/male_full_back.png"
   },
   female: {
-    calm: "assets/characters/female_calm.png",
-    focus: "assets/characters/female_focus.png",
-    joy: "assets/characters/female_joy.png",
-    surprise: "assets/characters/female_surprise.png",
-    support: "assets/characters/female_support.png",
-    front: "assets/characters/female_full_front.png",
-    side: "assets/characters/female_full_side.png",
-    back: "assets/characters/female_full_back.png"
+    calm: "/assets/characters/female_calm.png",
+    focus: "/assets/characters/female_focus.png",
+    joy: "/assets/characters/female_joy.png",
+    surprise: "/assets/characters/female_surprise.png",
+    support: "/assets/characters/female_support.png",
+    front: "/assets/characters/female_full_front.png",
+    side: "/assets/characters/female_full_side.png",
+    back: "/assets/characters/female_full_back.png"
   }
 };
 
@@ -88,10 +88,10 @@ export function skinAsset(skin) {
   const key = String(skin.assetKey ?? "");
   const direct = ASSETS[key];
   if (direct) return direct;
-  // «characters/engineer/copper» → assets/characters/engineer/copper.png (если файл есть)
+  // «characters/engineer/copper» → /assets/characters/engineer/copper.png (если файл есть)
   const parts = key.split("/");
   if (parts.length >= 2) {
-    const candidate = `assets/${key}.png`;
+    const candidate = `/assets/${key}.png`;
     return candidate;
   }
   return null;

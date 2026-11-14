@@ -1,7 +1,7 @@
 import { api } from "../api.js";
 import { state, clearSession, refreshProfile, setMascotVisible } from "../state.js";
 import { element, escapeHtml as e, askDialog } from "../ui.js";
-import { companionCharacter, moodAsset } from "../assets.js";
+import { companionCharacter, moodAsset, assetUrl } from "../assets.js";
 
 // Правила Identity на сервере: длина от 8 символов, строчная и заглавная буквы, цифра.
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\S]{8,128}$/;
@@ -13,8 +13,8 @@ const TABS = [
 ];
 
 function mascotCard(mascot, current, user) {
-  // Спутник — это выбранный персонаж, поэтому в карточке его спокойный портрет.
-  const image = moodAsset(companionCharacter(user), "calm");
+  // Каждая карточка маскота показывает своё изображение; если нет — портрет выбранного героя.
+  const image = assetUrl(mascot?.assetKey) ?? moodAsset(companionCharacter(user), "calm");
   return `
     <section class="character-card${mascot.id === current ? " selected" : ""}" data-mascot="${e(mascot.id)}">
       <input type="radio" name="mascot" value="${e(mascot.id)}" ${mascot.id === current ? "checked" : ""}>

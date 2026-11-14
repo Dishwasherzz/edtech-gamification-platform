@@ -6,6 +6,7 @@ import { mascotPanel, mountMascot } from "../mascot.js";
 
 function topicRow(topic, index) {
   // Закрытая тема остаётся div: клик по ней ничего не делает.
+  const locked = topic.status === "Locked";
   const hint = locked
     ? `Сначала завершите тему ${index}`
     : topic.subtitle ?? `${topic.completedLessons}/${topic.lessonCount} лекций прочитано`;
