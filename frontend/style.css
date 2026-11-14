@@ -772,6 +772,29 @@ small, .small {
   border-color: transparent;
 }
 
+/* Статусные сообщения форм: успех, ошибка и нейтральный текст. */
+.status-message {
+  margin-top: var(--space-4);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  color: var(--text-secondary);
+}
+
+.status-message.success,
+p.success {
+  color: var(--accent-pink);
+}
+
+.status-message.error,
+p.error {
+  color: var(--accent-pink);
+}
+
+.character-card:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 4px;
+}
+
 .panel, .card {
   min-width: 0;
   padding: var(--space-6);
@@ -2029,6 +2052,9 @@ small, .small {
 }
 
 .menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   padding: 8px 0;
   background: none;
   border: 0;

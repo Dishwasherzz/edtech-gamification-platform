@@ -49,6 +49,20 @@ const CHARACTER_ASSETS = {
 export const MOODS = ["calm", "focus", "joy", "surprise", "support"];
 export const VIEWS = ["front", "side", "back"];
 
+// Маска → состояние персонажа: у каждой маски своя эмоция, поэтому лица
+// в карточках различаются. Пол берётся у выбранного героя: у девочки
+// показываются женские кадры, у парня — мужские.
+// Искра поддерживает (радость), Ом помогает спокойно (спокойствие),
+// Реле внимательно следит за цепью (удивление).
+const MASCOT_MOOD = { spark: "joy", ohm: "calm", relay: "surprise" };
+
+// Кадр маски: набор персонажа 512×512 вместо отдельных файлов меньшего разрешения.
+export function mascotImage(mascot, character) {
+  const key = String(mascot?.key ?? "").toLowerCase();
+  const mood = MASCOT_MOOD[key];
+  return mood ? moodAsset(character, mood) : null;
+}
+
 export function assetUrl(key) {
   if (!key) return null;
   const direct = ASSETS[String(key)];
@@ -82,19 +96,12 @@ export function companionAssets(user) {
   ].filter(Boolean);
 }
 
-// Изображение скина: реальный файл, если есть, иначе заглушка.
+// Изображение скина: только если для ключа есть реальный файл.
+// Пока файлов скинов нет, функция возвращает null — вызывающий код
+// показывает запасной портрет персонажа.
 export function skinAsset(skin) {
   if (!skin) return null;
-  const key = String(skin.assetKey ?? "");
-  const direct = ASSETS[key];
-  if (direct) return direct;
-  // «characters/engineer/copper» → /assets/characters/engineer/copper.png (если файл есть)
-  const parts = key.split("/");
-  if (parts.length >= 2) {
-    const candidate = `/assets/${key}.png`;
-    return candidate;
-  }
-  return null;
+  return ASSETS[String(skin.assetKey ?? "")] ?? null;
 }
 
 // Портрет выбранного маскота. Для женского героя набора мимики нет:
