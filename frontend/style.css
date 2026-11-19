@@ -1403,10 +1403,14 @@ p.error {
 
 .character-art.male {
   background: #172632;
+  width: 80px;
+  height: 88px;
 }
 
 .character-art.female {
   background: #2b2025;
+  width: 80px;
+  height: 88px;
 }
 
 /* Имя персонажа */
