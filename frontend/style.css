@@ -875,6 +875,15 @@ small, .small {
   transform: scale(1.08);
 }
 
+.checkbox:hover:not(:disabled):not(.is-disabled) {
+  transform: scale(1.04);
+  border-color: var(--accent-pink);
+}
+
+.checkbox:active:not(:disabled):not(.is-disabled) {
+  transform: translateY(2px) scale(.98);
+}
+
 .checkbox.focused {
   outline: 2px solid var(--text-primary);
   outline-offset: 4px;
@@ -1523,6 +1532,14 @@ p.error {
 .toggle.on > span {
   background: var(--text-primary);
   transform: translateX(16px);
+}
+
+.toggle:hover:not(:disabled):not(.is-disabled) {
+  transform: scale(1.04);
+}
+
+.toggle:active:not(:disabled):not(.is-disabled) {
+  transform: translateY(2px) scale(.98);
 }
 
 /* Строка настроек */
@@ -2329,14 +2346,51 @@ p.error {
 .btn,
 .icon-btn,
 .link,
-.action-link {
+.action-link,
+.tab,
+.text-button,
+.consent-checkbox {
   transition: transform var(--dur-fast) var(--ease-out),
     background-color var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease-out),
     border-color var(--dur-fast) var(--ease-out);
 }
 
-.button:active:not(:disabled):not(.is-disabled) {
+.button:active:not(:disabled):not(.is-disabled),
+.tab:active:not(:disabled):not(.is-disabled),
+.text-button:active:not(:disabled):not(.is-disabled),
+.consent-checkbox:active:not(:disabled):not(.is-disabled) {
+  transform: translateY(2px) scale(.98);
+}
+
+/* Наведение на остальные кнопочные элементы */
+.tab:hover:not(:disabled):not(.is-disabled) {
+  background: var(--bg-raised);
+  transform: scale(1.04);
+}
+
+.text-button:hover:not(:disabled):not(.is-disabled) {
+  color: var(--text-primary);
+  transform: scale(1.04);
+}
+
+.consent-checkbox:hover:not(:disabled):not(.is-disabled) {
+  border-color: var(--accent-pink);
+  transform: scale(1.04);
+}
+
+/* Остальные интерактивные элементы с наведением */
+.mobile-item:hover,
+.settings-item:hover,
+.profile-item:hover,
+.side-item:hover {
+  transform: scale(1.04);
+}
+
+.mobile-item:active:not(:disabled):not(.is-disabled),
+.settings-item:active:not(:disabled):not(.is-disabled),
+.profile-item:active:not(:disabled):not(.is-disabled),
+.side-item:active:not(:disabled):not(.is-disabled) {
   transform: translateY(2px) scale(.98);
 }
 
@@ -2657,7 +2711,15 @@ p.error,
   .bar-fill,
   .character-portrait,
   .pet-panel,
-  .button-label > .icon {
+  .button-label > .icon,
+  .tab,
+  .text-button,
+  .consent-checkbox,
+  .mobile-item,
+  .settings-item,
+  .profile-item,
+  .checkbox,
+  .toggle {
     transition: color var(--dur-fast), background-color var(--dur-fast), border-color var(--dur-fast) !important;
   }
 
@@ -2671,12 +2733,30 @@ p.error,
   }
 
   .button:not(:disabled):not(.is-disabled):hover,
-  .button.outline:not(:disabled):not(.is-disabled):hover {
+  .button.outline:not(:disabled):not(.is-disabled):hover,
+  .tab:hover:not(:disabled):not(.is-disabled),
+  .text-button:hover:not(:disabled):not(.is-disabled),
+  .consent-checkbox:hover:not(:disabled):not(.is-disabled),
+  .mobile-item:hover,
+  .settings-item:hover,
+  .profile-item:hover,
+  .side-item:hover,
+  .checkbox:hover:not(:disabled):not(.is-disabled),
+  .toggle:hover:not(:disabled):not(.is-disabled) {
     transform: none;
   }
 
   .button:active:not(:disabled):not(.is-disabled),
-  .answer:not(:disabled):active {
+  .answer:not(:disabled):active,
+  .tab:active:not(:disabled):not(.is-disabled),
+  .text-button:active:not(:disabled):not(.is-disabled),
+  .consent-checkbox:active:not(:disabled):not(.is-disabled),
+  .mobile-item:active:not(:disabled):not(.is-disabled),
+  .settings-item:active:not(:disabled):not(.is-disabled),
+  .profile-item:active:not(:disabled):not(.is-disabled),
+  .side-item:active:not(:disabled):not(.is-disabled),
+  .checkbox:active:not(:disabled):not(.is-disabled),
+  .toggle:active:not(:disabled):not(.is-disabled) {
     transform: none;
   }
 }
