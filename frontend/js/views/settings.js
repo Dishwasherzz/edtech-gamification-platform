@@ -122,13 +122,6 @@ export async function renderSettings(tab = "account") {
           </div>
 
           <div class="rule"></div>
-
-          <h2>Маскот</h2>
-          <p class="muted">Маскот даёт подсказки по экрану и реагирует на события испытания.</p>
-          ${mascots.length ? `<div class="character-choice">${mascots.map(item => mascotCard(item, user.mascot?.id, user)).join("")}</div>`
-            : `<p class="muted">Маскоты пока не настроены на сервере.</p>`}
-          <div class="actions"><button type="button" class="button${mascots.length ? "" : " is-disabled"}" data-save-mascot ${mascots.length ? "" : "disabled"}><span class="button-edge" aria-hidden="true"></span><span class="button-label">Сохранить маскота</span></button></div>
-          <p class="status-message" data-mascot-status role="status" hidden></p>
         </section>
 
         <section class="panel" data-panel="data" ${active === "data" ? "" : "hidden"}>
@@ -269,56 +262,6 @@ export async function renderSettings(tab = "account") {
 
   let mascotId = user.mascot?.id ?? null;
   const mascotCards = root.querySelectorAll("[data-mascot]");
-  const selectMascot = card => {
-    mascotId = card.dataset.mascot;
-    mascotCards.forEach(other => {
-      const checked = other === card;
-      other.classList.toggle("selected", checked);
-      other.setAttribute("aria-checked", String(checked));
-      const box = other.querySelector(".checkbox");
-      box.classList.toggle("checked", checked);
-      box.textContent = checked ? "✓" : "";
-      other.querySelector("[data-state]").textContent = checked ? "✓ Выбран" : "Выбрать";
-    });
-  };
-  mascotCards.forEach(card => {
-    card.onclick = () => selectMascot(card);
-    card.onkeydown = event => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        selectMascot(card);
-      }
-    };
-  });
-
-  const mascotButton = root.querySelector("[data-save-mascot]");
-  mascotButton.onclick = async () => {
-    const status = root.querySelector("[data-panel='mascot'] [data-mascot-status]");
-    status.hidden = true;
-    status.textContent = "";
-    status.className = "";
-    if (!mascotId) {
-      status.textContent = "Выберите маскота, чтобы сохранить.";
-      status.className = "error";
-      status.hidden = false;
-      return;
-    }
-    mascotButton.disabled = true;
-    try {
-      await api.selectMascot(mascotId);
-      await refreshProfile();
-      status.textContent = "Маскот сохранён.";
-      status.className = "success";
-      status.hidden = false;
-    } catch (problem) {
-      status.textContent = problem.message;
-      status.className = "error";
-      status.hidden = false;
-    } finally {
-      mascotButton.disabled = false;
-    }
-  };
-
   /* --- Удаление аккаунта -------------------------------------------- */
   const deleteButton = root.querySelector("[data-delete]");
   const deletePanel = root.querySelector("[data-delete-panel]");
