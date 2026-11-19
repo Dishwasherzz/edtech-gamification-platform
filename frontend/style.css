@@ -2341,7 +2341,9 @@ p.error {
   transform: rotate(180deg);
 }
 
-/* Переходы интерактивных элементов */
+/* =============== ПЛАВНЫЕ ПЕРЕХОДЫ ВСЕХ КНОПОК =============== */
+
+/* Базовый плавный переход для всех кнопочных элементов */
 .button,
 .btn,
 .icon-btn,
@@ -2349,21 +2351,39 @@ p.error {
 .action-link,
 .tab,
 .text-button,
-.consent-checkbox {
-  transition: transform var(--dur-fast) var(--ease-out),
-    background-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
+.consent-checkbox,
+.account-toggle,
+.topic-row-link,
+.nav-item,
+.side-item,
+.mobile-item,
+.settings-item,
+.profile-item,
+.answer {
+  transition: transform 200ms var(--ease-out),
+    background-color 200ms var(--ease-out),
+    color 200ms var(--ease-out),
+    border-color 200ms var(--ease-out);
 }
 
+/* Нажатие — прижатие кнопки */
 .button:active:not(:disabled):not(.is-disabled),
+.btn:active:not(:disabled):not(.is-disabled),
 .tab:active:not(:disabled):not(.is-disabled),
 .text-button:active:not(:disabled):not(.is-disabled),
-.consent-checkbox:active:not(:disabled):not(.is-disabled) {
+.consent-checkbox:active:not(:disabled):not(.is-disabled),
+.account-toggle:active:not(:disabled):not(.is-disabled),
+.mobile-item:active:not(:disabled):not(.is-disabled),
+.settings-item:active:not(:disabled):not(.is-disabled),
+.profile-item:active:not(:disabled):not(.is-disabled),
+.side-item:active:not(:disabled):not(.is-disabled),
+.answer:not(:disabled):active {
   transform: translateY(2px) scale(.98);
 }
 
-/* Наведение на остальные кнопочные элементы */
+/* Наведение — легкое увеличение */
+.button:not(:disabled):not(.is-disabled):hover,
+.btn:not(:disabled):not(.is-disabled):hover,
 .tab:hover:not(:disabled):not(.is-disabled) {
   background: var(--bg-raised);
   transform: scale(1.04);
@@ -2379,43 +2399,14 @@ p.error {
   transform: scale(1.04);
 }
 
-/* Остальные интерактивные элементы с наведением */
-.mobile-item:hover,
-.settings-item:hover,
-.profile-item:hover,
-.side-item:hover {
+.account-toggle:hover {
+  color: var(--text-primary);
   transform: scale(1.04);
 }
 
-.mobile-item:active:not(:disabled):not(.is-disabled),
-.settings-item:active:not(:disabled):not(.is-disabled),
-.profile-item:active:not(:disabled):not(.is-disabled),
-.side-item:active:not(:disabled):not(.is-disabled) {
-  transform: translateY(2px) scale(.98);
-}
-
-/* Варианты ответов */
-.answer {
-  transition: background-color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out);
-}
-
-.answer:not(:disabled):hover {
-  border-color: var(--border-input);
-  background: var(--bg-sunken);
-}
-
-.answer:not(:disabled):active {
-  transform: translateY(1px) scale(.99);
-}
-
-/* Навигация и ссылки действий */
-.nav-item,
-.action-link {
-  transition: transform var(--dur-base) var(--ease-out),
-    color var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out);
+.topic-row-link:hover {
+  color: var(--accent-pink);
+  transform: scale(1.02);
 }
 
 .nav-item:hover,
@@ -2424,13 +2415,29 @@ p.error {
   transform: scale(1.09);
 }
 
-.side-item {
-  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+.side-item:hover,
+.mobile-item:hover,
+.settings-item:hover,
+.profile-item:hover {
+  background: var(--bg-raised);
+  transform: scale(1.04);
 }
 
-.side-item:hover {
-  background: var(--bg-raised);
-  color: var(--text-primary);
+.answer:not(:disabled):hover {
+  border-color: var(--border-input);
+  background: var(--bg-sunken);
+  transform: scale(1.02);
+}
+
+/* Фокус кнопок и ответов */
+.button:focus-visible,
+.btn:focus-visible,
+.answer:focus-visible,
+.side-item:focus-visible,
+.nav-item:focus-visible,
+.settings-item:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 4px;
 }
 
 /* Вход экранов и блоков */
@@ -2719,7 +2726,9 @@ p.error,
   .settings-item,
   .profile-item,
   .checkbox,
-  .toggle {
+  .toggle,
+  .account-toggle,
+  .topic-row-link {
     transition: color var(--dur-fast), background-color var(--dur-fast), border-color var(--dur-fast) !important;
   }
 
@@ -2742,7 +2751,9 @@ p.error,
   .profile-item:hover,
   .side-item:hover,
   .checkbox:hover:not(:disabled):not(.is-disabled),
-  .toggle:hover:not(:disabled):not(.is-disabled) {
+  .toggle:hover:not(:disabled):not(.is-disabled),
+  .account-toggle:hover,
+  .topic-row-link:hover {
     transform: none;
   }
 
@@ -2756,7 +2767,9 @@ p.error,
   .profile-item:active:not(:disabled):not(.is-disabled),
   .side-item:active:not(:disabled):not(.is-disabled),
   .checkbox:active:not(:disabled):not(.is-disabled),
-  .toggle:active:not(:disabled):not(.is-disabled) {
+  .toggle:active:not(:disabled):not(.is-disabled),
+  .account-toggle:active:not(:disabled):not(.is-disabled),
+  .topic-row-link:active:not(:disabled):not(.is-disabled) {
     transform: none;
   }
 }
