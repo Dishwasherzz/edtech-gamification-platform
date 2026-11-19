@@ -77,7 +77,7 @@ export async function renderProfile(page = 1) {
         <section class="panel">
           <div class="row">
             <div class="character-art ${character}">
-              <img class="character-img character-full" src="${e(heroImage)}" alt="${e(user.displayName)}" width="160" height="320">
+              <img class="character-img character-full" src="${e(heroImage)}" alt="${e(user.displayName)}" width="80" height="88">
             </div>
             <div>
               <h2 style="margin-bottom:4px">${e(user.displayName)}</h2>

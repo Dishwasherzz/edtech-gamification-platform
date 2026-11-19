@@ -198,6 +198,8 @@ h1 {
   
 }
 
+
+
 h2 {
   font-size: var(--fs-24);
   line-height: var(--lh-24);
@@ -2415,7 +2417,10 @@ p.error {
   transform: scale(1.09);
 }
 
-.side-item:hover,
+.side-item:hover {
+  transform: scale(1.04);
+}
+
 .mobile-item:hover,
 .settings-item:hover,
 .profile-item:hover {
