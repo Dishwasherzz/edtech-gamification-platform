@@ -40,13 +40,10 @@ export function updateHeaderUI() {
   const authOnly = document.querySelectorAll("[data-auth-nav]");
   authOnly.forEach(item => { item.hidden = !state.isAuth; });
 
-  const menu = document.getElementById("menu-panel");
-  if (menu) {
-    menu.querySelectorAll("[data-auth]").forEach(item => { item.hidden = !state.isAuth; });
-    menu.querySelectorAll("[data-guest]").forEach(item => { item.hidden = state.isAuth; });
-    const account = menu.querySelector("[data-account]");
-    if (account) account.textContent = state.isAuth ? state.user.displayName : "Гость";
-  }
+  // Закрываем выпадающий список при смене сессии.
+  const profileMenu = document.getElementById("menu-panel");
+  const accountToggle = document.getElementById("account-toggle");
+  if (profileMenu && accountToggle) { profileMenu.hidden = true; accountToggle.setAttribute("aria-expanded", "false"); }
 
   const avatar = document.getElementById("header-avatar");
   if (avatar) {

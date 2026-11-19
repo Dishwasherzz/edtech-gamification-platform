@@ -5,11 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Электротехника — Учебный модуль</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="frontend-fixes.css">
 </head>
 <body>
   <!-- Спрайт иконок макета: menu, chevron, home, book, info, user, chat. -->
   <svg class="icon-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-arrow" viewBox="0 0 24 24">
+      <path d="M5 12h14"/>
+      <path d="m12 5 7 7-7 7"/>
+    </symbol>
     <symbol id="icon-menu" viewBox="0 0 24 24">
       <path d="M4 6h16M4 12h16M4 18h16"/>
     </symbol>
@@ -27,6 +30,15 @@
     </symbol>
     <symbol id="icon-user" viewBox="0 0 24 24">
       <path d="M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21a8 8 0 0 1 16 0"/>
+    </symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24">
+      <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83l-1.42 1.42a2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0l-1.42-1.42a2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83l1.42-1.42a2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0l1.42 1.42a2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+    </symbol>
+    <symbol id="icon-logout" viewBox="0 0 24 24">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+      <path d="m16 17 5-5-5-5"/>
+      <path d="M21 12H9"/>
     </symbol>
     <symbol id="icon-chat" viewBox="0 0 24 24">
       <path d="M5 5h14v11h-7l-4 4v-4H5zM9 10h.01m6 0h.01"/>
@@ -49,43 +61,75 @@
     <span class="top-context" data-context>Учебный курс</span>
 
     <div class="account">
-      <a class="account-name" href="#/profile" data-auth-nav>
+      <button type="button" class="account-name" id="account-toggle" aria-haspopup="true" aria-expanded="false" data-auth-nav>
         <span class="avatar-dot" id="header-avatar" aria-hidden="true"></span>
-        <span>Профиль</span>
-      </a>
-      <a class="action-link" href="#/auth" data-guest-nav>Войти</a>
-      <a class="btn btn-outline btn-small" href="#/auth/register" data-guest-nav>Регистрация</a>
-
-      <div class="menu-wrap">
-        <button id="menu-btn" class="menu-btn" aria-haspopup="true" aria-expanded="false">
-          <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-menu" /></svg>
-          Меню
+        <span class="account-label">Профиль</span>
+        <svg aria-hidden="true" class="icon account-chevron" focusable="false"><use href="#icon-chevron" /></svg>
+      </button>
+      <div id="menu-panel" class="profile-menu" role="menu" aria-label="Меню профиля" hidden>
+        <a class="profile-item" href="#/profile" role="menuitem">
+          <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-user" /></svg>
+          <span>Профиль</span>
+        </a>
+        <a class="profile-item" href="#/settings" role="menuitem">
+          <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-settings" /></svg>
+          <span>Настройки профиля</span>
+        </a>
+        <span class="menu-separator"></span>
+        <button type="button" class="profile-item" data-logout role="menuitem">
+          <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-logout" /></svg>
+          <span>Выйти</span>
         </button>
-        <div id="menu-panel" class="profile-menu" hidden>
-          <p class="menu-account" data-account>Гость</p>
-          <a href="#/">Главная</a>
-          <a href="#/topics" data-auth>Темы курса</a>
-          <a href="#/profile" data-auth>Профиль</a>
-          <a href="#/shop" data-auth>Магазин и гардероб</a>
-          <a href="#/character" data-auth>Сменить персонажа</a>
-          <a href="#/settings" data-auth>Настройки профиля</a>
-          <a href="#/completion" data-auth>Итог курса</a>
-          <span class="menu-separator"></span>
-          <a href="#/demo" data-guest>Пример уровня</a>
-          <a href="#/instructions">Инструкция</a>
-          <a href="#/consent">Обработка данных</a>
-          <a href="#/auth" data-guest>Войти</a>
-          <a href="#/auth/register" data-guest>Регистрация</a>
-          <button type="button" data-logout data-auth>Выйти</button>
-        </div>
       </div>
+      <a class="action-link" href="#/auth" data-guest-nav>Войти</a>
+      <a class="button outline small-button" href="#/auth/register" data-guest-nav>
+        <span class="button-edge" aria-hidden="true"></span>
+        <span class="button-label">Регистрация
+          <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-arrow" /></svg>
+        </span>
+      </a>
     </div>
 
-    <div class="mobile-menu-label">
+    <button type="button" id="mobile-menu-toggle" class="mobile-menu-label" aria-expanded="false" aria-controls="mobile-sheet">
       <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-menu" /></svg>
       Меню
-    </div>
+    </button>
   </header>
+
+  <nav class="mobile-sheet" id="mobile-sheet" hidden aria-label="Мобильное меню">
+    <a class="mobile-item" href="#/">
+      <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-home" /></svg>
+      <span>Главная</span>
+    </a>
+    <a class="mobile-item" href="#/topics" data-auth-nav>
+      <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-book" /></svg>
+      <span>Темы курса</span>
+    </a>
+    <a class="mobile-item" href="#/demo" data-guest-nav>
+      <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-info" /></svg>
+      <span>Пример уровня</span>
+    </a>
+    <a class="mobile-item" href="#/instructions">
+      <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-info" /></svg>
+      <span>Инструкция</span>
+    </a>
+    <a class="mobile-item" href="#/profile" data-auth-nav>
+      <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-user" /></svg>
+      <span>Профиль</span>
+    </a>
+    <a class="mobile-item" href="#/settings?tab=mascot" data-auth-nav>
+      <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-chat" /></svg>
+      <span>Спутник</span>
+    </a>
+    <a class="mobile-item" href="#/auth" data-guest-nav>
+      <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-user" /></svg>
+      <span>Войти</span>
+    </a>
+    <a class="mobile-item" href="#/auth/register" data-guest-nav>
+      <svg aria-hidden="true" class="icon" focusable="false"><use href="#icon-arrow" /></svg>
+      <span>Регистрация</span>
+    </a>
+  </nav>
 
   <div class="app-body">
     <aside class="sidebar" aria-label="Учебная навигация">

@@ -112,6 +112,18 @@ function portrait(character, mood, label, width, height) {
   return `<img class="character-img character-portrait mascot-sprite" src="${e(moodAsset(character, mood))}" alt="${e(label)}" data-sprite width="${width}" height="${height}">`;
 }
 
+// Плавная смена кадра: на время загрузки нового изображения старое затухает.
+function swapSprite(sprite, src, alt) {
+  sprite.style.opacity = "0";
+  const done = () => { sprite.style.opacity = "1"; };
+  sprite.addEventListener("load", done, { once: true });
+  sprite.addEventListener("error", done, { once: true });
+  sprite.src = src;
+  sprite.alt = alt;
+  // Если изображение уже в кэше – обработчик load вызовется асинхронно.
+  if (sprite.complete && sprite.naturalWidth > 0) done();
+}
+
 // Панель спутника: портрет, реакция на событие и подсказка по текущему экрану.
 export function mascotPanel({ label = "Готов к занятию", message = null, hint = null,
   character = DEFAULT_CHARACTER, mood = null, href = "#/settings?tab=mascot",
@@ -176,8 +188,7 @@ export function mascotPanel({ label = "Готов к занятию", message = 
     if (nextCharacter === currentCharacter && nextMood === currentMood) return;
     currentCharacter = nextCharacter;
     currentMood = nextMood;
-    sprite.src = moodAsset(currentCharacter, currentMood);
-    sprite.alt = `Спутник · ${MOODS[currentMood]}`;
+    swapSprite(sprite, moodAsset(currentCharacter, currentMood), `Спутник · ${MOODS[currentMood]}`);
   };
   root.setHint = text => {
     currentMessage = text;
@@ -214,8 +225,7 @@ export function mascotMini({ label = "Спутник", character = DEFAULT_CHARA
     if (nextCharacter === currentCharacter && nextMood === currentMood) return;
     currentCharacter = nextCharacter;
     currentMood = nextMood;
-    sprite.src = moodAsset(currentCharacter, currentMood);
-    sprite.alt = `Спутник · ${MOODS[currentMood]}`;
+    swapSprite(sprite, moodAsset(currentCharacter, currentMood), `Спутник · ${MOODS[currentMood]}`);
   };
   root.hidden = !state.mascotVisible;
   const onVisibility = () => { root.hidden = !state.mascotVisible; };

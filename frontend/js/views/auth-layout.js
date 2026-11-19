@@ -1,8 +1,11 @@
 import { element, escapeHtml as e, showError, clearError } from "../ui.js";
-import { fullAsset } from "../assets.js";
+import { fullAsset, companionCharacter } from "../assets.js";
+import { state } from "../state.js";
 
 // Общая разметка для входа и регистрации: слева — рассказ и персонаж, справа — карточка формы.
+// Пол персонажа берём из профиля, когда он известен; иначе показываем мужского, как в макете.
 export function authLayout({ pageTitle, panelTitle, formHtml, altHtml = "", steps = [], tabs = "", story = "" }) {
+  const character = companionCharacter(state.user);
   return element(`
     <div class="auth-layout">
       <section class="auth-story">
@@ -11,7 +14,7 @@ export function authLayout({ pageTitle, panelTitle, formHtml, altHtml = "", step
           <div class="gap"></div>` : ""}
         <h1>${e(pageTitle)}</h1>
         <p class="muted">${e(story)}</p>
-        <img class="character-img character-full" src="${e(fullAsset("male", "front"))}" alt="Персонаж курса" width="112" height="284">
+        <img class="character-img character-full" src="${e(fullAsset(character, "front"))}" alt="Персонаж курса" width="112" height="284">
       </section>
 
       <section class="auth-card" aria-label="${e(panelTitle)}">
