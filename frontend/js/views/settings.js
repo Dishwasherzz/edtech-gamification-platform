@@ -1,7 +1,6 @@
 import { api } from "../api.js";
 import { state, clearSession, refreshProfile, setMascotVisible } from "../state.js";
 import { element, escapeHtml as e, askDialog } from "../ui.js";
-import { companionCharacter, mascotImage, moodAsset } from "../assets.js";
 
 // Правила Identity на сервере: длина от 8 символов, строчная и заглавная буквы, цифра.
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\S]{8,128}$/;
@@ -12,27 +11,9 @@ const TABS = [
   { key: "data", label: "Персональные данные" }
 ];
 
-function mascotCard(mascot, current, user) {
-  // У каждой маски своя эмоция, а пол берётся у выбранного героя:
-  // у девочки — женские кадры, у парня — мужские.
-  const image = mascotImage(mascot, companionCharacter(user)) ?? moodAsset(companionCharacter(user), "calm");
-  return `
-    <section class="character-card${mascot.id === current ? " selected" : ""}" data-mascot="${e(mascot.id)}" role="radio" aria-checked="${mascot.id === current ? "true" : "false"}" tabindex="0">
-      <div class="character-art">
-        <img class="character-img character-portrait" src="${e(image)}" alt="${e(mascot.name)}" width="80" height="88">
-      </div>
-      <span class="character-name">
-        <h2>${e(mascot.name)}</h2>
-        <span class="checkbox${mascot.id === current ? " checked" : ""}">${mascot.id === current ? "✓" : ""}</span>
-      </span>
-      <span class="small" data-state>${mascot.id === current ? "✓ Выбран" : "Выбрать"}</span>
-    </section>`;
-}
-
 export async function renderSettings(tab = "account") {
   const user = await refreshProfile();
   const active = TABS.some(item => item.key === tab) ? tab : "account";
-  const mascots = await api.mascots().catch(() => []);
 
   const root = element(`
     <header class="page-head">
@@ -260,8 +241,6 @@ export async function renderSettings(tab = "account") {
       : "Выключено · курс и награды без изменений. Спутник и его пункт меню скрыты.";
   };
 
-  let mascotId = user.mascot?.id ?? null;
-  const mascotCards = root.querySelectorAll("[data-mascot]");
   /* --- Удаление аккаунта -------------------------------------------- */
   const deleteButton = root.querySelector("[data-delete]");
   const deletePanel = root.querySelector("[data-delete-panel]");
