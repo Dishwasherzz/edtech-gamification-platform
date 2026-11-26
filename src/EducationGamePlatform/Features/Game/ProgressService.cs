@@ -17,6 +17,7 @@ public sealed class ProgressService(AppDbContext database)
             .OrderBy(topic => topic.SortOrder).ThenBy(topic => topic.Id)
             .Select(topic => new { topic.Id, topic.Title, topic.Description, topic.SortOrder, topic.Subtitle, topic.IconKey,
                 Lessons = topic.Lessons.Count(lesson => lesson.IsPublished),
+                HasAssessments = topic.Assessments.Any(assessment => assessment.IsPublished),
                 Read = database.LessonProgress.Count(progress => progress.UserId == userId &&
                     progress.Lesson.TopicId == topic.Id && progress.Lesson.IsPublished) }).ToListAsync(token);
         var completed = await database.TopicProgress.Where(progress => progress.UserId == userId &&
@@ -25,7 +26,9 @@ public sealed class ProgressService(AppDbContext database)
         var result = new List<TopicState>();
         foreach (var topic in topics)
         {
-            var passed = completed.Contains(topic.Id);
+            // Lecture-only topics finish by reading; game topics still require a victory.
+            var passed = completed.Contains(topic.Id) ||
+                (!topic.HasAssessments && topic.Lessons > 0 && topic.Read == topic.Lessons);
             result.Add(new(topic.Id, topic.Title, topic.Description, topic.SortOrder, topic.Lessons, topic.Read,
                 passed ? "Completed" : previousPassed ? "Available" : "Locked", topic.Lessons > 0 && topic.Read == topic.Lessons,
                 topic.Subtitle, topic.IconKey));

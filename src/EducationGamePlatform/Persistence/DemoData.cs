@@ -45,7 +45,11 @@ public static class DemoData
         }
         await DemoGameContent.SeedAsync(database, cancellationToken);
         if (includePilot) await PilotGameContent.SeedAsync(database, cancellationToken);
-        if (includeAnalyst) await AnalystCourseContent.SeedAsync(database, cancellationToken);
+        if (includeAnalyst)
+        {
+            await AnalystCourseContent.SeedAsync(database, cancellationToken);
+            await AdditionalLectureContent.SeedAsync(database, cancellationToken);
+        }
         await transaction.CommitAsync(cancellationToken);
     }
 }

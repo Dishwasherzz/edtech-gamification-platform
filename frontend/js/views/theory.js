@@ -10,7 +10,15 @@ import { actions } from "../components/actions.js";
 import { buttonLink, buttonAction } from "../components/button.js";
 import { backLink } from "../components/back-link.js";
 
-function renderAccessSection(topic, read, active) {
+function renderAccessSection(topic, read, active, nextTopic = null) {
+  if (!topic.assessments.length) {
+    return panel({
+      title: read ? "Лекция прочитана" : "Тема для чтения",
+      children: `<p class="muted">${read ? "Тема завершена." : "Отметьте все лекции прочитанными, чтобы завершить тему. Испытание не требуется."}</p>
+        ${read ? buttonLink({ href: nextTopic ? `#/topic/${e(nextTopic.id)}` : `#/completion/${e(topic.courseId)}`,
+          label: nextTopic ? "К следующей теме" : "К итогу курса" }) : ""}`
+    });
+  }
   return panel({
     title: "Допуск к испытанию",
     children: `
@@ -51,8 +59,8 @@ async function lockedTopic(topic, previous, courseTitle) {
         ${panel({
           children: `
             <span class="eyebrow">Тема закрыта</span>
-            <h2>Сначала победите в предыдущей теме</h2>
-            <p class="muted">Чтобы открыть эту тему, победите в тесте или аварии по теме${previous ? ` «${e(previous.title)}»` : " перед ней"}. Подойдёт любой тип испытания.</p>
+            <h2>Сначала завершите предыдущую тему</h2>
+            <p class="muted">Чтобы открыть эту тему, завершите предыдущую${previous ? ` «${e(previous.title)}»` : ""}: победите в испытании или прочитайте все лекции, если испытаний нет.</p>
             <div class="actions">
               ${previous ? buttonLink({ href: `#/topic/${e(previous.id)}`, label: "Открыть предыдущую тему" }) : ""}
               ${buttonLink({ href: "#/topics", label: "Все темы", kind: "outline" })}
@@ -110,7 +118,7 @@ export async function renderTopic(id) {
 
   const mascot = mascotPanel({
     label: read ? "Лекция" : "Готов к занятию",
-    message: read ? "Лекция прочитана. Теперь доступны тест и авария." : null,
+    message: read ? (topic.assessments.length ? "Лекция прочитана. Теперь доступны тест и авария." : "Лекция прочитана. Тема завершена.") : null,
     character: companionCharacter(user)
   });
 
@@ -125,7 +133,7 @@ export async function renderTopic(id) {
     <div class="step-line">
       <span class="selected">Лекция</span>
       <span aria-hidden="true">→</span>
-      <span>Испытание</span>
+      <span>${topic.assessments.length ? "Испытание" : "Отметка о чтении"}</span>
       <span aria-hidden="true">→</span>
       <span>Следующая тема</span>
     </div>
@@ -166,15 +174,15 @@ export async function renderTopic(id) {
           title: "Следующая тема",
           children: `
             <p class="muted">${e(nextTopic.title)}</p>
-            <p class="small">${nextTopic.status === "Locked" ? "Откроется после победы в этом испытании." : "Тема уже доступна."}</p>
+            <p class="small">${nextTopic.status === "Locked" ? (topic.assessments.length ? "Откроется после победы в этом испытании." : "Откроется после прочтения лекции.") : "Тема уже доступна."}</p>
             ${nextTopic.status !== "Locked" ? `${actions({ children: `<a class="button outline" href="#/topic/${e(nextTopic.id)}">Открыть тему</a>` })}` : ""}
           `
-        }) : panel({ title: "Это последняя тема курса", children: `<p class="muted">После победы откроется итог курса.</p>` })}
+        }) : panel({ title: "Это последняя тема курса", children: `<p class="muted">После завершения темы доступен итог курса.</p>` })}
       </div>
 
       <div class="stack">
         <div data-access-section>
-          ${renderAccessSection(topic, read, active)}
+          ${renderAccessSection(topic, read, active, nextTopic)}
         </div>
 
         <div class="mascot-column"></div>
@@ -194,12 +202,12 @@ export async function renderTopic(id) {
         complete.textContent = "Прочитано";
         complete.disabled = true;
         root.querySelector("[data-reward]").textContent = result.xpAwarded
-          ? `Начислено ${result.xpAwarded} XP. Испытания доступны.`
+          ? `Начислено ${result.xpAwarded} XP. ${topic.assessments.length ? "Испытания доступны." : "Тема завершена."}`
           : "XP за лекцию уже начислялись при первом прочтении.";
         // F01 fix: перерисовываем допуск явно, а не полагаемся на повторное присваивание того же hash.
         const accessContainer = root.querySelector("[data-access-section]");
         if (accessContainer) {
-          render(accessContainer, renderAccessSection(topic, true, active));
+          render(accessContainer, renderAccessSection(topic, true, active, nextTopic));
           const compare = accessContainer.querySelector("[data-compare]");
           if (compare) {
             compare.onclick = () => askDialog({
@@ -345,7 +353,7 @@ export async function renderLesson(id) {
         <div class="actions">
           <button type="button" class="button${lesson.awardedXp > 0 ? " is-disabled" : ""}" data-complete ${lesson.awardedXp > 0 ? "disabled" : ""}>
             ${lesson.awardedXp > 0 ? "Прочитано" : `Отметить прочитанной · +${rules.lessonXp} XP`}</button>
-          <a class="button outline" href="#/topic/${e(lesson.topicId)}">К испытаниям</a>
+          <a class="button outline" href="#/topic/${e(lesson.topicId)}">К теме</a>
         </div>
         <p class="success" data-reward role="status"></p>
       </div>
@@ -364,7 +372,7 @@ export async function renderLesson(id) {
       await refreshProfile();
       button.textContent = "Прочитано";
       root.querySelector("[data-reward]").textContent = result.xpAwarded
-        ? `Получено ${result.xpAwarded} XP. Теперь можно пройти испытание.`
+        ? `Получено ${result.xpAwarded} XP. Вернитесь к теме, чтобы продолжить обучение.`
         : "Отметка уже сохранена.";
     } catch (error) {
       showError(root, error);
