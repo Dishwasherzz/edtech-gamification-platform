@@ -72,7 +72,7 @@ export async function renderProfile(page = 1) {
         ${panel({
           title: "История испытаний",
           children: `
-            ${historyTable(history)}
+            ${historyTable({ history })}
             ${page > 1 || history.length === 20 ? `${actions({ children: `
               ${page > 1 ? buttonLink({ href: `#/profile?page=${page - 1}`, label: "Назад", kind: "outline" }) : ""}
               ${history.length === 20 ? buttonLink({ href: `#/profile?page=${page + 1}`, label: "Дальше", kind: "outline" }) : ""}

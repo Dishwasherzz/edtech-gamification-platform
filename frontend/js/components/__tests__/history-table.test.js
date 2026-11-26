@@ -30,6 +30,15 @@ test("historyTable renders failed attempt", () => {
   assert.ok(html.includes("—"));
 });
 
+test("historyTable accepts direct array as well as object", () => {
+  const html = historyTable([
+    { id: "a4", topicTitle: "Прямой массив", mode: "Boss", startedAt: "2026-01-04T10:00:00Z", status: "Passed", xp: 50, coins: 25 }
+  ]);
+  assert.ok(html.includes('class="history-table"'));
+  assert.ok(html.includes("Прямой массив"));
+  assert.ok(html.includes("Победа"));
+});
+
 test("historyTable escapes HTML", () => {
   const html = historyTable({
     history: [

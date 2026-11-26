@@ -4,7 +4,8 @@ import { buttonLink } from "./button.js";
 
 // Таблица истории попыток: тема, результат, награда.
 // history — массив попыток с полями: id, topicTitle, mode, startedAt, status, xp, coins.
-export function historyTable({ history = [] } = {}) {
+export function historyTable(input = {}) {
+  const history = Array.isArray(input) ? input : (input?.history ?? []);
   if (!history.length) {
     return `<p class="muted">Пока нет завершенных попыток.</p>
       <div class="actions">${buttonLink({ href: "#/topics", label: "Открыть первую тему", kind: "outline" })}</div>`;
