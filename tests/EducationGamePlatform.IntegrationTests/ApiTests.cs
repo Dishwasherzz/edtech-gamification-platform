@@ -146,10 +146,16 @@ public sealed class ApiTests(ApiFixture fixture)
         Assert.True(paths.TryGetProperty("/api/auth/register", out _));
         Assert.True(paths.TryGetProperty("/api/me", out _));
         Assert.True(paths.TryGetProperty("/api/assessments/{assessmentId}/attempts", out _));
-        foreach (var path in new[] { "/", "/style.css", "/js/router.js", "/js/views/auth-layout.js" })
+        foreach (var path in new[]
+        {
+            "/", "/css/variables.css", "/css/reset.css", "/css/utilities.css", "/css/layout.css",
+            "/css/components.css", "/css/views.css", "/css/animations.css", "/css/responsive.css",
+            "/css/pages.css", "/js/router.js", "/js/views/auth-layout.js"
+        })
         {
             var asset = await client.GetAsync(path);
-            Assert.Equal(HttpStatusCode.OK, asset.StatusCode);
+            Assert.True(asset.StatusCode == HttpStatusCode.OK,
+                $"Frontend asset {path} returned {asset.StatusCode}.");
             Assert.True(asset.Headers.CacheControl?.NoCache);
         }
         Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/appsettings.Local.json")).StatusCode);
