@@ -27,6 +27,7 @@
   p.success,
   p.error,
   .danger-zone,
+  [data-panel]:not([hidden]),
   .modal-layer,
   .modal,
   .profile-menu,

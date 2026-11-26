@@ -52,6 +52,11 @@ export function updateHeaderUI() {
     avatar.style.backgroundImage = image ? `url("${image}")` : "";
     avatar.textContent = image ? "" : "⚡";
   }
+
+  const accountLabel = accountToggle?.querySelector(".account-label");
+  if (accountLabel) {
+    accountLabel.textContent = state.user?.displayName || "Профиль";
+  }
 }
 
 export async function refreshProfile() {

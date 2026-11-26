@@ -3,7 +3,6 @@ import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, render, dateShort } from "../ui.js";
 import { skinCard } from "../components/cards.js";
 import { pageHead } from "../components/page-head.js";
-import { skinAsset } from "../assets.js";
 
 // requestId покупки живёт до определённого ответа сервера: повтор с тем же id
 // не списывает монеты второй раз (см. docs/cosmetics-and-shop.md).
@@ -25,7 +24,7 @@ export async function renderShop(tab = "shop") {
     ${pageHead({
       title: "Магазин и гардероб",
       description: "Скины меняют внешний вид персонажа и не влияют на награды.",
-      actions: `<span class="num">${balance}</span> <span class="small">монет</span>`
+      actions: `<div class="shop-balance"><span class="small">Баланс</span><strong class="num">${balance}</strong><span class="small">монет</span></div>`
     })}
 
     <p data-error class="error" role="alert" hidden></p>
@@ -50,7 +49,7 @@ export async function renderShop(tab = "shop") {
   `);
 
   const error = root.querySelector("[data-error]");
-  const balanceLabel = root.querySelector(".top-actions .num");
+  const balanceLabel = root.querySelector(".shop-balance .num");
   const showProblem = problem => {
     error.textContent = problem.message;
     error.className = "error";
@@ -59,8 +58,18 @@ export async function renderShop(tab = "shop") {
 
   // Каталог и гардероб перерисовываются после покупки и надевания.
   const paint = () => {
-    render(root.querySelector('[data-grid="shop"]'), shopList.map(skin => skinCard({ skin, balance })).join(""));
-    render(root.querySelector('[data-grid="wardrobe"]'), wardrobeList.map(skin => skinCard({ skin, balance })).join(""));
+    render(
+      root.querySelector('[data-grid="shop"]'),
+      shopList.length
+        ? shopList.map(skin => skinCard({ skin, balance })).join("")
+        : `<div class="panel shop-empty"><p class="muted">Новых скинов пока нет.</p></div>`
+    );
+    render(
+      root.querySelector('[data-grid="wardrobe"]'),
+      wardrobeList.length
+        ? wardrobeList.map(skin => skinCard({ skin, balance })).join("")
+        : `<div class="panel shop-empty"><p class="muted">В гардеробе пока пусто — выберите скин во вкладке «Магазин».</p></div>`
+    );
     balanceLabel.textContent = balance;
     bind();
   };

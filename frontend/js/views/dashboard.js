@@ -108,6 +108,7 @@ export async function renderDashboard() {
   let ctaLabel = "Продолжить обучение";
   let headline = "Мой курс";
   let description = `Следующая тема: ${topics.find(topic => topic.status === "Available")?.title ?? "—"}.`;
+  let journeyStep = active ? "attempt" : "lesson";
 
   if (active) {
     ctaHref = `#/attempt/${active.id}`;
@@ -115,15 +116,28 @@ export async function renderDashboard() {
   } else if (course) {
     try {
       const journey = await api.journey(course.id);
-      if (journey.destination === "Attempt" && journey.attemptId) ctaHref = `#/attempt/${journey.attemptId}`;
-      else if (journey.destination === "Lesson" && journey.lessonId) ctaHref = `#/lesson/${journey.lessonId}`;
-      else if (journey.destination === "Topic" && journey.topicId) ctaHref = `#/topic/${journey.topicId}`;
-      else if (journey.destination === "Completed") ctaHref = `#/completion/${course.id}`;
+      if (journey.destination === "Attempt" && journey.attemptId) {
+        ctaHref = `#/attempt/${journey.attemptId}`;
+        journeyStep = "attempt";
+      } else if (journey.destination === "Lesson" && journey.lessonId) {
+        ctaHref = `#/lesson/${journey.lessonId}`;
+        journeyStep = "lesson";
+      } else if (journey.destination === "Topic" && journey.topicId) {
+        ctaHref = `#/topic/${journey.topicId}`;
+        journeyStep = "attempt";
+      } else if (journey.destination === "Completed") {
+        ctaHref = `#/completion/${course.id}`;
+        journeyStep = "next";
+      }
     } catch {
       // Маршрут не обязателен: остаёмся на общем списке тем.
     }
   }
-  if (overall >= 100) { ctaLabel = "Итог курса"; description = "Курс пройден. Заберите итог и посмотрите разборы."; }
+  if (overall >= 100) {
+    ctaLabel = "Итог курса";
+    description = "Курс пройден. Заберите итог и посмотрите разборы.";
+    journeyStep = "next";
+  }
 
   // Событие и подсказка связаны: панель сама берёт настроение и реплику персонажа.
   const mascot = mascotPanel({
@@ -151,14 +165,13 @@ export async function renderDashboard() {
           children: `
             <div class="between">
               <h2>Маршрут курса</h2>
-              <span class="small">Лекция → Испытание → Следующая тема</span>
             </div>
             <div class="step-line">
-              <span class="selected">Лекция</span>
+              <span class="${journeyStep === "lesson" ? "selected" : ""}">Лекция</span>
               <span aria-hidden="true">→</span>
-              <span>Испытание</span>
+              <span class="${journeyStep === "attempt" ? "selected" : ""}">Испытание</span>
               <span aria-hidden="true">→</span>
-              <span>Следующая тема</span>
+              <span class="${journeyStep === "next" ? "selected" : ""}">Следующая тема</span>
             </div>
             <div class="gap"></div>
             ${topics.length ? `<div class="tight">${topics.map((topic, index) => topicRow(topic, index, { statusName })).join("")}</div>`

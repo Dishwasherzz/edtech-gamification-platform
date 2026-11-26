@@ -39,7 +39,7 @@ export async function renderProfile(page = 1) {
   const root = element(`
     ${pageHead({
       title: "Профиль",
-      description: `${e(user.displayName)}${user.email ? ` · ${e(user.email)}` : ""}`,
+      description: `Разряд ${user.rank}${ranks ? ` из ${ranks}` : ""}${user.hero?.name ? ` · ${e(user.hero.name)}` : ""}`,
       actions: `${buttonLink({ href: "#/settings", label: "Настройки профиля", kind: "outline" })}
         ${buttonLink({ href: nextCourse ? "#/" : "#/instructions", label: "Продолжить обучение" })}`
     })}
@@ -48,7 +48,7 @@ export async function renderProfile(page = 1) {
       <div class="stack">
         ${panel({
           children: `
-            <div class="row">
+            <div class="row wrap">
               <div class="character-art ${character}">
                 <img class="character-img character-full" src="${e(heroImage)}" alt="${e(user.displayName)}" width="80" height="88">
               </div>
@@ -56,6 +56,7 @@ export async function renderProfile(page = 1) {
                 <h2 style="margin-bottom:4px">${e(user.displayName)}</h2>
                 <p class="small">${e(user.email ?? "")}</p>
               </div>
+              <a class="link action-link profile-shop-link" href="#/shop">Магазин скинов</a>
             </div>
             <div class="gap"></div>
             ${statsGrid({

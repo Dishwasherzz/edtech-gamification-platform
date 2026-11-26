@@ -1,4 +1,6 @@
 import { escapeHtml as e } from "../ui.js";
+import { buttonEdge } from "./button.js";
+import { skinAsset } from "../assets.js";
 
 // Карточки персонажа (выбор героя) и скина (магазин/гардероб).
 
@@ -29,23 +31,25 @@ export function skinCard({ skin, balance }) {
   const action = skin.isEquipped
     ? `<span class="status strong">Надето</span>`
     : skin.isOwned
-      ? `<button type="button" class="button outline" data-equip="${e(skin.id)}">Надеть</button>`
+      ? `<button type="button" class="button outline small-button" data-equip="${e(skin.id)}">${buttonEdge("Надеть")}</button>`
       : skin.isForSale
-        ? `<button type="button" class="button${balance < skin.priceCoins ? " is-disabled" : ""}" data-buy="${e(skin.id)}" ${balance < skin.priceCoins ? "disabled" : ""}>Купить · ${e(skin.priceCoins)}</button>`
+        ? `<button type="button" class="button small-button${balance < skin.priceCoins ? " is-disabled" : ""}" data-buy="${e(skin.id)}" ${balance < skin.priceCoins ? "disabled" : ""}>${buttonEdge(`Купить · ${skin.priceCoins}`)}</button>`
         : `<span class="status">Нет в продаже</span>`;
 
-  const picture = skin.assetKey
-    ? `<img class="character-img character-portrait" src="${e(skin.assetKey)}" alt="${e(skin.name)}" width="80" height="88">`
+  const resolvedSrc = skinAsset(skin)
+    ?? (typeof skin.assetKey === "string" && /^(https?:|\/)/.test(skin.assetKey) ? skin.assetKey : null);
+  const picture = resolvedSrc
+    ? `<img class="character-img character-portrait" src="${e(resolvedSrc)}" alt="${e(skin.name)}" width="80" height="88">`
     : `<span class="picture-mark">${e(skin.name)}</span>`;
 
   return `
-    <section class="panel skin-card" data-skin="${e(skin.id)}">
+    <section class="panel skin-card${skin.isEquipped ? " is-equipped" : ""}" data-skin="${e(skin.id)}">
       <div class="media-placeholder skin-art">
         ${picture}
       </div>
       <h3>${e(skin.name)}</h3>
       <p class="muted">${e(skin.description)}</p>
-      <p class="small">${skin.isStarter ? "Базовый скин" : `${e(skin.priceCoins)} монет`}</p>
+      <p class="small skin-price">${skin.isStarter ? "Базовый скин" : `${e(skin.priceCoins)} монет`}</p>
       <div class="actions">${action}</div>
     </section>`;
 }

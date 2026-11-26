@@ -60,6 +60,10 @@
 }
 
 .account-name .account-label {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
@@ -142,12 +146,10 @@
   transform: translateY(2px) scale(.98);
 }
 
-/* Наведение — легкое увеличение */
-.button:not(:disabled):not(.is-disabled):hover,
-.btn:not(:disabled):not(.is-disabled):hover,
+/* Наведение — лёгкое увеличение */
 .tab:hover:not(:disabled):not(.is-disabled) {
   background: var(--bg-raised);
-  transform: scale(1.04);
+  color: var(--text-primary);
 }
 
 .text-button:hover:not(:disabled):not(.is-disabled) {
@@ -172,8 +174,7 @@
 
 .nav-item:hover,
 .action-link:hover {
-  color: var(--text-primary);
-  transform: scale(1.09);
+  color: var(--accent-pink);
 }
 
 .side-item:hover {
@@ -269,12 +270,13 @@
   }
 }
 
-/* Фидбэк, статус, панель удаления */
+/* Фидбэк, статус, панель удаления, переключение вкладок */
 .feedback,
 .status-message,
 p.success,
 p.error,
-.danger-zone {
+.danger-zone,
+[data-panel]:not([hidden]) {
   animation: notice-in var(--dur-base) var(--ease-out) both;
 }
 
@@ -424,16 +426,4 @@ p.error,
 .button.is-error:not(:disabled):not(.is-disabled):hover {
   background: #ff5d7d;
   transform: scale(1.04);
-}
-
-/* Фокус кнопок и ответов (дубли для специфичности) */
-.button:focus-visible,
-.btn:focus-visible,
-.answer:focus-visible,
-.side-item:focus-visible,
-.nav-item:focus-visible,
-.settings-item:focus-visible,
-.account-name:focus-visible {
-  outline: 2px solid var(--text-primary);
-  outline-offset: 4px;
 }

@@ -49,8 +49,18 @@ test("skinCard renders equipped skin", () => {
     skin: { id: "s2", name: "Надето", description: "d", priceCoins: 50, isStarter: false, isOwned: true, isEquipped: true, isForSale: false },
     balance: 0
   });
+  assert.ok(html.includes("is-equipped"));
   assert.ok(html.includes("Надето"));
   assert.ok(!html.includes("Купить"));
+});
+
+test("skinCard falls back to picture-mark for unmapped logical assetKey", () => {
+  const html = skinCard({
+    skin: { id: "s5", name: "Искра", description: "d", priceCoins: 50, isStarter: false, isOwned: false, isEquipped: false, isForSale: true, assetKey: "skins/spark" },
+    balance: 100
+  });
+  assert.ok(html.includes('class="picture-mark"'));
+  assert.ok(!html.includes("<img"));
 });
 
 test("skinCard renders disabled buy when insufficient balance", () => {

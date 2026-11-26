@@ -85,6 +85,9 @@ export function askDialog({ title, body, actions = [{ label: "ОК", value: "ok"
     dialog.append(form);
     document.body.append(dialog);
     dialog.addEventListener("close", () => { dialog.remove(); resolve(dialog.returnValue); });
+    dialog.addEventListener("click", event => {
+      if (event.target === dialog) dialog.close("cancel");
+    });
     if (typeof dialog.showModal === "function") dialog.showModal();
     else { dialog.setAttribute("open", ""); resolve("cancel"); }
   });

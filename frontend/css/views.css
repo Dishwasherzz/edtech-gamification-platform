@@ -148,13 +148,17 @@
 
 /* Слой модального окна */
 .modal-layer {
-  position: absolute;
+  position: fixed;
   inset: var(--topbar-height) 0 0;
   z-index: var(--z-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-8);
+  background: var(--overlay-scrim);
+}
+
+dialog.modal::backdrop {
   background: var(--overlay-scrim);
 }
 

@@ -325,7 +325,8 @@
   height: 8px;
   margin-top: var(--space-3);
   overflow: hidden;
-  background: var(--bg-sunken);
+  background: var(--bg-app);
+  border: 1px solid var(--border-solid);
   border-radius: var(--radius-sm);
 }
 
@@ -823,27 +824,107 @@ p.error {
   color: var(--ink);
 }
 
-/* Вкладки настроек */
+/* Вкладки настроек и магазина */
 .tabs-settings {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-6);
+  border-bottom: 1px solid var(--border-solid);
 }
 
-/* Карточка скина */
+.tab {
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.tab.is-active {
+  background: var(--bg-raised);
+  border-color: var(--border-solid);
+  border-bottom: 2px solid var(--accent-pink);
+  color: var(--text-primary);
+}
+
+/* Баланс и карточка скина в магазине */
+.shop-balance {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-solid);
+  border-radius: var(--radius-sm);
+}
+
+.shop-balance .num {
+  font-size: var(--fs-20);
+  line-height: var(--lh-20);
+  color: var(--text-primary);
+}
+
 .skin-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
+  height: 100%;
+  transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+
+.skin-card:hover {
+  border-color: var(--border-input);
+  background: var(--bg-raised);
+}
+
+.skin-card.is-equipped {
+  border-color: var(--accent-pink);
 }
 
 .skin-card h3 {
   margin: 0;
 }
 
+.skin-card .muted {
+  font-size: var(--fs-14);
+}
+
+.skin-price {
+  margin-top: auto;
+}
+
+.skin-card .actions {
+  margin-top: var(--space-2);
+}
+
 .skin-art {
   height: 160px;
+  margin-bottom: var(--space-2);
+  background: radial-gradient(circle at 50% 40%, rgba(252, 60, 105, 0.12), var(--bg-sunken) 70%);
+  border: 1px solid var(--border-solid);
+}
+
+.skin-art .picture-mark {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-14);
+  color: var(--text-primary);
+  border-style: dashed;
+}
+
+.shop-empty {
+  grid-column: 1 / -1;
+}
+
+.profile-shop-link {
+  margin-left: auto;
 }
 
 /* ======================
@@ -872,7 +953,14 @@ p.error {
   gap: var(--space-6);
   padding: var(--space-6);
   background: var(--bg-surface);
-  border: 1px dashed var(--border-strong);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+
+.topic-row:not(.locked):hover {
+  background: var(--bg-raised);
+  border-color: var(--border-input);
 }
 
 .topic-row-link {
@@ -889,6 +977,7 @@ p.error {
 
 .topic-row.locked {
   background: #161616;
+  border-style: dashed;
 }
 
 .panel .topic-row {

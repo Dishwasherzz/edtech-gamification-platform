@@ -32,13 +32,13 @@ const SECTIONS = {
   "profile": "Профиль",
   "settings": "Профиль",
   "character": "Профиль",
-  "shop": "Профиль",
+  "shop": "Магазин",
   "completion": "Профиль",
   "topic": "Тема",
   "lesson": "Лекция",
   "attempt": "Испытание"
 };
-const PROFILE_SECTIONS = new Set(["profile", "settings", "character", "shop", "completion"]);
+const PROFILE_SECTIONS = new Set(["profile", "settings", "character", "completion"]);
 
 // Активный пункт меню подчёркивается розовым, как в макете.
 function markActiveNav(hash) {
@@ -95,7 +95,17 @@ export async function handleRoute() {
   }
 
   const app = document.getElementById("app");
-  app.setAttribute("aria-busy", "true"); app.textContent = "Загрузка…";
+  app.setAttribute("aria-busy", "true");
+  render(app, `
+    <div class="stack route-skeleton" aria-label="Загрузка">
+      <div class="skeleton short"></div>
+      <div class="panel">
+        <div class="skeleton mid"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton short"></div>
+      </div>
+    </div>
+  `);
   try {
     let view;
     if (root === "account" && parts[1] === "deleted") view = renderAccountDeleted();
