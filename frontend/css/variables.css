@@ -1,0 +1,138 @@
+/* css/variables.css — CSS-переменные проекта */
+/* Источник: style.css разделы 0 и алиасы из раздела 8 */
+
+/* Подключение шрифта Inter */
+@font-face {
+  font-family: Inter;
+  src: url("assets/fonts/Inter.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* ======================
+   0. CSS-ПЕРЕМЕННЫЕ
+   ====================== */
+
+/* Основные цветовые и типографические переменные проекта */
+:root {
+  /* Фоновые цвета */
+  --bg-app: #0c0c0c;
+  --bg-canvas: #121212;
+  --bg-surface: #191919;
+  --bg-raised: #222;
+  --bg-sunken: #2a2a2a;
+
+  /* Цвета рамок */
+  --border-solid: #363636;
+  --border-strong: #444;
+  --border-muted: #555;
+  --border-dashed: #666;
+  --border-input: #949494;
+
+  /* Цвета текста */
+  --text-primary: #ffffff;
+  --text-secondary: #b4b4b4;
+  --text-tertiary: #949494;
+  --text-inverse: #121212;
+
+  /* Акцентные цвета */
+  --accent-pink: #fc3c69;
+  --accent-blue: #015d9d;
+  --accent-blue-hover: #0b4c7a;
+  --accent-pink-hover: #c02d50;
+  --accent-outline: #888;
+  --accent-outline-hover: #303030;
+
+  /* Тени и overlays */
+  --overlay-scrim: rgba(8, 8, 8, 0.91);
+  --shadow-menu: 0 12px 24px rgba(0, 0, 0, 0.4);
+
+  /* Шрифты и размеры текста */
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-mono: Consolas, "SF Mono", "Courier New", monospace;
+  --fs-12: 12px;
+  --lh-12: 20px;
+  --fs-14: 14px;
+  --lh-14: 24px;
+  --fs-16: 16px;
+  --lh-16: 24px;
+  --fs-18: 18px;
+  --lh-18: 24px;
+  --fs-20: 20px;
+  --lh-20: 28px;
+  --fs-24: 24px;
+  --lh-24: 32px;
+  --fs-28: 28px;
+  --lh-28: 36px;
+  --fs-32: 32px;
+  --lh-32: 40px;
+  --fs-36: 36px;
+  --lh-36: 40px;
+  --fs-40: 40px;
+  --lh-40: 48px;
+  --fs-48: 48px;
+  --lh-48: 56px;
+
+  /* Отступы и интервалы */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+
+  /* Радиусы углов и размеры холста */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --canvas-desktop: 1440px;
+  --canvas-mobile: 390px;
+  --topbar-height: 72px;
+  --topbar-height-mobile: 64px;
+  --sidebar-width: 224px;
+  --companion-rail: 304px;
+  --content-max: 880px;
+
+  /* Z-индексы для слоёв */
+  --z-base: 1;
+  --z-header: 2;
+  --z-overlay: 4;
+  --z-menu: 5;
+
+  /* Фоновое изображение героя */
+  --img-city: url("assets/img/city.webp");
+}
+
+/* Переопределения переменных (были во втором файле, подключались после основного) */
+:root {
+  --font-sans: Inter, Arial, sans-serif;
+  --bg-app: #111;
+}
+
+/* Алиас-переменные (были в разделе 8 анимаций, вынесены сюда для единого источника) */
+:root {
+  --bg: var(--bg-app);
+  --shell: var(--bg-canvas);
+  --surface: var(--bg-surface);
+  --surface-2: var(--bg-raised);
+  --surface-3: var(--bg-sunken);
+  --line: var(--border-solid);
+  --line-soft: var(--border-solid);
+  --line-dashed: var(--border-strong);
+  --line-strong: var(--border-dashed);
+  --ink: var(--text-primary);
+  --ink-muted: var(--text-secondary);
+  --ink-subtle: var(--text-tertiary);
+  --pink: var(--accent-pink);
+  --pink-deep: var(--accent-pink-hover);
+  --blue: var(--accent-blue);
+  --blue-deep: var(--accent-blue-hover);
+  --radius: var(--radius-sm);
+  --font: var(--font-sans);
+  --mono: var(--font-mono);
+  --notch: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+}

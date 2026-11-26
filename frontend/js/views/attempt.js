@@ -1,8 +1,14 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
-import { element, escapeHtml as e, progressBar, modeName, statusName, mascotEventName } from "../ui.js";
+import { element, escapeHtml as e, render, progressBar, modeName, statusName, mascotEventName } from "../ui.js";
 import { mascotMini, moodForEvent } from "../mascot.js";
 import { characterByAssetKey, companionCharacter } from "../assets.js";
+import { rewardStat } from "../components/reward-stat.js";
+import { reviewRow } from "../components/review-row.js";
+import { answerButton } from "../components/answer.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { buttonEdge, buttonAction } from "../components/button.js";
 
 function illustration(key) {
   // Локальная векторная схема: без внешних ресурсов и пользовательской разметки.
@@ -90,7 +96,7 @@ export async function renderAttempt(id) {
     return `<div class="notice error">
       <h3>Связь прервалась</h3>
       <p>Не удалось подтвердить ответ. Время попытки продолжает идти. После восстановления связи проверим, успел ли сервер принять ответ.</p>
-      <div class="actions"><button type="button" class="button outline" data-reconnect><span class="button-edge" aria-hidden="true"></span><span class="button-label">Проверить связь</span></button><a class="link action-link" href="#/">На главную</a></div>
+      <div class="actions">${buttonAction({ label: "Проверить связь", kind: "outline", dataset: { reconnect: "" } })}<a class="link action-link" href="#/">На главную</a></div>
     </div>`;
   }
 
@@ -100,9 +106,9 @@ export async function renderAttempt(id) {
       // Итог попытки: спутник реагирует на результат — радость или поддержка.
       const outcome = outcomeEvent();
       mascot.update({ label: `Спутник · ${outcome}`, character });
-      main.innerHTML = `
+      render(main, `
         ${restored ? `<div class="notice info">Попытка восстановлена. Предыдущий ответ учтён.</div>` : ""}
-        <section class="panel result">
+        ${panel({ className: "result", children: `
           <span class="eyebrow">${e(modeName(data.mode))}</span>
           <h1>${e(statusName(data.status))}</h1>
           <h2>${e(data.topicTitle)}</h2>
@@ -111,9 +117,9 @@ export async function renderAttempt(id) {
           <p class="muted">${data.finishReason === "TimeExpired" ? "Время истекло." : data.finishReason === "ThreeErrors" ? "Допущены три ошибки." : data.finishReason === "Abandoned" ? "Попытка прекращена." : ""}</p>
 
           ${data.reward ? `<div class="reward-grid">
-              <div class="reward-stat"><span>Опыт</span><strong>+${data.reward.xp}</strong></div>
-              <div class="reward-stat"><span>Монеты</span><strong>+${data.reward.coins}</strong></div>
-              <div class="reward-stat"><span>Прогресс курса</span><strong>${coursePercent == null ? "—" : `${coursePercent}%`}</strong></div>
+              ${rewardStat({ label: "Опыт", value: `+${data.reward.xp}` })}
+              ${rewardStat({ label: "Монеты", value: `+${data.reward.coins}` })}
+              ${rewardStat({ label: "Прогресс курса", value: coursePercent == null ? "—" : `${coursePercent}%` })}
             </div>
             <p class="small" style="margin-top:12px">${data.reward.isFirstPass ? "Первая победа по теме" : "Повторная победа"}${data.reward.perfectBonus ? " · Бонус без ошибок" : ""}</p>
             ${data.reward.repeatLimitReached ? '<p class="small">Лимит наград за повторы в этой теме исчерпан.</p>' : ""}
@@ -121,27 +127,28 @@ export async function renderAttempt(id) {
             : `<p class="muted">Награды не начислены. Опыт, монеты и ранее пройденные темы сохранены.</p>`}
 
           <div class="actions">
-            ${data.nextTopicId ? `<a class="button" href="#/topic/${e(data.nextTopicId)}"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К следующей теме</span></a>` : ""}
-            ${data.completedCourseId ? `<a class="button" href="#/completion/${e(data.completedCourseId)}"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Курс завершён</span></a>` : ""}
-            <a class="button outline" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К темам курса</span></a>
+            ${data.nextTopicId ? buttonLink({ href: `#/topic/${e(data.nextTopicId)}`, label: "К следующей теме" }) : ""}
+            ${data.completedCourseId ? buttonLink({ href: `#/completion/${e(data.completedCourseId)}`, label: "Курс завершён" }) : ""}
+            ${buttonLink({ href: "#/topics", label: "К темам курса", kind: "outline" })}
             <a class="link action-link" href="#/topic/${e(data.topicId)}">Повторить теорию / выбрать испытание</a>
-            <button class="button outline" data-retry><span class="button-edge" aria-hidden="true"></span><span class="button-label">Попробовать снова</span></button>
+            ${buttonAction({ label: "Попробовать снова", kind: "outline", dataset: { retry: "" } })}
           </div>
           <p data-error class="error" role="alert"></p>
-        </section>
+        ` })}
 
-        <section class="panel">
-          <h2>${data.mode === "Crisis" ? "Правильная последовательность" : "Разбор ответов"}</h2>
-          ${(data.review || []).map(item => `
-            <div class="review-row">
-              <h3>${item.position}. ${e(item.prompt)}</h3>
-              <p><span class="status${item.isCorrect ? " strong" : ""}">${item.isCorrect ? "Верно" : item.timedOut ? "Время истекло" : "Не завершено / ошибка"}</span></p>
-              ${item.selectedAnswer ? `<p>Твой ответ: ${e(item.selectedAnswer)}</p>` : ""}
-              ${item.wrongChoices.length ? `<p>Ошибочные действия: ${item.wrongChoices.map(e).join("; ")}</p>` : ""}
-              <p class="white">Правильный ответ: ${e(item.correctAnswer)}</p>
-              <p class="muted">${e(item.explanation)}</p>
-            </div>`).join("") || `<p class="muted">Разбор появится после завершения попытки.</p>`}
-        </section>`;
+        ${panel({ title: data.mode === "Crisis" ? "Правильная последовательность" : "Разбор ответов", children: `
+          ${(data.review || []).map(item => reviewRow({
+            position: item.position,
+            prompt: item.prompt,
+            isCorrect: item.isCorrect,
+            timedOut: item.timedOut,
+            selectedAnswer: item.selectedAnswer,
+            wrongChoices: item.wrongChoices,
+            correctAnswer: item.correctAnswer,
+            explanation: item.explanation
+          })).join("") || `<p class="muted">Разбор появится после завершения попытки.</p>`}
+        ` })}
+`);
       const retry = main.querySelector("[data-retry]");
       const resultSlot = main.querySelector("[data-pet-slot]");
       if (resultSlot) resultSlot.replaceChildren(mascot);
@@ -160,20 +167,22 @@ export async function renderAttempt(id) {
     }
 
     if (data.isReady) {
-      main.innerHTML = `
+      render(main, `
         ${connectionNotice()}
-        <a class="back-link" href="#/topic/${e(data.topicId)}">← К теме</a>
-        <section class="panel">
-          <span class="eyebrow">Авария · виртуальный стенд</span>
-          <h1>${e(data.scenario.title)}</h1>
-          ${illustration(data.scenario.illustrationKey)}
-          <p class="muted">${e(data.scenario.introduction)}</p>
-          <div class="actions">
-            <button class="button${busy ? " is-disabled" : ""}" data-begin ${busy ? "disabled" : ""}><span class="button-edge" aria-hidden="true"></span><span class="button-label">Начать отсчёт</span></button>
-            <button class="button outline" data-abandon><span class="button-edge" aria-hidden="true"></span><span class="button-label">Отменить подготовку</span></button>
-          </div>
-          <p class="error" data-error role="alert">${e(errorMessage)}</p>
-        </section>`;
+        ${backLink({ href: `#/topic/${e(data.topicId)}`, label: "К теме" })}
+        ${panel({
+          children: `
+            <span class="eyebrow">Авария · виртуальный стенд</span>
+            <h1>${e(data.scenario.title)}</h1>
+            ${illustration(data.scenario.illustrationKey)}
+            <p class="muted">${e(data.scenario.introduction)}</p>
+            <div class="actions">
+              ${buttonAction({ label: "Начать отсчёт", kind: busy ? "is-disabled" : "", disabled: busy, dataset: { begin: "" } })}
+              ${buttonAction({ label: "Отменить подготовку", kind: "outline", dataset: { abandon: "" } })}
+            </div>
+            <p class="error" data-error role="alert">${e(errorMessage)}</p>
+          `
+        })}`);
       main.querySelector("[data-begin]").onclick = async () => {
         if (busy || disposed) return;
         busy = true; draw();
@@ -184,13 +193,11 @@ export async function renderAttempt(id) {
     } else {
       const question = data.currentQuestion;
       const isBoss = data.mode === "Boss";
-      main.innerHTML = `
+      render(main, `
         ${connectionNotice()}
         ${restored ? `<div class="notice info">Попытка восстановлена. Продолжите с вопроса ${question?.position ?? 1}. Состояние и оставшееся время получены от сервера.</div>` : ""}
 
-        <header class="page-head">
-          <div><span class="eyebrow">${e(modeName(data.mode))}</span><h1>${e(data.topicTitle)}</h1></div>
-        </header>
+        ${pageHead({ title: data.topicTitle, eyebrow: modeName(data.mode) })}
 
         <div class="timer-hud">
           ${isBoss ? `
@@ -214,7 +221,7 @@ export async function renderAttempt(id) {
         </div>
 
         <div class="battle-grid">
-          <section class="panel ${isBoss ? "" : `crisis intensity-${data.errors}`}">
+          ${panel({ className: `${isBoss ? "" : `crisis intensity-${data.errors}`}`, children: `
             <h2>${isBoss ? "Состояние босса" : "Состояние установки"}</h2>
             ${isBoss
               ? `<div class="media-placeholder large"><span>${e(data.bossName)}</span></div>
@@ -227,17 +234,16 @@ export async function renderAttempt(id) {
                    ? lastCorrect ? "Верно! Переходите к следующему шагу." : "Не верно. Выберите другое действие."
                    : data.errors ? "В модели нарастает перегрузка. Выберите другое действие." : "Состояние модели стабильно."}</p>
                  <div class="actions" data-pet-slot></div>`}
-          </section>
+          ` })}
 
-          <section class="panel">
-            <h2 class="question-prompt">${e(question.prompt)}</h2>
-            <div class="answers">${question.options.map(option => `<button class="answer" data-option="${e(option.id)}" ${option.isDisabled || pending || sending ? "disabled" : ""}>${e(option.text)}${option.isDisabled ? " · уже выбрано" : ""}</button>`).join("")}</div>
+          ${panel({ title: question.prompt, children: `
+            <div class="answers">${question.options.map(option => answerButton({ option, disabled: pending || sending })).join("")}</div>
             <p class="feedback" role="status">${e(feedback)}</p>
             <p class="error" data-error role="alert">${e(errorMessage)}</p>
-            ${pending ? '<button class="button outline" data-resend><span class="button-edge" aria-hidden="true"></span><span class="button-label">Повторить отправку ответа</span></button>' : ""}
+            ${pending ? buttonAction({ label: "Повторить отправку ответа", kind: "outline", dataset: { resend: "" } }) : ""}
             <button class="text-button" data-abandon>Прекратить попытку</button>
-          </section>
-        </div>`;
+          ` })}
+        </div>`);
       const petSlot = main.querySelector("[data-pet-slot]");
       if (petSlot) petSlot.replaceChildren(mascot);
       main.querySelectorAll("[data-option]").forEach(button => {

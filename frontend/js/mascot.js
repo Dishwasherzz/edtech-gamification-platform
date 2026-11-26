@@ -1,4 +1,4 @@
-import { escapeHtml as e } from "./ui.js";
+import { escapeHtml as e, render } from "./ui.js";
 import { state } from "./state.js";
 import { moodAsset } from "./assets.js";
 
@@ -136,7 +136,7 @@ export function mascotPanel({ label = "Готов к занятию", message = 
   root.className = `pet-panel${collapsed ? " is-collapsed" : ""}`;
   root.setAttribute("data-mascot", "");
   root.setAttribute("aria-label", "Спутник");
-  root.innerHTML = `
+  render(root, `
     <header class="pet-title">
       <h2>Спутник</h2>
       <button type="button" class="link action-link" data-collapse>${collapsed ? "Открыть" : "Свернуть"}</button>
@@ -149,7 +149,7 @@ export function mascotPanel({ label = "Готов к занятию", message = 
       </div>
     </div>
     <p class="pet-message" data-message>${e(currentMessage)}</p>
-    <div class="actions"><a class="link action-link" href="${e(href)}">${e(hrefLabel)}</a></div>`;
+    <div class="actions"><a class="link action-link" href="${e(href)}">${e(hrefLabel)}</a></div>`);
 
   const sprite = root.querySelector("[data-sprite]");
   const toggle = root.querySelector("[data-collapse]");
@@ -210,10 +210,10 @@ export function mascotMini({ label = "Спутник", character = DEFAULT_CHARA
   const root = document.createElement("aside");
   root.className = "pet-mini";
   root.setAttribute("data-pet", "mini");
-  root.innerHTML = `
+  render(root, `
     ${portrait(currentCharacter, currentMood, "Спутник", 32, 36)}
     <span data-label>${e(label)}</span>
-    <a class="link action-link" href="${e(href)}">Открыть</a>`;
+    <a class="link action-link" href="${e(href)}">Открыть</a>`);
 
   const sprite = root.querySelector("[data-sprite]");
   root.update = next => {

@@ -2,7 +2,24 @@ import { escapeHtml as escape } from "./markdown.js";
 
 export { escapeHtml, markdown } from "./markdown.js";
 
-export function element(html) { const root = document.createElement("section"); root.innerHTML = html; return root; }
+export function render(target, html) {
+  while (target.firstChild) {
+    target.removeChild(target.firstChild);
+  }
+  const doc = new DOMParser().parseFromString(String(html ?? ""), "text/html");
+  const body = doc.body;
+  while (body.firstChild) {
+    target.append(body.firstChild);
+  }
+  return target;
+}
+
+// Создать элемент section из HTML-строки.
+export function element(html) {
+  const root = document.createElement("section");
+  render(root, html);
+  return root;
+}
 
 // Блок ошибки в стиле макета: розовая полоса слева, заголовок и текст.
 export function errorNotice(title = "Не удалось выполнить действие") {
@@ -54,7 +71,7 @@ export function askDialog({ title, body, actions = [{ label: "ОК", value: "ok"
     const form = document.createElement("form");
     form.method = "dialog";
     // Класс .modal-box в макете отсутствует; форма наследует стили от .modal.
-    form.innerHTML = `<h2>${escape(title)}</h2><div class="modal-body">${body}</div>`;
+    render(form, `<h2>${escape(title)}</h2><div class="modal-body">${body}</div>`);
     const row = document.createElement("div");
     row.className = "actions";
     for (const action of actions) {

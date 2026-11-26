@@ -1,0 +1,463 @@
+/* css/responsive.css — Адаптивность под мобильные экраны и уменьшенное движение */
+/* Источник: style.css разделы 9, 10 (частично) */
+
+/* ======================
+   9. АДАПТИВНОСТЬ
+   ====================== */
+
+/* Убираем анимацию пришенном движении */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+
+  #app > *,
+  #app > * > .page-head h1,
+  .tight .topic-row,
+  .notice,
+  .feedback,
+  .status-message,
+  p.success,
+  p.error,
+  .danger-zone,
+  .modal-layer,
+  .modal,
+  .profile-menu,
+  .mobile-sheet,
+  .result,
+  .skeleton,
+  .effect-pulse {
+    animation: none !important;
+  }
+
+  .button,
+  .btn,
+  .link,
+  .action-link,
+  .answer,
+  .nav-item,
+  .side-item,
+  .bar-fill,
+  .character-portrait,
+  .pet-panel,
+  .button-label > .icon,
+  .tab,
+  .text-button,
+  .consent-checkbox,
+  .mobile-item,
+  .settings-item,
+  .profile-item,
+  .checkbox,
+  .toggle,
+  .account-toggle,
+  .topic-row-link {
+    transition: color var(--dur-fast), background-color var(--dur-fast), border-color var(--dur-fast) !important;
+  }
+
+  .button:not(:disabled):not(.is-disabled):hover .button-label > .icon {
+    transform: none;
+  }
+
+  .nav-item:hover,
+  .action-link:hover {
+    transform: none;
+  }
+
+  .button:not(:disabled):not(.is-disabled):hover,
+  .button.outline:not(:disabled):not(.is-disabled):hover,
+  .tab:hover:not(:disabled):not(.is-disabled),
+  .text-button:hover:not(:disabled):not(.is-disabled),
+  .consent-checkbox:hover:not(:disabled):not(.is-disabled),
+  .mobile-item:hover,
+  .settings-item:hover,
+  .profile-item:hover,
+  .side-item:hover,
+  .checkbox:hover:not(:disabled):not(.is-disabled),
+  .toggle:hover:not(:disabled):not(.is-disabled),
+  .account-toggle:hover,
+  .topic-row-link:hover {
+    transform: none;
+  }
+
+  .button:active:not(:disabled):not(.is-disabled),
+  .answer:not(:disabled):active,
+  .tab:active:not(:disabled):not(.is-disabled),
+  .text-button:active:not(:disabled):not(.is-disabled),
+  .consent-checkbox:active:not(:disabled):not(.is-disabled),
+  .mobile-item:active:not(:disabled):not(.is-disabled),
+  .settings-item:active:not(:disabled):not(.is-disabled),
+  .profile-item:active:not(:disabled):not(.is-disabled),
+  .side-item:active:not(:disabled):not(.is-disabled),
+  .checkbox:active:not(:disabled):not(.is-disabled),
+  .toggle:active:not(:disabled):not(.is-disabled),
+  .account-toggle:active:not(:disabled):not(.is-disabled),
+  .topic-row-link:active:not(:disabled):not(.is-disabled) {
+    transform: none;
+  }
+}
+
+/* Запрет сжатия для ключевых элементов */
+.checkbox,
+.sidebar,
+.top-actions,
+.icon {
+  flex-shrink: 0;
+}
+
+/* Подвал прижат к низу страницы */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-body {
+  display: flex;
+  align-items: stretch;
+  flex: 1 1 auto;
+}
+
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border-solid);
+  padding: var(--space-5) var(--space-7) var(--space-6);
+  margin-top: auto;
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--text-secondary);
+}
+
+.site-footer > span {
+  color: var(--text-secondary);
+}
+
+/* Публичные экраны без сайдбара */
+.app-body.is-public {
+  display: block;
+}
+
+.app-body.is-public .sidebar {
+  display: none;
+}
+
+.app-body.is-public .content {
+  padding: var(--space-7) 48px;
+}
+
+/* ======================
+   10. ФИКСЫ И ПЕРЕОПРЕДЕЛЕНИЯ (частично)
+   ====================== */
+
+/* Скрыть элементы с атрибутом hidden */
+[hidden]:not([hidden="until-found"]) {
+  display: none !important;
+}
+
+/* Сайдбар: скрыть навигацию в шапке */
+body.has-sidebar .topbar .navigation {
+  display: none;
+}
+
+body.has-sidebar .topbar {
+  gap: var(--space-4);
+}
+
+/* Гостевой режим: скрыть контекст и подвинуть навигацию */
+.is-guest .top-context {
+  display: none;
+}
+
+.is-guest .navigation {
+  margin-left: auto;
+}
+
+/* Сброс fieldset */
+fieldset {
+  min-inline-size: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.auth-card fieldset {
+  display: grid;
+  gap: 24px;
+}
+
+.auth-card {
+  border: 1px solid var(--border-solid);
+  border-radius: 4px;
+}
+
+/* Поле ввода в карточке авторизации */
+.field-value {
+  align-items: center;
+}
+
+.field input {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.field input::placeholder {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+.field-value:focus-within {
+  border-bottom-style: solid;
+  border-bottom-color: var(--accent-pink);
+}
+
+.field input:focus-visible {
+  outline: none;
+}
+
+.field-value:has(input:focus-visible) {
+  outline: 2px solid white;
+  outline-offset: 4px;
+}
+
+.field-value:has([aria-invalid="true"]) {
+  border-color: var(--accent-blue);
+  border-bottom-style: solid;
+}
+
+/* Чекбокс согласия */
+.consent-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  margin: 2px 0 0;
+  border: 1px solid var(--border-input);
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+}
+
+.consent-checkbox:checked {
+  background: var(--accent-pink);
+  border-color: var(--accent-pink);
+}
+
+.consent-checkbox:checked::before {
+  content: "✓";
+  color: #111;
+  line-height: 1;
+}
+
+.consent-checkbox:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 4px;
+}
+
+/* Строка с чекбоксом */
+.check-row {
+  cursor: pointer;
+  align-items: flex-start;
+}
+
+/* Ссылка "почему" */
+.consent-why {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+/* Кнопка авторизации без обводки */
+.auth-card .button:not(:disabled):not(.outline) .button-edge {
+  background: transparent;
+}
+
+/* Отключённая кнопка авторизации */
+.auth-card .button:disabled {
+  cursor: not-allowed;
+  background: #777;
+  color: var(--text-secondary);
+}
+
+.auth-card .button:disabled .button-edge {
+  background: var(--bg-raised);
+}
+
+/* Изображение персонажа в истории авторизации */
+.auth-story .character-img {
+  width: 112px;
+  height: 284px;
+}
+
+/* Стиль рамки панелей и карточек */
+.panel,
+.card,
+.demo-level {
+  border-style: solid;
+  border-radius: 4px;
+}
+
+/* Подвал */
+.site-footer {
+  padding: 24px 48px 32px;
+  flex-wrap: wrap;
+}
+
+.profile-menu {
+  max-width: calc(100vw - 32px);
+}
+
+/* Неправильный ответ */
+.answer.wrong {
+  border-color: var(--accent-pink);
+  background: #342129;
+}
+
+/* Адаптив до 1000px */
+@media (max-width: 1000px) {
+  .topbar {
+    gap: 16px;
+    padding-inline: 20px;
+  }
+  .topbar .navigation,
+  .topbar .top-context {
+    display: none;
+  }
+  .topbar .account {
+    margin-left: auto;
+  }
+  .auth-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px;
+  }
+  .auth-story {
+    padding: 0;
+  }
+  .sidebar {
+    display: none;
+  }
+  .mobile-menu-label {
+    display: inline-flex;
+  }
+  .mobile-sheet:not([hidden]) {
+    display: flex;
+  }
+}
+
+/* Адаптив до 700px */
+@media (max-width: 700px) {
+  .topbar {
+    height: 64px;
+  }
+  .brand {
+    font-size: 16px;
+    white-space: nowrap;
+  }
+  .content,
+  .app-body.is-public .content {
+    padding: 24px 20px;
+  }
+  .auth-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    margin: 0;
+  }
+  .auth-story h1 {
+    font-size: 28px;
+    line-height: 36px;
+    margin-bottom: 16px;
+  }
+  .auth-story > .character-img {
+    display: none;
+  }
+  .auth-card {
+    padding: 24px;
+  }
+  .auth-tabs {
+    gap: 20px;
+  }
+  .grid-main,
+  .grid2,
+  .grid3,
+  .battle-grid,
+  .settings-layout,
+  .character-choice {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .landing-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px 0 32px;
+    gap: 24px;
+  }
+  .landing-hero h1 {
+    font-size: 36px;
+    line-height: 40px;
+  }
+  .landing-hero p {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .hero-backdrop {
+    display: none;
+  }
+  .panel,
+  .demo-level {
+    padding: 20px;
+  }
+  .stats,
+  .timer-hud {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .page-head,
+  .between {
+    flex-wrap: wrap;
+  }
+  .topic-row {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+  .topic-aside {
+    grid-column: 2;
+    align-items: flex-start;
+  }
+  .settings-side {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .site-footer {
+    padding: 24px 20px;
+    gap: 12px;
+  }
+  .modal {
+    max-width: calc(100vw - 40px);
+    padding: 24px;
+  }
+  .answer {
+    white-space: normal;
+  }
+  .answer-result {
+    white-space: normal;
+  }
+}

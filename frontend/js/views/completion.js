@@ -1,6 +1,10 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
-import { element, escapeHtml as e, progressBar } from "../ui.js";
+import { element, escapeHtml as e, render, progressBar } from "../ui.js";
+import { rewardStat } from "../components/reward-stat.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { buttonEdge, buttonLink } from "../components/button.js";
 import { companionCharacter } from "../assets.js";
 import { mascotPanel, mountMascot } from "../mascot.js";
 
@@ -12,9 +16,9 @@ export async function renderCompletion(courseId) {
     : courses.find(item => item.progressPercent === 100);
 
   if (!course || course.progressPercent < 100) {
-    return element(`<header class="page-head"><div><h1>Итог курса</h1></div></header>
-      <section class="panel"><p class="muted">Итог появится после прохождения всех тем.</p>
-        <a class="button outline" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К темам курса</span></a></section>`);
+    return element(`${pageHead({ title: "Итог курса" })}
+      ${panel({ children: `<p class="muted">Итог появится после прохождения всех тем.</p>
+        ${buttonLink({ href: "#/topics", label: "К темам курса", kind: "outline" })}` })}`);
   }
 
   const journey = await api.journey(course.id);
@@ -28,21 +32,17 @@ export async function renderCompletion(courseId) {
   });
 
   const root = element(`
-    <header class="page-head">
-      <div>
-        <h1>Курс завершён</h1>
-        <p>${e(course.title)} · пройдены все темы курса. Учебные материалы и разборы остаются доступны.</p>
-      </div>
-      <div class="top-actions">
-        ${journey.completionPending
-          ? `<button type="button" class="button" data-claim><span class="button-edge" aria-hidden="true"></span><span class="button-label">Забрать итог курса</span></button>`
-          : `<span class="status strong">Итог курса уже получен</span>`}
-      </div>
-    </header>
+    ${pageHead({
+      title: "Курс завершён",
+      description: `${e(course.title)} · пройдены все темы курса. Учебные материалы и разборы остаются доступны.`,
+      actions: journey.completionPending
+        ? buttonAction({ label: "Забрать итог курса", dataset: { claim: "" } })
+        : `<span class="status strong">Итог курса уже получен</span>`
+    })}
 
     <div class="grid-main">
       <div class="stack">
-        <section class="panel result">
+        ${panel({ className: "result", children: `
           <div class="reward-grid">
             <div class="reward-stat"><span>Опыт</span><strong>${user.totalXp}</strong></div>
             <div class="reward-stat"><span>Монеты</span><strong>${user.coinsBalance}</strong></div>
@@ -52,11 +52,11 @@ export async function renderCompletion(courseId) {
           ${summary ? `<p class="small" style="margin-top:12px">Всего попыток: ${summary.attempts}. Итог курса рассчитан на ${summary.totalXp} XP и ${summary.coinsBalance} монет.</p>` : ""}
 
           <div class="actions">
-            <a class="button outline" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К темам курса</span></a>
-            <a class="button outline" href="#/profile"><span class="button-edge" aria-hidden="true"></span><span class="button-label">В профиль</span></a>
+            ${buttonLink({ href: "#/topics", label: "К темам курса", kind: "outline" })}
+            ${buttonLink({ href: "#/profile", label: "В профиль", kind: "outline" })}
           </div>
           <p data-claim-status class="success" role="status" hidden></p>
-        </section>
+        ` })}
       </div>
 
       <div class="stack"><div class="mascot-column"></div></div>
@@ -86,10 +86,10 @@ export async function renderCompletion(courseId) {
           claim.textContent = "Итог курса уже получен";
           return;
         }
-        root.querySelector(".reward-grid").innerHTML = `
-          <div class="reward-stat"><span>Опыт</span><strong>${result.totalXp}</strong></div>
-          <div class="reward-stat"><span>Монеты</span><strong>${result.coinsBalance}</strong></div>
-          <div class="reward-stat"><span>Разряд</span><strong>${result.rank}</strong></div>`;
+        render(root.querySelector(".reward-grid"), `
+          ${rewardStat({ label: "Опыт", value: result.totalXp })}
+          ${rewardStat({ label: "Монеты", value: result.coinsBalance })}
+          ${rewardStat({ label: "Разряд", value: result.rank })}`);
         claim.remove();
         status.textContent = "Итог курса сохранён.";
         status.hidden = false;

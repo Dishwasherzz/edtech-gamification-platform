@@ -1,13 +1,15 @@
 import { api } from "../api.js";
 import { state, refreshProfile } from "../state.js";
 import { element, escapeHtml as e } from "../ui.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { buttonLink } from "../components/button.js";
 
 function step(number, title, body) {
-  return `
-    <section class="panel">
-      <h2>${number}. ${title}</h2>
-      <p class="muted">${body}</p>
-    </section>`;
+  return panel({
+    title: `${number}. ${title}`,
+    children: `<p class="muted">${body}</p>`
+  });
 }
 
 // Пороги разрядов приходят с сервера: список отсортирован по возрастанию.
@@ -19,14 +21,15 @@ function rankTable(thresholds) {
       <td class="num">${threshold} XP</td>
       <td class="muted">${index === thresholds.length - 1 ? "Высший разряд" : `Следующий: ${thresholds[index + 1]} XP`}</td>
     </tr>`).join("");
-  return `
-    <section class="panel">
-      <h2>Разряды</h2>
+  return panel({
+    title: "Разряды",
+    children: `
       <table class="history-table">
         <thead><tr><th>Разряд</th><th>Порог</th><th>Следующая отметка</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-    </section>`;
+    `
+  });
 }
 
 export async function renderInstructions() {
@@ -35,25 +38,25 @@ export async function renderInstructions() {
   if (!guest) await refreshProfile();
 
   const root = element(`
-    <header class="page-head">
-      <div>
-        <h1>Как устроен курс</h1>
-        <p>${guest ? "До регистрации можно посмотреть пример задания." : "Ваш маршрут от первой лекции до завершения курса."}</p>
-      </div>
-    </header>
+    ${pageHead({
+      title: "Как устроен курс",
+      description: guest ? "До регистрации можно посмотреть пример задания." : "Ваш маршрут от первой лекции до завершения курса."
+    })}
 
     <div class="stack">
-      <section class="panel">
-        <h2>Маршрут темы</h2>
-        <div class="step-line">
-          <span class="selected">Лекция</span>
-          <span aria-hidden="true">→</span>
-          <span>Испытание</span>
-          <span aria-hidden="true">→</span>
-          <span>Следующая тема</span>
-        </div>
-        <p class="muted" style="margin-top:16px">Отметьте лекцию как прочитанную и выберите одно испытание. Первая победа в любом типе открывает следующую тему.</p>
-      </section>
+      ${panel({
+        title: "Маршрут темы",
+        children: `
+          <div class="step-line">
+            <span class="selected">Лекция</span>
+            <span aria-hidden="true">→</span>
+            <span>Испытание</span>
+            <span aria-hidden="true">→</span>
+            <span>Следующая тема</span>
+          </div>
+          <p class="muted" style="margin-top:16px">Отметьте лекцию как прочитанную и выберите одно испытание. Первая победа в любом типе открывает следующую тему.</p>
+        `
+      })}
 
       <div class="grid3">
         ${step(1, "Изучить лекцию",
@@ -65,38 +68,42 @@ export async function renderInstructions() {
       </div>
 
       <div class="grid2">
-        <section class="panel">
-          <h2>Босс-тест</h2>
-          <ul class="rule-list">
-            <li>До 7 расчётных вопросов по 4 варианта. На вопрос 45–60 секунд.</li>
-            <li>Верный ответ снимает 20% HP. Пять верных — победа, три ошибки — поражение.</li>
-            <li>Истечение времени считается ошибкой.</li>
-          </ul>
-        </section>
+        ${panel({
+          title: "Босс-тест",
+          children: `
+            <ul class="rule-list">
+              <li>До 7 расчётных вопросов по 4 варианта. На вопрос 45–60 секунд.</li>
+              <li>Верный ответ снимает 20% HP. Пять верных — победа, три ошибки — поражение.</li>
+              <li>Истечение времени считается ошибкой.</li>
+            </ul>
+          `
+        })}
 
-        <section class="panel">
-          <h2>Авария · QTE</h2>
-          <ul class="rule-list">
-            <li>4 шага, по 3 варианта. Общий отсчёт 60 секунд, включая чтение.</li>
-            <li>Верный выбор даёт +10 секунд, неверный отнимает 10 секунд и блокирует выбранный вариант.</li>
-            <li>Третья ошибка или ноль секунд — поражение.</li>
-          </ul>
-        </section>
+        ${panel({
+          title: "Авария · QTE",
+          children: `
+            <ul class="rule-list">
+              <li>4 шага, по 3 варианта. Общий отсчёт 60 секунд, включая чтение.</li>
+              <li>Верный выбор даёт +10 секунд, неверный отнимает 10 секунд и блокирует выбранный вариант.</li>
+              <li>Третья ошибка или ноль секунд — поражение.</li>
+            </ul>
+          `
+        })}
       </div>
 
-      <section class="panel">
-        <h2>Разряды и награды</h2>
-        <p>Первая победа даёт ${rules.firstWinXp} XP и ${rules.firstWinCoins} монет. Бонус за первую победу без ошибок: +${rules.perfectBonusXp} XP и +${rules.perfectBonusCoins} монет.</p>
-        <p>За первые ${rules.paidRepeatWinLimit} повторные победы по теме — ${rules.repeatWinXp} XP и ${rules.repeatWinCoins} монет за каждую, дальше — 0. Попытки не ограничены.</p>
-        <p class="small">Значения наград предварительные и требуют согласования с командой.</p>
-        <div class="actions">
-          ${guest
-            ? `<a class="button blue" href="#/demo"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Открыть пример</span></a>
-               <a class="button outline" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Войти</span></a>
-               <a class="button outline" href="#/auth/register"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Регистрация</span></a>`
-            : `<a class="button" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">К темам курса</span></a>`}
-        </div>
-      </section>
+      ${panel({
+        title: "Разряды и награды",
+        children: `
+          <p>Первая победа даёт ${rules.firstWinXp} XP и ${rules.firstWinCoins} монет. Бонус за первую победу без ошибок: +${rules.perfectBonusXp} XP и +${rules.perfectBonusCoins} монет.</p>
+          <p>За первые ${rules.paidRepeatWinLimit} повторные победы по теме — ${rules.repeatWinXp} XP и ${rules.repeatWinCoins} монет за каждую, дальше — 0. Попытки не ограничены.</p>
+          <p class="small">Значения наград предварительные и требуют согласования с командой.</p>
+          <div class="actions">
+            ${guest
+              ? `${buttonLink({ href: "#/demo", label: "Открыть пример", kind: "blue" })}${buttonLink({ href: "#/auth", label: "Войти", kind: "outline" })}${buttonLink({ href: "#/auth/register", label: "Регистрация", kind: "outline" })}`
+              : buttonLink({ href: "#/topics", label: "К темам курса" })}
+          </div>
+        `
+      })}
 
       ${rankTable(rules.rankThresholds)}
     </div>

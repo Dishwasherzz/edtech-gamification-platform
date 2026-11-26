@@ -1,0 +1,275 @@
+/* css/layout.css — Шапка, сайдбар, основная область, подвал */
+/* Источник: style.css раздел 3 */
+
+/* Фиксированная верхняя панель навигации */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-7);
+  height: var(--topbar-height);
+  padding: 0 var(--space-7);
+  background: var(--bg-canvas);
+  border-bottom: 1px solid var(--border-solid);
+  box-shadow: var(--shadow-menu);
+}
+
+/* Бренд / логотип в шапке */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--fs-18);
+  line-height: var(--lh-18);
+  white-space: nowrap;
+}
+
+/* Символы бренда (цветные полоски) */
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.brand-mark span {
+  display: block;
+  width: 8px;
+  height: 24px;
+  background: var(--accent-pink);
+}
+
+.brand-mark span + span {
+  height: 16px;
+  background: var(--accent-blue);
+}
+
+/* Основная навигация в шапке */
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-left: auto;
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+}
+
+/* Ссылка навигации */
+.nav-item {
+  color: var(--text-primary);
+  padding: var(--space-4) 0;
+  text-decoration: none;
+}
+
+/* Активная ссылка навигации */
+.nav-item.selected,
+.nav-item[aria-current="page"] {
+  border-bottom: 1px solid var(--accent-pink);
+}
+
+/* Блок аккаунта в шапке */
+.account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--fs-14);
+  position: relative;
+}
+
+/* Контекстная надпись в шапке */
+.top-context {
+  margin-right: auto;
+  font-size: var(--fs-14);
+  color: var(--text-secondary);
+}
+
+/* Скрываем членскую навигацию по умолчанию */
+.topbar .member-nav {
+  display: none;
+}
+
+/* Кнопка открытия мобильного меню */
+.mobile-menu-label {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--text-primary);
+  font-size: var(--fs-14);
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+
+/* Выезжающее мобильное меню */
+.mobile-sheet {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-5);
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border-solid);
+  box-shadow: var(--shadow-menu);
+  animation: menu-in var(--dur-base) var(--ease-out) both;
+}
+
+/* Элемент мобильного меню */
+.mobile-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.mobile-item:hover,
+.mobile-item:focus-visible {
+  background: var(--bg-sunken);
+}
+
+.mobile-item .icon {
+  color: var(--text-secondary);
+}
+
+/* Боковая панель навигации */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: var(--sidebar-width);
+  padding: var(--space-6) var(--space-5);
+  background: var(--bg-canvas);
+  border-right: 1px solid var(--border-solid);
+}
+
+/* Группа элементов сайдбара */
+.side-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Элемент сайдбара */
+.side-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 36px;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-14);
+  line-height: 20px;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.side-item.selected {
+  background: var(--bg-raised);
+}
+
+.side-item.selected .side-label {
+  border-bottom: 1px solid var(--accent-pink);
+}
+
+/* Основная область контента */
+.content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-7);
+}
+
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ограничение ширины страницы */
+.content-page {
+  max-width: var(--content-max);
+}
+
+/* Заголовок страницы */
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.page-head h1 {
+  max-width: 30ch;
+}
+
+.page-head p {
+  margin-top: var(--space-2);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  color: var(--text-secondary);
+}
+
+/* Верхние действия страницы */
+.top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .top-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .top-actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Футер страницы и футер фрейма */
+.frame-footer,
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  margin-top: var(--space-7);
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--text-secondary);
+}
+
+/* Сетка настроек (левая навигация + контент) */
+.settings-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--space-6);
+}
+
+/* Сетка боя / испытания */
+.battle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--space-6);
+}
+
+/* Сетка наград */
+.reward-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}

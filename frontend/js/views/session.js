@@ -1,39 +1,42 @@
 import { element } from "../ui.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { buttonLink } from "../components/button.js";
 
 // Сессия истекла: личные данные и настройки в гостевой оболочке не показываются.
 export function renderSessionExpired() {
   return element(`
-    <header class="page-head">
-      <div><h1>Войдите заново</h1><p>Сессия завершилась</p></div>
-    </header>
+    ${pageHead({ title: "Войдите заново", description: "Сессия завершилась" })}
 
-    <section class="panel">
-      <h2>Сессия завершилась</h2>
-      <p class="muted">Доступ к аккаунту закрыт. Для продолжения войдите снова.</p>
-      <p class="small">Текущая попытка не ставится на паузу: её отсчёт идёт на сервере.</p>
-      <div class="actions">
-        <a class="button" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Войти</span></a>
-        <a class="button outline" href="#/demo"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Пример без входа</span></a>
-      </div>
-    </section>
+    ${panel({
+      title: "Сессия завершилась",
+      children: `
+        <p class="muted">Доступ к аккаунту закрыт. Для продолжения войдите снова.</p>
+        <p class="small">Текущая попытка не ставится на паузу: её отсчёт идёт на сервере.</p>
+        <div class="actions">
+          ${buttonLink({ href: "#/auth", label: "Войти" })}
+          ${buttonLink({ href: "#/demo", label: "Пример без входа", kind: "outline" })}
+        </div>
+      `
+    })}
   `);
 }
 
 // Гость открыл личный раздел: показываем вход, а не содержимое раздела.
 export function renderSignInRequired() {
   return element(`
-    <header class="page-head">
-      <div><h1>Нужен вход для обучения</h1><p>Лекции, испытания и личный прогресс доступны после входа</p></div>
-    </header>
+    ${pageHead({ title: "Нужен вход для обучения", description: "Лекции, испытания и личный прогресс доступны после входа" })}
 
-    <section class="panel">
-      <h2>Лекции, испытания и личный прогресс доступны после входа</h2>
-      <p class="muted">Пример уровня можно посмотреть без аккаунта.</p>
-      <div class="actions">
-        <a class="button" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Войти</span></a>
-        <a class="button outline" href="#/auth/register"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Регистрация</span></a>
-        <a class="link action-link" href="#/demo">Остаться в демо</a>
-      </div>
-    </section>
+    ${panel({
+      title: "Лекции, испытания и личный прогресс доступны после входа",
+      children: `
+        <p class="muted">Пример уровня можно посмотреть без аккаунта.</p>
+        <div class="actions">
+          ${buttonLink({ href: "#/auth", label: "Войти" })}
+          ${buttonLink({ href: "#/auth/register", label: "Регистрация", kind: "outline" })}
+          <a class="link action-link" href="#/demo">Остаться в демо</a>
+        </div>
+      `
+    })}
   `);
 }

@@ -1,39 +1,11 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName } from "../ui.js";
+import { topicRow } from "../components/topic-row.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
 import { companionCharacter } from "../assets.js";
 import { mascotPanel, mountMascot } from "../mascot.js";
-
-function topicRow(topic, index) {
-  // Закрытая тема остаётся div: клик по ней ничего не делает.
-  const locked = topic.status === "Locked";
-  const hint = locked
-    ? `Сначала завершите тему ${index}`
-    : topic.subtitle ?? `${topic.completedLessons}/${topic.lessonCount} лекций прочитано`;
-  const href = `#/topic/${e(topic.id)}`;
-  const action = topic.status === "Completed" ? "Повторить тему"
-    : topic.status === "Available" ? "Открыть тему"
-      : "Недоступно";
-  const aside = locked
-    ? `<span class="status">${e(statusName(topic.status))}</span><span class="status">Недоступно</span>`
-    : `<span class="status strong">${e(statusName(topic.status))}</span>
-       <a class="link action-link" href="${href}">${e(action)}</a>`;
-  // Ссылка растянута на всю строку, но не вложена в другую ссылку:
-  // так строка остаётся кликабельной, а статус и действие не разрывают разметку.
-  const title = locked
-    ? `<h3 class="topic-title">${e(topic.title)}</h3>`
-    : `<h3 class="topic-title"><a class="topic-row-link" href="${href}">${e(topic.title)}</a></h3>`;
-
-  return `
-    <div class="topic-row${locked ? " locked" : ""}"${locked ? ' aria-disabled="true"' : ""}>
-      <span class="num subtle">${topic.sortOrder ?? index + 1}</span>
-      <div>
-        ${title}
-        <p class="small">${e(hint ?? "")}</p>
-      </div>
-      <div class="topic-aside">${aside}</div>
-    </div>`;
-}
 
 // Полный каталог тем. Главная показывает только ближайшие, здесь — все сразу.
 export async function renderTopics() {
@@ -52,12 +24,10 @@ export async function renderTopics() {
   });
 
   const root = element(`
-    <header class="page-head">
-      <div>
-        <h1>Темы курса</h1>
-        <p>${totals.done ? `Пройдена ${totals.done} тема из ${totals.topics}` : `Всего ${totals.topics} тем`} · ${percent}%</p>
-      </div>
-    </header>
+    ${pageHead({
+      title: "Темы курса",
+      description: `${totals.done ? `Пройдена ${totals.done} тема из ${totals.topics}` : `Всего ${totals.topics} тем`} · ${percent}%`
+    })}
 
     <div class="grid-main">
       <div class="stack">
@@ -73,7 +43,7 @@ export async function renderTopics() {
             <div class="tight">${lists[index].map(topicRow).join("")}</div>
           </section>`).join("")
 
-          : `<section class="panel"><p class="muted">Пока нет опубликованных тем.</p></section>`}
+          : panel({ title: "", children: `<p class="muted">Пока нет опубликованных тем.</p>` })}
       </div>
 
       <div class="stack"><div class="mascot-column"></div></div>

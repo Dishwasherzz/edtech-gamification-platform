@@ -1,40 +1,14 @@
 import { api } from "../api.js";
 import { state, refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName } from "../ui.js";
+import { topicRow } from "../components/topic-row.js";
+import { statsGrid } from "../components/stats-grid.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { actions } from "../components/actions.js";
+import { buttonLink } from "../components/button.js";
 import { companionCharacter } from "../assets.js";
 import { mascotPanel, mountMascot } from "../mascot.js";
-
-// Строка темы в маршруте курса: номер, название, статус и действие справа.
-function topicRow(topic, index) {
-  const status = topic.status ?? "Available";
-  const locked = status === "Locked";
-  const action = status === "Completed" ? "Повторить тему"
-    : status === "Available" ? "Открыть тему"
-      : "Недоступно";
-  const hint = locked
-    ? `Сначала завершите тему ${index}`
-    : topic.subtitle ?? topic.description;
-  const href = `#/topic/${e(topic.id)}`;
-  const aside = locked
-    ? `<span class="status">${e(statusName(status))}</span><span class="status">Недоступно</span>`
-    : `<span class="status strong">${e(statusName(status))}</span>
-       <a class="link action-link" href="${href}">${e(action)}</a>`;
-  // Ссылка растянута на всю строку, но не вложена в другую ссылку:
-  // так строка остаётся кликабельной, а статус и действие не разрывают разметку.
-  const title = locked
-    ? `<h3 class="topic-title">${e(topic.title)}</h3>`
-    : `<h3 class="topic-title"><a class="topic-row-link" href="${href}">${e(topic.title)}</a></h3>`;
-
-  return `
-    <div class="topic-row${locked ? " locked" : ""}"${locked ? ' aria-disabled="true"' : ""}>
-      <span class="num subtle">${topic.sortOrder ?? index + 1}</span>
-      <div>
-        ${title}
-        <p class="small">${e(hint ?? "")}</p>
-      </div>
-      <div class="topic-aside">${aside}</div>
-    </div>`;
-}
 
 // Гостевая главная: механика курса, пример уровня и маршрут без аккаунта.
 async function renderGuestHome() {
@@ -49,7 +23,7 @@ async function renderGuestHome() {
         <h1>Электротехника в испытаниях</h1>
         <p>Изучайте схемы, решайте задачи в бою с боссом и принимайте решения в аварийных сценариях.</p>
         <div class="actions">
-          <a class="button" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Начать обучение</span></a>
+          ${buttonLink({ href: "#/auth", label: "Начать обучение" })}
           <a class="link action-link" href="#/instructions">Как устроен курс</a>
         </div>
       </div>
@@ -65,7 +39,7 @@ async function renderGuestHome() {
         </div>
         <div class="between"><span class="small">HP босса</span><span class="num">100%</span></div>
         <div class="bar"><div class="bar-fill" style="width:100%"></div></div>
-        <div class="actions"><a class="button blue" href="#/demo"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Открыть пример</span></a></div>
+        <div class="actions">${buttonLink({ href: "#/demo", label: "Открыть пример", kind: "blue" })}</div>
       </div>
     </section>
 
@@ -74,15 +48,15 @@ async function renderGuestHome() {
         <h2>Маршрут курса</h2>
         <span class="small">${topics.length ? `${topics.length} темы · тест или авария в каждой` : "Темы пока не опубликованы."}</span>
       </div>
-      ${topics.length ? `<div class="grid3">${topics.map(topic => `
-        <section class="panel">
-          <h2>${e(topic.title)}</h2>
+      ${topics.length ? `<div class="grid3">${topics.map(topic => panel({
+        title: topic.title,
+        children: `
           <p class="muted">${e(topic.subtitle ?? topic.description)}</p>
           <div class="skeleton"></div>
           <div class="skeleton mid"></div>
           <div class="skeleton short"></div>
-        </section>`).join("")}</div>`
-        : `<div class="panel"><p class="muted">Пока нет опубликованных тем.</p></div>`}
+        `
+      })).join("")}</div>` : panel({ children: `<p class="muted">Пока нет опубликованных тем.</p>` })}
     </section>
 
     <p class="small">Без профиля, настроек и спутника. «Пример уровня» не требует регистрации.</p>
@@ -98,8 +72,8 @@ export async function renderGuestGate() {
         <h2>Войдите, чтобы начать курс</h2>
         <p>Лекции, испытания и личный прогресс доступны после входа. Пример уровня можно посмотреть без аккаунта.</p>
         <div class="actions">
-          <a class="button" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Войти</span></a>
-          <a class="button outline" href="#/auth/register"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Регистрация</span></a>
+          ${buttonLink({ href: "#/auth", label: "Войти" })}
+          ${buttonLink({ href: "#/auth/register", label: "Регистрация", kind: "outline" })}
           <a class="link action-link" href="#/demo">Остаться в демо</a>
         </div>
       </section>
@@ -158,50 +132,50 @@ export async function renderDashboard() {
   });
 
   const root = element(`
-    <header class="page-head">
-      <div>
-        <h1>${e(headline)}</h1>
-        <p>${e(description)}</p>
-      </div>
-      <div class="top-actions"><a class="button" href="${e(ctaHref)}"><span class="button-edge" aria-hidden="true"></span><span class="button-label">${e(ctaLabel)}</span></a></div>
-    </header>
+    ${pageHead({ title: headline, description, actions: buttonLink({ href: ctaHref, label: ctaLabel }) })}
 
     ${active ? `<div class="notice info">Незавершённое испытание ждёт. <a class="link action-link" href="#/attempt/${e(active.id)}">Вернуться к попытке</a></div>` : ""}
 
     <div class="grid-main">
       <div class="stack">
-        <div class="stats">
-          <div class="stat"><span>Прогресс курса</span><strong>${overall} <span class="unit">%</span></strong></div>
-          <div class="stat"><span>Текущий разряд</span><strong>${user.rank} <span class="unit">${ranks ? `из ${ranks}` : ""}</span></strong></div>
-          <div class="stat"><span>Опыт</span><strong>${user.totalXp} <span class="unit">XP</span></strong></div>
-          <div class="stat"><span>Баланс</span><strong>${user.coinsBalance} <span class="unit">монет</span></strong></div>
-        </div>
+        ${statsGrid({
+          items: [
+            { label: "Прогресс курса", value: overall, unit: "%" },
+            { label: "Текущий разряд", value: user.rank, unit: ranks ? `из ${ranks}` : "" },
+            { label: "Опыт", value: user.totalXp, unit: "XP" },
+            { label: "Баланс", value: user.coinsBalance, unit: "монет" }
+          ]
+        })}
 
-        <section class="panel">
-          <div class="between">
-            <h2>Маршрут курса</h2>
-            <span class="small">Лекция → Испытание → Следующая тема</span>
-          </div>
-          <div class="step-line">
-            <span class="selected">Лекция</span>
-            <span aria-hidden="true">→</span>
-            <span>Испытание</span>
-            <span aria-hidden="true">→</span>
-            <span>Следующая тема</span>
-          </div>
-          <div class="gap"></div>
-          ${topics.length ? `<div class="tight">${topics.map(topicRow).join("")}</div>`
-            : `<p class="muted">Пока нет опубликованных тем.</p>`}
-        </section>
+        ${panel({
+          children: `
+            <div class="between">
+              <h2>Маршрут курса</h2>
+              <span class="small">Лекция → Испытание → Следующая тема</span>
+            </div>
+            <div class="step-line">
+              <span class="selected">Лекция</span>
+              <span aria-hidden="true">→</span>
+              <span>Испытание</span>
+              <span aria-hidden="true">→</span>
+              <span>Следующая тема</span>
+            </div>
+            <div class="gap"></div>
+            ${topics.length ? `<div class="tight">${topics.map(topicRow).join("")}</div>`
+              : `<p class="muted">Пока нет опубликованных тем.</p>`}
+          `
+        })}
       </div>
 
       <div class="stack">
-        ${user.nextRankXp ? `<section class="panel">
-          <h2>До следующего разряда</h2>
-          <div class="between"><span>Разряд ${user.rank + 1}</span><strong class="num">${user.xpToNextRank ?? 0} XP</strong></div>
-          <div class="bar"><div class="bar-fill" style="width:${user.rankProgressPercent ?? 0}%"></div></div>
-          <p class="small" style="margin-top:12px">${user.totalXp} XP · следующий порог ${user.nextRankXp} XP</p>
-        </section>` : `<section class="panel"><h2>Высший разряд</h2><p class="muted">Достигнут максимальный разряд курса.</p></section>`}
+        ${user.nextRankXp ? panel({
+          title: "До следующего разряда",
+          children: `
+            <div class="between"><span>Разряд ${user.rank + 1}</span><strong class="num">${user.xpToNextRank ?? 0} XP</strong></div>
+            <div class="bar"><div class="bar-fill" style="width:${user.rankProgressPercent ?? 0}%"></div></div>
+            <p class="small" style="margin-top:12px">${user.totalXp} XP · следующий порог ${user.nextRankXp} XP</p>
+          `
+        }) : panel({ title: "Высший разряд", children: `<p class="muted">Достигнут максимальный разряд курса.</p>` })}
 
         <div class="mascot-column"></div>
       </div>

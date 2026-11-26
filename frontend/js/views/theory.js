@@ -1,13 +1,19 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
-import { element, escapeHtml as e, markdown, showError, modeName, askDialog } from "../ui.js";
+import { element, escapeHtml as e, render, markdown, showError, modeName, askDialog } from "../ui.js";
 import { companionCharacter } from "../assets.js";
 import { mascotPanel, mountMascot } from "../mascot.js";
+import { metricRow } from "../components/metric-row.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { actions } from "../components/actions.js";
+import { buttonLink, buttonAction } from "../components/button.js";
+import { backLink } from "../components/back-link.js";
 
 function renderAccessSection(topic, read, active) {
-  return `
-    <section class="panel">
-      <h2>Допуск к испытанию</h2>
+  return panel({
+    title: "Допуск к испытанию",
+    children: `
       <p class="muted">${read
         ? "Выберите тест или аварию. Победа в любом режиме засчитывает тему пройденной."
         : "Отметьте лекцию как прочитанную, чтобы открыть испытания."}</p>
@@ -15,14 +21,15 @@ function renderAccessSection(topic, read, active) {
       ${active ? `<div class="notice info">Идёт другое испытание. <a class="link action-link" href="#/attempt/${e(active.id)}">Вернуться к попытке</a></div>` : ""}
 
       ${topic.assessments.length
-        ? `<div class="actions">
+        ? `${actions({ children: `
             ${!read
               ? `<span class="status">Действие недоступно</span>`
               : `<a class="button" href="#/topic/${e(topic.id)}/assessment">Выбрать испытание</a>`}
-          </div>`
+          ` })}`
         : `<p class="muted">Испытания ещё не опубликованы.</p>`}
-      ${topic.assessments.length > 1 ? `<div class="actions"><button type="button" class="button outline" data-compare>Сравнить испытания</button></div>` : ""}
-    </section>`;
+      ${topic.assessments.length > 1 ? `${actions({ children: `<button type="button" class="button outline" data-compare>Сравнить испытания</button>` })}` : ""}
+    `
+  });
 }
 
 // Экран закрытой темы: прямой переход не выдаёт доступ.
@@ -34,24 +41,24 @@ async function lockedTopic(topic, previous, courseTitle) {
   }) : null;
 
   const root = element(`
-    <header class="page-head">
-      <div>
-        <h1>${e(topic?.title ?? "Тема закрыта")}</h1>
-        <p>${e(courseTitle ?? "")}</p>
-      </div>
-    </header>
+    ${pageHead({
+      title: topic?.title ?? "Тема закрыта",
+      description: courseTitle ?? ""
+    })}
 
     <div class="grid-main">
       <div class="stack">
-        <section class="panel">
-          <span class="eyebrow">Тема закрыта</span>
-          <h2>Сначала победите в предыдущей теме</h2>
-          <p class="muted">Чтобы открыть эту тему, победите в тесте или аварии по теме${previous ? ` «${e(previous.title)}»` : " перед ней"}. Подойдёт любой тип испытания.</p>
-          <div class="actions">
-            ${previous ? `<a class="button" href="#/topic/${e(previous.id)}">Открыть предыдущую тему</a>` : ""}
-            <a class="button outline" href="#/topics">Все темы</a>
-          </div>
-        </section>
+        ${panel({
+          children: `
+            <span class="eyebrow">Тема закрыта</span>
+            <h2>Сначала победите в предыдущей теме</h2>
+            <p class="muted">Чтобы открыть эту тему, победите в тесте или аварии по теме${previous ? ` «${e(previous.title)}»` : " перед ней"}. Подойдёт любой тип испытания.</p>
+            <div class="actions">
+              ${previous ? buttonLink({ href: `#/topic/${e(previous.id)}`, label: "Открыть предыдущую тему" }) : ""}
+              ${buttonLink({ href: "#/topics", label: "Все темы", kind: "outline" })}
+            </div>
+          `
+        })}
       </div>
 
       <div class="stack"><div class="mascot-column"></div></div>
@@ -108,14 +115,12 @@ export async function renderTopic(id) {
   });
 
   const root = element(`
-    <a class="back-link" href="#/topics">← Все темы</a>
+    ${backLink({ href: "#/topics", label: "Все темы" })}
 
-    <header class="page-head">
-      <div>
-        <h1>${e(topic.title)}</h1>
-        <p>Тема ${position + 1} из ${topics.length}${e(topic.subtitle ? ` · ${topic.subtitle}` : "")}</p>
-      </div>
-    </header>
+    ${pageHead({
+      title: topic.title,
+      description: `Тема ${position + 1} из ${topics.length}${topic.subtitle ? ` · ${topic.subtitle}` : ""}`
+    })}
 
     <div class="step-line">
       <span class="selected">Лекция</span>
@@ -129,36 +134,42 @@ export async function renderTopic(id) {
 
     <div class="grid-main">
       <div class="stack">
-        ${lesson ? `<section class="panel">
-          <div class="between">
-            <h2>${e(lesson.title)}</h2>
-            <span class="small">${lesson.awardedXp ? "Прочитано" : "Материал лекции"}</span>
-          </div>
-          <div class="lesson-content">${markdown(lesson.contentMarkdown)}</div>
-          <p data-error class="error" role="alert" hidden></p>
-          <div class="actions">
-            <button type="button" class="button${lesson.awardedXp > 0 ? " is-disabled" : ""}" data-complete ${lesson.awardedXp > 0 ? "disabled" : ""}>
-              ${lesson.awardedXp > 0 ? "Прочитано" : "Отметить прочитанной · +20 XP"}</button>
-            <a class="link action-link" href="#/lesson/${e(lesson.id)}">Открыть лекцию</a>
-          </div>
-          <p class="success" data-reward role="status"></p>
-        </section>` : `<section class="panel"><p class="muted">Лекции пока не опубликованы.</p></section>`}
+        ${lesson ? panel({
+          children: `
+            <div class="between">
+              <h2>${e(lesson.title)}</h2>
+              <span class="small">${lesson.awardedXp ? "Прочитано" : "Материал лекции"}</span>
+            </div>
+            <div class="lesson-content">${markdown(lesson.contentMarkdown)}</div>
+            <p data-error class="error" role="alert" hidden></p>
+            <div class="actions">
+              <button type="button" class="button${lesson.awardedXp > 0 ? " is-disabled" : ""}" data-complete ${lesson.awardedXp > 0 ? "disabled" : ""}>
+                ${lesson.awardedXp > 0 ? "Прочитано" : "Отметить прочитанной · +20 XP"}</button>
+              <a class="link action-link" href="#/lesson/${e(lesson.id)}">Открыть лекцию</a>
+            </div>
+            <p class="success" data-reward role="status"></p>
+          `
+        }) : panel({ children: `<p class="muted">Лекции пока не опубликованы.</p>` })}
 
-        ${lessons.length > 1 ? `<section class="panel">
-          <h2>Все лекции темы</h2>
-          <div class="tight">${lessons.map(item => `
-            <div class="feed-row">
-              <span>${e(item.title)}</span>
-              <a class="link action-link" href="#/lesson/${e(item.id)}">${item.completedAt ? "Прочитано" : "Читать"}</a>
-            </div>`).join("")}</div>
-        </section>` : ""}
+        ${lessons.length > 1 ? panel({
+          title: "Все лекции темы",
+          children: `
+            <div class="tight">${lessons.map(item => `
+              <div class="feed-row">
+                <span>${e(item.title)}</span>
+                <a class="link action-link" href="#/lesson/${e(item.id)}">${item.completedAt ? "Прочитано" : "Читать"}</a>
+              </div>`).join("")}</div>
+          `
+        }) : ""}
 
-        ${nextTopic ? `<section class="panel">
-          <h2>Следующая тема</h2>
-          <p class="muted">${e(nextTopic.title)}</p>
-          <p class="small">${nextTopic.status === "Locked" ? "Откроется после победы в этом испытании." : "Тема уже доступна."}</p>
-          ${nextTopic.status !== "Locked" ? `<div class="actions"><a class="button outline" href="#/topic/${e(nextTopic.id)}">Открыть тему</a></div>` : ""}
-        </section>` : `<section class="panel"><h2>Это последняя тема курса</h2><p class="muted">После победы откроется итог курса.</p></section>`}
+        ${nextTopic ? panel({
+          title: "Следующая тема",
+          children: `
+            <p class="muted">${e(nextTopic.title)}</p>
+            <p class="small">${nextTopic.status === "Locked" ? "Откроется после победы в этом испытании." : "Тема уже доступна."}</p>
+            ${nextTopic.status !== "Locked" ? `${actions({ children: `<a class="button outline" href="#/topic/${e(nextTopic.id)}">Открыть тему</a>` })}` : ""}
+          `
+        }) : panel({ title: "Это последняя тема курса", children: `<p class="muted">После победы откроется итог курса.</p>` })}
       </div>
 
       <div class="stack">
@@ -188,7 +199,7 @@ export async function renderTopic(id) {
         // F01 fix: перерисовываем допуск явно, а не полагаемся на повторное присваивание того же hash.
         const accessContainer = root.querySelector("[data-access-section]");
         if (accessContainer) {
-          accessContainer.innerHTML = renderAccessSection(topic, true, active);
+          render(accessContainer, renderAccessSection(topic, true, active));
           const compare = accessContainer.querySelector("[data-compare]");
           if (compare) {
             compare.onclick = () => askDialog({
@@ -241,51 +252,53 @@ export async function renderAssessmentBrief(topicId, assessmentId) {
   });
 
   const root = element(`
-    <a class="back-link" href="#/topic/${e(topic.id)}">← Назад к выбору</a>
+    ${backLink({ href: `#/topic/${e(topic.id)}`, label: "Назад к выбору" })}
 
-    <header class="page-head">
-      <div>
-        <h1>${boss ? "Бой с боссом" : "Подготовка к аварии"}</h1>
-        <p>${e(topic.title)} · ${e(boss ? "тест" : "авария (QTE)")}</p>
-      </div>
-    </header>
+    ${pageHead({
+      title: boss ? "Бой с боссом" : "Подготовка к аварии",
+      description: `${topic.title} · ${boss ? "тест" : "авария (QTE)"}`
+    })}
 
     <div class="grid-main">
       <div class="stack">
-        <section class="panel">
-          <h2>${boss ? "Перед боем" : "Сценарий аварии"}</h2>
-          <div class="media-placeholder large"><span>${boss ? "Босс" : "Сценарий аварии"}</span></div>
-          <p class="muted">${e(boss
-            ? "Условия расчётных задач будут показаны по одному. Проверьте формулу, единицы и оставшееся время."
-            : "После ответа API покажет название и условия сценария. Выберите безопасный порядок действий.")}</p>
-          <p data-error class="error" role="alert" hidden></p>
-          <div class="actions">
-            <button type="button" class="button" data-start="${e(assessment.id)}">${boss ? "В бой" : "Открыть сценарий"}</button>
-            <a class="link action-link" href="#/topic/${e(topic.id)}">Назад к выбору</a>
-          </div>
-        </section>
+        ${panel({
+          title: boss ? "Перед боем" : "Сценарий аварии",
+          children: `
+            <div class="media-placeholder large"><span>${boss ? "Босс" : "Сценарий аварии"}</span></div>
+            <p class="muted">${e(boss
+              ? "Условия расчётных задач будут показаны по одному. Проверьте формулу, единицы и оставшееся время."
+              : "После ответа API покажет название и условия сценария. Выберите безопасный порядок действий.")}</p>
+            <p data-error class="error" role="alert" hidden></p>
+            <div class="actions">
+              ${buttonAction({ label: boss ? "В бой" : "Открыть сценарий", dataset: { start: assessment.id } })}
+              <a class="link action-link" href="#/topic/${e(topic.id)}">Назад к выбору</a>
+            </div>
+          `
+        })}
       </div>
 
       <div class="stack">
-        <section class="panel">
-          <h2>Условия испытания</h2>
-          <div class="metric-list">
-            ${(boss ? [
-              ["Вопросов", "7"],
-              ["Варианты на вопрос", "4"],
-              ["Время на вопрос", "45–60 с"],
-              ["Для победы", "5 верных"]
-            ] : [
-              ["Шаги", "4"],
-              ["Варианты на шаг", "3"],
-              ["Стартовый отсчёт", "60 с"],
-              ["Верно / неверно", "+10 / −10 с"]
-            ]).map(([label, value]) => `<div class="metric-row"><span>${e(label)}</span><strong>${e(value)}</strong></div>`).join("")}
-          </div>
-          <p class="small" style="margin-top:16px">${boss
-            ? "Третья ошибка завершает бой."
-            : "После старта время идёт и при чтении."}</p>
-        </section>
+        ${panel({
+          title: "Условия испытания",
+          children: `
+            <div class="metric-list">
+              ${(boss ? [
+                { label: "Вопросов", value: "7" },
+                { label: "Варианты на вопрос", value: "4" },
+                { label: "Время на вопрос", value: "45–60 с" },
+                { label: "Для победы", value: "5 верных" }
+              ] : [
+                { label: "Шаги", value: "4" },
+                { label: "Варианты на шаг", value: "3" },
+                { label: "Стартовый отсчёт", value: "60 с" },
+                { label: "Верно / неверно", value: "+10 / −10 с" }
+              ]).map(item => metricRow(item)).join("")}
+            </div>
+            <p class="small" style="margin-top:16px">${boss
+              ? "Третья ошибка завершает бой."
+              : "После старта время идёт и при чтении."}</p>
+          `
+        })}
 
         <div class="mascot-column"></div>
       </div>
@@ -318,15 +331,16 @@ export async function renderLesson(id) {
   });
 
   const root = element(`
-    <a class="back-link" href="#/topic/${e(lesson.topicId)}">← К теме и испытаниям</a>
+    ${backLink({ href: `#/topic/${e(lesson.topicId)}`, label: "К теме и испытаниям" })}
 
-    <header class="page-head">
-      <div><h1>${e(lesson.title)}</h1><p>Материал лекции</p></div>
-    </header>
+    ${pageHead({
+      title: lesson.title,
+      description: "Материал лекции"
+    })}
 
     <div class="grid-main">
       <div class="stack">
-        <section class="panel lesson-content">${markdown(lesson.contentMarkdown)}</section>
+        ${panel({ className: "lesson-content", children: `${markdown(lesson.contentMarkdown)}` })}
         <p data-error class="error" role="alert" hidden></p>
         <div class="actions">
           <button type="button" class="button${lesson.awardedXp > 0 ? " is-disabled" : ""}" data-complete ${lesson.awardedXp > 0 ? "disabled" : ""}>
@@ -401,27 +415,26 @@ export async function renderAssessmentSelect(topicId) {
     } else if (active && active.assessmentId !== assessment.id) {
       button = `<span class="status">Действие недоступно</span>`;
     } else {
-      button = `<a class="button ${isBoss ? "blue" : "outline"}" href="#/topic/${e(topic.id)}/assessment/${e(assessment.id)}">${label}</a>`;
+      button = buttonLink({ href: `#/topic/${e(topic.id)}/assessment/${e(assessment.id)}`, label, kind: isBoss ? "blue" : "outline" });
     }
-    return `
-      <section class="panel">
-        <h2>${e(title)}</h2>
+    return panel({
+      title: title,
+      children: `
         <div class="media-placeholder large" aria-hidden="true">${pictureIcon}</div>
         <p class="muted">${e(text)}</p>
         <div class="actions">${button}</div>
-      </section>`;
+      `
+    });
   }
 
   const root = element(`
-    <a class="back-link" href="#/topic/${e(topic.id)}">← К лекции</a>
+    ${backLink({ href: `#/topic/${e(topic.id)}`, label: "К лекции" })}
 
-    <header class="page-head">
-      <div>
-        <h1>Выберите испытание</h1>
-        <p>${e(topic.title)}</p>
-      </div>
-      <div class="top-actions"><a class="link action-link" href="#/topic/${e(topic.id)}">К лекции</a></div>
-    </header>
+    ${pageHead({
+      title: "Выберите испытание",
+      description: topic.title,
+      actions: `<a class="link action-link" href="#/topic/${e(topic.id)}">К лекции</a>`
+    })}
 
     <div class="step-line">
       <span>Лекция</span>

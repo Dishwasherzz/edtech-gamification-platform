@@ -1,0 +1,128 @@
+/* css/reset.css — Сброс стилей и базовая типографика */
+/* Источник: style.css раздел 1 */
+
+/* Обнуление внешних и внутренних отступов для базовых элементов */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, h1, h2, h3, h4, p, ul, ol, figure {
+  margin: 0;
+  padding: 0;
+}
+
+/* Базовые настройки тела документа */
+body {
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--fs-16);
+  line-height: 1.5;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Изображения и SVG как блочные элементы */
+img, svg {
+  display: block;
+}
+
+/* Наследование шрифта и цвета для формовых элементов */
+button, input, select {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Ссылки без подчёркивания по умолчанию */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Убираем маркеры списков */
+ul, ol {
+  list-style: none;
+}
+
+/* Выделение текста акцентным цветом */
+::selection {
+  background: var(--accent-pink);
+  color: var(--text-inverse);
+}
+
+/* Жирное начертание для заголовков и акцентов */
+h1, h2, h3, strong, b {
+  font-weight: 500;
+}
+
+/* Размеры заголовков */
+h1 {
+  font-size: var(--fs-32);
+  line-height: var(--lh-32);
+}
+
+h2 {
+  font-size: var(--fs-24);
+  line-height: var(--lh-24);
+}
+
+h3 {
+  font-size: var(--fs-18);
+  line-height: var(--lh-18);
+}
+
+/* Ограничение ширины абзацев */
+p {
+  max-width: 72ch;
+}
+
+/* Мелкий текст */
+small, .small {
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--text-secondary);
+}
+
+/* Вспомогательные классы цвета текста */
+.muted {
+  color: var(--text-secondary);
+}
+
+.subtle {
+  color: var(--text-tertiary);
+}
+
+.white {
+  color: var(--text-primary);
+}
+
+.pink-text {
+  color: var(--accent-pink);
+}
+
+/* Моноширинный текст с равномерными цифрами */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ссылка с подчёркиванием */
+.link {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  line-height: var(--lh-14);
+}
+
+/*_ACTION-ссылка (действие)*/
+.action-link {
+  display: inline-block;
+  color: var(--text-primary);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}

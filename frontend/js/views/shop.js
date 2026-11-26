@@ -1,32 +1,13 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
-import { element, escapeHtml as e, dateShort } from "../ui.js";
+import { element, escapeHtml as e, render, dateShort } from "../ui.js";
+import { skinCard } from "../components/cards.js";
+import { pageHead } from "../components/page-head.js";
 import { skinAsset } from "../assets.js";
 
 // requestId покупки живёт до определённого ответа сервера: повтор с тем же id
 // не списывает монеты второй раз (см. docs/cosmetics-and-shop.md).
 const purchaseIds = new Map();
-
-function skinCard(skin, balance) {
-  const action = skin.isEquipped
-    ? `<span class="status strong">Надето</span>`
-    : skin.isOwned
-      ? `<button type="button" class="button outline" data-equip="${e(skin.id)}">Надеть</button>`
-      : skin.isForSale
-        ? `<button type="button" class="button${balance < skin.priceCoins ? " is-disabled" : ""}" data-buy="${e(skin.id)}" ${balance < skin.priceCoins ? "disabled" : ""}>Купить · ${skin.priceCoins}</button>`
-        : `<span class="status">Нет в продаже</span>`;
-
-  return `
-    <section class="panel skin-card" data-skin="${e(skin.id)}">
-      <div class="media-placeholder skin-art">
-        ${skinAsset(skin) ? `<img class="character-img character-portrait" src="${e(skinAsset(skin))}" alt="${e(skin.name)}" width="80" height="88">` : `<span class="picture-mark">${e(skin.name)}</span>`}
-      </div>
-      <h3>${e(skin.name)}</h3>
-      <p class="muted">${e(skin.description)}</p>
-      <p class="small">${skin.isStarter ? "Базовый скин" : `${skin.priceCoins} монет`}</p>
-      <div class="actions">${action}</div>
-    </section>`;
-}
 
 export async function renderShop(tab = "shop") {
   const [user, catalog, wardrobe] = await Promise.all([
@@ -41,15 +22,11 @@ export async function renderShop(tab = "shop") {
 
   const active = ["shop", "wardrobe", "purchases"].includes(tab) ? tab : "shop";
   const root = element(`
-    <header class="page-head">
-      <div>
-        <h1>Магазин и гардероб</h1>
-        <p>Скины меняют внешний вид персонажа и не влияют на награды.</p>
-      </div>
-      <div class="top-actions">
-        <span class="num">${balance}</span> <span class="small">монет</span>
-      </div>
-    </header>
+    ${pageHead({
+      title: "Магазин и гардероб",
+      description: "Скины меняют внешний вид персонажа и не влияют на награды.",
+      actions: `<span class="num">${balance}</span> <span class="small">монет</span>`
+    })}
 
     <p data-error class="error" role="alert" hidden></p>
 
@@ -82,8 +59,8 @@ export async function renderShop(tab = "shop") {
 
   // Каталог и гардероб перерисовываются после покупки и надевания.
   const paint = () => {
-    root.querySelector('[data-grid="shop"]').innerHTML = shopList.map(skin => skinCard(skin, balance)).join("");
-    root.querySelector('[data-grid="wardrobe"]').innerHTML = wardrobeList.map(skin => skinCard(skin, balance)).join("");
+    render(root.querySelector('[data-grid="shop"]'), shopList.map(skin => skinCard({ skin, balance })).join(""));
+    render(root.querySelector('[data-grid="wardrobe"]'), wardrobeList.map(skin => skinCard({ skin, balance })).join(""));
     balanceLabel.textContent = balance;
     bind();
   };
@@ -152,19 +129,19 @@ export async function renderShop(tab = "shop") {
     try {
       const purchases = await api.purchases(page);
       const hasMore = purchases.length === 20;
-      panel.innerHTML = purchases.length
+      render(panel, purchases.length
         ? `<table class="history-table">
             <thead><tr><th>Скин</th><th>Дата</th><th>Цена</th></tr></thead>
             <tbody>${purchases.map(item => `
               <tr><td>${e(item.skinName)}</td><td class="muted">${e(dateShort(item.purchasedAt))}</td><td class="num">−${item.coinsSpent} монет</td></tr>`).join("")}</tbody>
           </table>${hasMore ? `<div class="actions"><button type="button" class="button outline" data-purchases-page="${page + 1}">Показать ещё</button></div>` : ""}`
-        : `<p class="muted">Покупок пока нет.</p>`;
+        : `<p class="muted">Покупок пока нет.</p>`);
       const more = panel.querySelector("[data-purchases-page]");
       if (more) {
         more.onclick = () => loadPurchases(Number(more.dataset.purchasesPage));
       }
     } catch (problem) {
-      panel.innerHTML = `<p class="error">${e(problem.message)}</p>`;
+      render(panel, `<p class="error">${e(problem.message)}</p>`);
     }
   };
 

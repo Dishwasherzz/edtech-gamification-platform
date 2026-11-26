@@ -1,5 +1,8 @@
 import { api } from "../api.js";
 import { element, escapeHtml as e } from "../ui.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { buttonLink } from "../components/button.js";
 
 // Рабочий текст согласия из документа «сбор_данных».
 // Реквизиты оператора и сроки хранения резервных копий в нём не выдуманы.
@@ -67,20 +70,18 @@ export async function renderConsent() {
   }
 
   return element(`
-    <header class="page-head">
-      <div>
-        <h1>Согласие на обработку данных</h1>
-        <p>Электротехника · рабочий текст</p>
-      </div>
-    </header>
+    ${pageHead({
+      title: "Согласие на обработку данных",
+      description: "Электротехника · рабочий текст"
+    })}
 
     <div class="content-page">
-      <section class="panel">${body}</section>
+      ${panel({ children: body })}
     </div>
 
     <div class="actions">
-      <a class="button blue" href="#/auth/register"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Вернуться к регистрации</span></a>
-      <a class="button outline" href="#/demo"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Продолжить без аккаунта</span></a>
+      ${buttonLink({ href: "#/auth/register", label: "Вернуться к регистрации", kind: "blue" })}
+      ${buttonLink({ href: "#/demo", label: "Продолжить без аккаунта", kind: "outline" })}
     </div>
   `);
 }
@@ -88,18 +89,18 @@ export async function renderConsent() {
 // Отказ от согласия: аккаунт не создаётся, форма никуда не отправляется.
 export function renderConsentDeclined() {
   return element(`
-    <header class="page-head">
-      <div><h1>Аккаунт не создан</h1><p>Согласие не предоставлено</p></div>
-    </header>
+    ${pageHead({ title: "Аккаунт не создан", description: "Согласие не предоставлено" })}
 
-    <section class="panel">
-      <h2>Согласие не предоставлено</h2>
-      <p class="muted">Регистрация не отправлена. Данные формы не передаются.</p>
-      <p class="small">Отказ не закрывает бесплатный демо-маршрут: пример уровня доступен без входа.</p>
-      <div class="actions">
-        <a class="button" href="#/demo"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Открыть пример</span></a>
-        <a class="button outline" href="#/auth/register"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Вернуться к регистрации</span></a>
-      </div>
-    </section>
+    ${panel({
+      title: "Согласие не предоставлено",
+      children: `
+        <p class="muted">Регистрация не отправлена. Данные формы не передаются.</p>
+        <p class="small">Отказ не закрывает бесплатный демо-маршрут: пример уровня доступен без входа.</p>
+        <div class="actions">
+          ${buttonLink({ href: "#/demo", label: "Открыть пример" })}
+          ${buttonLink({ href: "#/auth/register", label: "Вернуться к регистрации", kind: "outline" })}
+        </div>
+      `
+    })}
   `);
 }

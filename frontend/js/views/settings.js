@@ -1,6 +1,7 @@
 import { api } from "../api.js";
 import { state, clearSession, refreshProfile, setMascotVisible } from "../state.js";
 import { element, escapeHtml as e, askDialog } from "../ui.js";
+import { pageHead } from "../components/page-head.js";
 
 // Правила Identity на сервере: длина от 8 символов, строчная и заглавная буквы, цифра.
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\S]{8,128}$/;
@@ -16,10 +17,11 @@ export async function renderSettings(tab = "account") {
   const active = TABS.some(item => item.key === tab) ? tab : "account";
 
   const root = element(`
-    <header class="page-head">
-      <div><h1>Настройки профиля</h1><p data-settings-subtitle>${e(TABS.find(item => item.key === active).label)}</p></div>
-      <div class="top-actions"><a class="link action-link" href="#/profile">К профилю</a></div>
-    </header>
+    ${pageHead({
+      title: "Настройки профиля",
+      description: TABS.find(item => item.key === active).label,
+      actions: `<a class="link action-link" href="#/profile">К профилю</a>`
+    })}
 
     <div class="settings-layout">
       <nav class="settings-side" aria-label="Разделы настроек">
@@ -290,14 +292,14 @@ export async function renderSettings(tab = "account") {
 // Запрос на удаление принят: аккаунт и сессия завершены.
 export function renderAccountDeleted() {
   return element(`
-    <header class="page-head">
-      <div><h1>Запрос принят</h1><p>Удаление аккаунта</p></div>
-    </header>
+    ${pageHead({ title: "Запрос принят", description: "Удаление аккаунта" })}
 
-    <section class="panel">
-      <h2>Удаление аккаунта</h2>
-      <p class="muted">Вы вышли из аккаунта. Порядок и сроки обработки запроса будут указаны в согласованном тексте оператора.</p>
-      <div class="actions"><a class="button" href="#/">На главную</a></div>
-    </section>
+    ${panel({
+      title: "Удаление аккаунта",
+      children: `
+        <p class="muted">Вы вышли из аккаунта. Порядок и сроки обработки запроса будут указаны в согласованном тексте оператора.</p>
+        <div class="actions"><a class="button" href="#/">На главную</a></div>
+      `
+    })}
   `);
 }

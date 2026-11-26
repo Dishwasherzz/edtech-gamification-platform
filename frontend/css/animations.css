@@ -1,0 +1,416 @@
+/* css/animations.css — Анимации и плавные переходы */
+/* Источник: style.css раздел 8 (кроме алиас-переменных, которые в variables.css) */
+
+/* Переменные времени и функций анимации */
+:root {
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 460ms;
+}
+
+/* Иконки спрайта */
+.icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Заголовок eyebrow (верхняя метка) */
+.eyebrow {
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--pink);
+}
+
+/* Блок на всю ширину */
+.btn-block {
+  width: 100%;
+}
+
+/* Ссылка назад */
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Имя аккаунта */
+.account-name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0;
+  background: none;
+  border: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.account-name:hover,
+.account-name[aria-expanded="true"] {
+  color: var(--text-primary);
+}
+
+.account-name:hover .account-label,
+.account-name[aria-expanded="true"] .account-label {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Стрелка аккаунта */
+.account-chevron {
+  color: var(--text-secondary);
+  transition: transform var(--dur-base) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.account-name:hover .account-chevron,
+.account-name[aria-expanded="true"] .account-chevron {
+  color: var(--text-primary);
+}
+
+.account-name[aria-expanded="true"] .account-chevron {
+  transform: rotate(180deg);
+}
+
+/* =============== ПЛАВНЫЕ ПЕРЕХОДЫ ВСЕХ КНОПОК =============== */
+
+/* Базовый плавный переход для всех кнопочных элементов */
+.button,
+.btn,
+.icon-btn,
+.link,
+.action-link,
+.tab,
+.text-button,
+.consent-checkbox,
+.account-toggle,
+.topic-row-link,
+.nav-item,
+.side-item,
+.mobile-item,
+.settings-item,
+.profile-item,
+.answer,
+.account-name {
+  transition: transform 200ms var(--ease-out),
+    background-color 200ms var(--ease-out),
+    color 200ms var(--ease-out),
+    border-color 200ms var(--ease-out);
+}
+
+/* Нажатие — прижатие кнопки */
+.button:active:not(:disabled):not(.is-disabled),
+.btn:active:not(:disabled):not(.is-disabled),
+.tab:active:not(:disabled):not(.is-disabled),
+.text-button:active:not(:disabled):not(.is-disabled),
+.consent-checkbox:active:not(:disabled):not(.is-disabled),
+.account-toggle:active:not(:disabled):not(.is-disabled),
+.mobile-item:active:not(:disabled):not(.is-disabled),
+.settings-item:active:not(:disabled):not(.is-disabled),
+.profile-item:active:not(:disabled):not(.is-disabled),
+.side-item:active:not(:disabled):not(.is-disabled),
+.answer:not(:disabled):active {
+  transform: translateY(2px) scale(.98);
+}
+
+/* Наведение — легкое увеличение */
+.button:not(:disabled):not(.is-disabled):hover,
+.btn:not(:disabled):not(.is-disabled):hover,
+.tab:hover:not(:disabled):not(.is-disabled) {
+  background: var(--bg-raised);
+  transform: scale(1.04);
+}
+
+.text-button:hover:not(:disabled):not(.is-disabled) {
+  color: var(--text-primary);
+  transform: scale(1.04);
+}
+
+.consent-checkbox:hover:not(:disabled):not(.is-disabled) {
+  border-color: var(--accent-pink);
+  transform: scale(1.04);
+}
+
+.account-toggle:hover {
+  color: var(--text-primary);
+  transform: scale(1.04);
+}
+
+.topic-row-link:hover {
+  color: var(--accent-pink);
+  transform: scale(1.02);
+}
+
+.nav-item:hover,
+.action-link:hover {
+  color: var(--text-primary);
+  transform: scale(1.09);
+}
+
+.side-item:hover {
+  transform: scale(1.04);
+}
+
+.mobile-item:hover,
+.settings-item:hover,
+.profile-item:hover {
+  background: var(--bg-raised);
+  transform: scale(1.04);
+}
+
+.answer:not(:disabled):hover {
+  border-color: var(--border-input);
+  background: var(--bg-sunken);
+  transform: scale(1.02);
+}
+
+/* Фокус кнопок и ответов */
+.button:focus-visible,
+.btn:focus-visible,
+.answer:focus-visible,
+.side-item:focus-visible,
+.nav-item:focus-visible,
+.settings-item:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 4px;
+}
+
+/* Вход экранов и блоков */
+#app > * {
+  animation: view-in var(--dur-slow) var(--ease-out) both;
+}
+
+#app > * > .page-head h1 {
+  animation: view-in-title var(--dur-slow) var(--ease-out) 60ms both;
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes view-in-title {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Карточки тем курса */
+.tight .topic-row {
+  animation: view-in var(--dur-slow) var(--ease-out) both;
+}
+
+.tight .topic-row:nth-child(1) {
+  animation-delay: 120ms;
+}
+
+.tight .topic-row:nth-child(2) {
+  animation-delay: 180ms;
+}
+
+.tight .topic-row:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+/* Уведомления */
+.notice {
+  animation: notice-in var(--dur-base) var(--ease-out) both;
+}
+
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Фидбэк, статус, панель удаления */
+.feedback,
+.status-message,
+p.success,
+p.error,
+.danger-zone {
+  animation: notice-in var(--dur-base) var(--ease-out) both;
+}
+
+/* Модальные окна */
+.modal-layer {
+  animation: scrim-in var(--dur-base) var(--ease-out) both;
+}
+
+.modal {
+  animation: modal-in var(--dur-base) var(--ease-out) 40ms both;
+}
+
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Выпадающее меню профиля и мобильное меню */
+.profile-menu {
+  animation: menu-in var(--dur-base) var(--ease-out) both;
+}
+
+.mobile-sheet {
+  animation: menu-in var(--dur-base) var(--ease-out) both;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Итог попытки */
+.result {
+  animation: result-in 180ms var(--ease-out) both;
+}
+
+@keyframes result-in {
+  from {
+    opacity: .85;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Смена кадра спутника */
+.character-portrait {
+  transition: opacity 180ms var(--ease-out);
+}
+
+/* Панель спутника */
+.pet-panel {
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+
+/* Прогресс-бар */
+.bar-fill {
+  transition: width 420ms var(--ease-out);
+}
+
+/* Пульс эффекта */
+.effect-pulse {
+  animation: effect-pulse 240ms var(--ease-out);
+}
+
+@keyframes effect-pulse {
+  0% {
+    opacity: .55;
+    transform: scale(.86);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Индикатор загрузки */
+.skeleton {
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: .55;
+  }
+  50% {
+    opacity: .95;
+  }
+}
+
+/* Наведение на кнопки */
+.button:not(:disabled):not(.is-disabled):not(.ghost):hover {
+  background: #ff6487;
+  transform: scale(1.04);
+}
+
+.button.blue:not(:disabled):not(.is-disabled):hover {
+  background: #0b70b4;
+  transform: scale(1.04);
+}
+
+.button.outline:not(:disabled):not(.is-disabled):hover {
+  background: #a8a8a8;
+  transform: scale(1.04);
+}
+
+.button.outline:not(:disabled):not(.is-disabled):hover .button-edge {
+  background: #262626;
+}
+
+.button.ghost:not(:disabled):not(.is-disabled):hover {
+  color: var(--accent-pink);
+  text-decoration-color: var(--accent-pink);
+  transform: scale(1.04);
+}
+
+.button:not(:disabled):not(.is-disabled):hover .button-label > .icon {
+  transform: translateX(3px);
+}
+
+.button:not(:disabled):not(.is-disabled) .button-label > .icon {
+  transition: transform 180ms var(--ease-out);
+}
+
+.button.is-error:not(:disabled):not(.is-disabled):hover {
+  background: #ff5d7d;
+  transform: scale(1.04);
+}
+
+/* Фокус кнопок и ответов (дубли для специфичности) */
+.button:focus-visible,
+.btn:focus-visible,
+.answer:focus-visible,
+.side-item:focus-visible,
+.nav-item:focus-visible,
+.settings-item:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 4px;
+}

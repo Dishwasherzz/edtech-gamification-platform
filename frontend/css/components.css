@@ -1,0 +1,1053 @@
+/* css/components.css — Кнопки, поля, панели, карточки, уведомления, персонажи, спутник */
+/* Источник: style.css разделы 4, 6 */
+
+/* ======================
+   4. КОМПОНЕНТЫ
+   ====================== */
+
+/* Основная кнопка */
+.button,
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: var(--space-3) var(--space-6);
+  background: var(--accent-pink);
+  color: var(--text-inverse);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+}
+
+/* Текст внутри кнопки */
+.button-label,
+.btn {
+  position: relative;
+  z-index: var(--z-base);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+/* Край кнопки (внутренняя обводка) */
+.button-edge {
+  position: absolute;
+  inset: 1px;
+  background: var(--bg-canvas);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+}
+
+/* Синяя кнопка */
+.button.blue,
+.btn-cta {
+  background: var(--accent-blue);
+  color: var(--text-primary);
+}
+
+/* Призрачная кнопка (без фона) */
+.button.ghost,
+.btn-ghost {
+  padding-inline: 0;
+  background: transparent;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  clip-path: none;
+}
+
+/* Состояние наведения кнопок */
+.button.is-hover {
+  background: linear-gradient(100deg, var(--accent-pink-hover), var(--accent-blue));
+  color: var(--text-primary);
+}
+
+.button.blue.is-hover {
+  background: var(--accent-blue-hover);
+}
+
+/* Кнопка с обводкой */
+.button.outline,
+.btn-outline {
+  background: var(--accent-outline);
+  color: var(--text-primary);
+  border: 0;
+}
+
+.button.outline .button-edge {
+  background: var(--bg-raised);
+}
+
+.button.outline.is-hover .button-edge {
+  background: var(--accent-outline-hover);
+}
+
+/* Активная кнопка */
+.button.is-active {
+  background: var(--accent-blue);
+  color: var(--accent-pink);
+  border: 0;
+}
+
+.button.blue.is-active {
+  background: var(--accent-blue);
+  color: var(--text-primary);
+}
+
+.button.is-active .button-edge,
+.button.is-error .button-edge {
+  inset: 2px;
+  background: var(--bg-canvas);
+}
+
+/* Отключённая кнопка */
+.button.is-disabled {
+  background: #777;
+  color: var(--text-secondary);
+  border: 0;
+}
+
+.button.is-disabled .button-edge {
+  background: var(--bg-raised);
+}
+
+/* Ошибочная кнопка */
+.button.is-error {
+  background: var(--accent-pink);
+  color: var(--text-primary);
+  border: 0;
+}
+
+/* Кнопка в фокусе */
+.button.is-focus {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 4px;
+  clip-path: none;
+}
+
+/* Состояния призрачной кнопки */
+.button.ghost.is-hover,
+.button.ghost.is-active {
+  background: transparent;
+  color: var(--text-primary);
+  border: 0;
+}
+
+.button.ghost.is-disabled {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 0;
+}
+
+.button.ghost.is-error {
+  padding-inline: var(--space-3);
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--accent-pink);
+}
+
+/* Маленькая кнопка */
+.button.small-button,
+.btn-small {
+  min-height: 40px;
+  padding: var(--space-2) var(--space-4);
+}
+
+/* Иконка */
+.icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Поле ввода */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  font-size: var(--fs-14);
+}
+
+/* Метка поля */
+.field-label,
+.field > span {
+  color: var(--text-primary);
+  line-height: var(--lh-14);
+}
+
+/* Значение поля и сам инпут */
+.field-value,
+.field input {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--space-2) 0;
+  border-bottom: 2px dashed var(--border-input);
+  color: var(--text-secondary);
+  font-size: var(--fs-16);
+  line-height: var(--lh-16);
+}
+
+.field-value.filled {
+  color: var(--text-primary);
+}
+
+/* Состояние наведения поля */
+.field.is-hover .field-value {
+  border-bottom-style: solid;
+  border-image: linear-gradient(90deg, var(--accent-pink), var(--accent-blue)) 1;
+}
+
+/* Активное поле */
+.field.is-active .field-value {
+  border-color: var(--accent-pink);
+  border-bottom-style: solid;
+}
+
+/* Поле в фокусе */
+.field.is-focus {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 8px;
+}
+
+/* Отключённое поле */
+.field.is-disabled .field-value {
+  border-color: #777;
+  color: var(--text-secondary);
+}
+
+/* Поле с ошибкой */
+.field.is-error .field-value {
+  border-color: var(--accent-blue);
+  border-bottom-style: solid;
+}
+
+/* Текст ошибки и подсказки */
+.error-text,
+.field-hint.error {
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--text-primary);
+}
+
+.field-note {
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--text-secondary);
+}
+
+/* Строка с чекбоксом */
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+}
+
+/* Чекбокс */
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  border: 1px solid var(--border-input);
+  font-size: var(--fs-14);
+  transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), transform 160ms var(--ease-out);
+}
+
+.checkbox.checked {
+  background: var(--accent-pink);
+  border-color: var(--accent-pink);
+  color: var(--text-inverse);
+  transform: scale(1.08);
+}
+
+.checkbox:hover:not(:disabled):not(.is-disabled) {
+  transform: scale(1.04);
+  border-color: var(--accent-pink);
+}
+
+.checkbox:active:not(:disabled):not(.is-disabled) {
+  transform: translateY(2px) scale(.98);
+}
+
+.checkbox.focused {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 4px;
+}
+
+/* Блок с ошибкой чекбокса */
+.check-error {
+  padding: var(--space-4);
+  border: 1px dashed var(--accent-pink);
+}
+
+/* Уведомление (инфо, успех, ошибка) */
+.notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  background: var(--bg-raised);
+  border: 1px dashed var(--border-dashed);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+}
+
+.notice.error,
+.notice.success {
+  border-left: 4px solid var(--accent-pink);
+}
+
+.notice.info {
+  border-left: 4px solid var(--accent-blue);
+}
+
+/* Прогресс-бар */
+.bar,
+.progress {
+  height: 8px;
+  margin-top: var(--space-3);
+  overflow: hidden;
+  background: var(--bg-sunken);
+  border-radius: var(--radius-sm);
+}
+
+/* Заполнение прогресс-бара */
+.bar-fill,
+.progress > div {
+  height: 100%;
+  background: var(--accent-pink);
+  border-radius: var(--radius-sm);
+}
+
+.bar.blue .bar-fill {
+  background: var(--accent-blue);
+}
+
+/* Статус (метка с цветом) */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--text-secondary);
+}
+
+.status.strong {
+  color: var(--text-primary);
+}
+
+/* Линейка шагов */
+.step-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--text-secondary);
+}
+
+.step-line > span {
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.step-line > .selected {
+  color: var(--text-primary);
+  border-color: var(--accent-pink);
+}
+
+.step-line > span[aria-hidden] {
+  border-color: transparent;
+}
+
+/* Сообщение статуса формы */
+.status-message {
+  margin-top: var(--space-4);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  color: var(--text-secondary);
+}
+
+.status-message.success,
+p.success {
+  color: var(--accent-pink);
+}
+
+.status-message.error,
+p.error {
+  color: var(--accent-pink);
+}
+
+/* Фокус у карточки персонажа */
+.character-card:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 4px;
+}
+
+/* Панель и карточка */
+.panel,
+.card {
+  min-width: 0;
+  padding: var(--space-6);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border-strong);
+}
+
+.panel h2,
+.card h2,
+.panel h3,
+.card h3 {
+  margin-bottom: var(--space-4);
+}
+
+.panel > h2 {
+  overflow-wrap: anywhere;
+}
+
+.panel p + p {
+  margin-top: var(--space-3);
+}
+
+.notice h3 {
+  margin: 0;
+}
+
+/* Блок с мягким фоном */
+.well {
+  min-width: 0;
+  padding: var(--space-5);
+  background: var(--bg-raised);
+}
+
+/* Медиа-блок и заглушка медиа */
+.media,
+.media-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 160px;
+  margin-bottom: var(--space-5);
+  background: var(--bg-sunken);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.media.large {
+  height: 240px;
+}
+
+.media.tiny {
+  height: 96px;
+}
+
+/* Маленькая метка картинки */
+.picture-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 32px;
+  border: 1px solid var(--border-input);
+  color: var(--text-secondary);
+  font: 16px var(--font-sans);
+}
+
+/* Квадратная рамка */
+.square {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border-input);
+}
+
+/* Группа действий */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+/* Скелетон-заглушка */
+.skeleton {
+  height: 8px;
+  margin: var(--space-3) 0;
+  background: var(--bg-sunken);
+  border-radius: var(--radius-sm);
+}
+
+.skeleton.short {
+  width: 62%;
+}
+
+.skeleton.mid {
+  width: 84%;
+}
+
+/* Бейдж демо */
+.demo-badge {
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--text-secondary);
+}
+
+/* Статистика (сетка показателей) */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-6);
+  padding: var(--space-6);
+  background: var(--bg-surface);
+}
+
+.stat strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-28);
+  line-height: var(--lh-28);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat span {
+  font-size: var(--fs-12);
+  color: var(--text-secondary);
+}
+
+.stat .unit {
+  font: var(--fs-14) var(--font-sans);
+  color: var(--text-secondary);
+}
+
+/* Статистика награды */
+.reward-stat {
+  padding: var(--space-5);
+  background: var(--bg-raised);
+}
+
+.reward-stat strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-28);
+  line-height: var(--lh-28);
+  font-variant-numeric: tabular-nums;
+}
+
+.reward-stat span {
+  font-size: var(--fs-12);
+  color: var(--text-secondary);
+}
+
+/* Список метрик */
+.metric-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Строка метрики */
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--fs-14);
+}
+
+.metric-row strong {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ======================
+   6. ПЕРСОНАЖИ, СПУТНИК, АВАТАРЫ
+   ====================== */
+
+/* Аватар профиля */
+.profile-art {
+  width: 80px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #202329;
+  overflow: hidden;
+}
+
+.profile-art.female {
+  background: #2b2025;
+}
+
+.profile-art.male {
+  background: #172632;
+}
+
+.profile-art .sprite-img {
+  width: 80px;
+  height: 88px;
+}
+
+/* Список правил */
+.rule-list {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.rule-list li {
+  margin-bottom: 8px;
+}
+
+/* Строка поля с кнопкой показа пароля */
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 2px dashed var(--ink-subtle);
+}
+
+.field-row:hover {
+  border-bottom-style: solid;
+  border-image: linear-gradient(90deg, var(--pink), var(--blue)) 1;
+}
+
+.field-row:focus-within {
+  border-bottom-style: solid;
+  border-bottom-color: var(--pink);
+  outline: 2px solid var(--ink);
+  outline-offset: 8px;
+}
+
+.field-row input {
+  border-bottom: 0;
+}
+
+.field-row input:focus {
+  outline: none;
+}
+
+.field-row .reveal {
+  border: 0;
+}
+
+/* Поле пароля */
+.field-password {
+  position: relative;
+}
+
+.field-password .reveal {
+  flex: none;
+  padding: 4px 0;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 24px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.field-password .reveal:hover {
+  color: var(--pink);
+}
+
+/* Блок согласия */
+.consent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Переключатель настроек */
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Колонка спутника */
+.mascot-column {
+  min-width: 0;
+}
+
+/* Контент настроек */
+.settings-content {
+  min-width: 0;
+}
+
+/* Скрытый инпут переключателя */
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Заголовок вопроса */
+.question-prompt {
+  margin: 24px 0;
+}
+
+/* Блок ответов */
+.answers {
+  display: grid;
+  gap: 12px;
+}
+
+/* Фидбэк после ответа */
+.feedback {
+  min-height: 24px;
+  margin: 16px 0 0;
+  padding: 12px 16px;
+  border: 1px dashed var(--line-strong);
+  border-left: 4px solid var(--pink);
+  background: var(--surface-2);
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.feedback:empty {
+  display: none;
+}
+
+/* Текстовая кнопка */
+.text-button {
+  display: block;
+  background: none;
+  border: 0;
+  color: var(--ink-muted);
+  margin-top: 24px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.text-button:hover {
+  color: var(--ink);
+}
+
+/* Схема цепи (художественный элемент) */
+.circuit-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  height: 144px;
+  background: var(--surface-3);
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 24px;
+  color: var(--pink);
+  margin: 20px 0;
+}
+
+.circuit-art i {
+  width: 48px;
+  height: 2px;
+  background: currentColor;
+}
+
+.circuit-art strong {
+  border: 1px solid var(--ink-subtle);
+  padding: 8px 16px;
+  font-weight: 400;
+}
+
+.intensity-1 .circuit-art {
+  color: #f4d37d;
+}
+
+.intensity-2 .circuit-art {
+  color: #ff9f86;
+}
+
+/* Блок результата */
+.result {
+  border-style: solid;
+  border-color: var(--pink);
+}
+
+/* Аватар спутника */
+.mascot-avatar {
+  width: 64px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--surface-3) center / contain no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Спрайт изображения */
+.sprite-img {
+  display: block;
+  width: 220px;
+  height: 340px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+}
+
+/* Зона опасности (удаление аккаунта и т.п.) */
+.danger-zone {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px dashed var(--pink);
+  background: var(--surface-2);
+}
+
+.danger-zone h3 {
+  color: var(--ink);
+}
+
+/* Вкладки настроек */
+.tabs-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+/* Карточка скина */
+.skin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skin-card h3 {
+  margin: 0;
+}
+
+.skin-art {
+  height: 160px;
+}
+
+/* ======================
+   ВОССТАНОВЛЕННЫЕ СТИЛИ (из старого style.css)
+   ====================== */
+
+/* Аватар в виде точки */
+.avatar-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--bg-sunken);
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+}
+
+/* Строка темы курса */
+.topic-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 224px;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border-strong);
+}
+
+.topic-row-link {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+
+.topic-row-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.topic-row.locked {
+  background: #161616;
+}
+
+.panel .topic-row {
+  padding: var(--space-4) var(--space-5);
+}
+
+.panel .topic-row h3 {
+  margin-bottom: var(--space-1);
+}
+
+.topic-title {
+  margin-bottom: var(--space-2);
+  font-size: var(--fs-18);
+  line-height: var(--lh-18);
+  overflow-wrap: anywhere;
+}
+
+.topic-aside .button {
+  margin-top: var(--space-3);
+}
+
+/* Персонаж: изображения, карточки, действия */
+.character-img {
+  display: block;
+  object-fit: contain;
+  background-repeat: no-repeat;
+}
+
+.character-portrait {
+  object-position: center;
+}
+
+.character-full {
+  object-position: center bottom;
+}
+
+.character-name {
+  width: 100%;
+}
+
+.character-name h2 {
+  font-size: var(--fs-18);
+  line-height: var(--lh-18);
+}
+
+.character-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 88px;
+  overflow: hidden;
+  background: #202329;
+}
+
+.character-art.male {
+  background: #172632;
+  width: 80px;
+  height: 88px;
+  border-radius: 4px;
+}
+
+.character-art.female {
+  background: #2b2025;
+  width: 80px;
+  height: 88px;
+  border-radius: 4px;
+}
+
+.character-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-5);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border-dashed);
+}
+
+.character-card.selected {
+  padding: 19px;
+  border: 2px solid var(--accent-pink);
+}
+
+.character-card h2 {
+  margin: 0;
+}
+
+.character-card > .small {
+  align-self: flex-start;
+}
+
+.character-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+/* Спутник: панель, заголовок, портрет, сообщение */
+.pet-panel .actions {
+  margin-top: var(--space-4);
+}
+
+.pet-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.pet-title h2,
+.pet-title h3 {
+  margin: 0;
+  font-size: var(--fs-16);
+  line-height: var(--lh-16);
+}
+
+.pet-portrait {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.pet-message {
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  color: var(--text-secondary);
+}
+
+.pet-disabled {
+  padding: var(--space-5);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border-strong);
+}
+
+.pet-mini {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-raised);
+  font-size: var(--fs-14);
+}
+
+.pet-mini .action-link {
+  margin-left: auto;
+}
+
+.pet-slot {
+  margin: var(--space-4) 0;
+}
+
+.side-pet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: auto;
+}

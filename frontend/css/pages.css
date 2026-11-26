@@ -1,0 +1,582 @@
+/* css/pages.css — Лендинг, демо, авторизация, мобильные обёртки */
+/* Источник: style.css разделы 11, 12 */
+
+/* ======================
+   11. ЛЕНДИНГ, ДЕМО, АВТОРИЗАЦИЯ
+   ====================== */
+
+/* Заголовок главной страницы */
+.auth-layout h1 {
+  font-weight: 400;
+}
+
+/* Инпут поля в карточке авторизации */
+.auth-card .field input {
+  min-height: 28px;
+}
+
+/* Вкладки авторизации */
+.auth-tabs {
+  font-weight: 400;
+}
+
+/* Край кнопки без обводки */
+.button:not(:disabled):not(.is-disabled):not(.outline):not(.ghost) .button-edge {
+  background: transparent;
+}
+
+/* Обводка кнопки в шапке */
+.topbar .button.outline {
+  background: var(--accent-outline);
+}
+
+/* Герой главной страницы */
+.landing-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-9);
+  padding: var(--space-8) var(--space-7) 48px;
+  margin-bottom: var(--space-7);
+}
+
+/* Фон героя */
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--img-city);
+  background-position: center 51%;
+  background-size: cover;
+  opacity: 0.23;
+}
+
+/* Контент героя */
+.hero-copy {
+  position: relative;
+}
+
+/* Заголовок героя */
+.landing-hero h1 {
+  max-width: 18ch;
+  margin-bottom: var(--space-6);
+  font-size: var(--fs-48);
+  line-height: var(--lh-48);
+}
+
+/* Текст героя */
+.landing-hero p {
+  max-width: 52ch;
+  font-size: var(--fs-18);
+  line-height: 28px;
+  color: var(--text-secondary);
+}
+
+/* Уровень демо */
+.demo-level {
+  position: relative;
+  padding: var(--space-6);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border-strong);
+}
+
+.demo-level h2 {
+  margin: var(--space-4) 0;
+  font-size: var(--fs-24);
+  line-height: var(--lh-24);
+}
+
+.demo-level > p {
+  font-size: var(--fs-16);
+  line-height: var(--lh-16);
+}
+
+/* Схема цепи */
+.circuit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  height: 144px;
+  margin: var(--space-5) 0;
+  background: var(--bg-sunken);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--fs-24);
+}
+
+.circuit-node {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-input);
+  font: var(--fs-16) var(--font-mono);
+}
+
+/* Макет авторизации */
+.auth-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 480px;
+  align-items: center;
+  gap: var(--space-10);
+  max-width: 1120px;
+  margin: var(--space-6) auto;
+}
+
+/* История авторизации */
+.auth-story {
+  padding: var(--space-6);
+}
+
+.auth-story h1 {
+  margin-bottom: var(--space-6);
+  font-size: var(--fs-40);
+  line-height: var(--lh-40);
+}
+
+.auth-story .character-img {
+  margin-top: var(--space-7);
+}
+
+/* Карточка авторизации */
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-7);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border-strong);
+}
+
+.auth-card h2 {
+  margin-bottom: 0;
+}
+
+.auth-card > .notice p {
+  max-width: none;
+}
+
+.auth-card .button {
+  width: 100%;
+}
+
+/* Вкладки авторизации */
+.auth-tabs {
+  display: flex;
+  gap: var(--space-6);
+  font-size: var(--fs-16);
+  line-height: var(--lh-16);
+}
+
+.auth-tabs > span,
+.auth-tabs > a {
+  padding-bottom: var(--space-3);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.auth-tabs > .selected {
+  border-bottom: 1px solid var(--accent-pink);
+}
+
+/* Заголовок персонажа */
+.character-head {
+  text-align: center;
+}
+
+.character-head .page-head {
+  display: block;
+}
+
+.character-head h1,
+.character-head p {
+  margin-inline: auto;
+}
+
+/* Битва: заголовок и медиа */
+.battle-grid h2 {
+  font-size: var(--fs-20);
+}
+
+.battle-grid .media {
+  height: 232px;
+}
+
+/* ======================
+   12. МОБИЛЬНЫЕ ОБЁРТКИ .artboard--mobile
+   ====================== */
+
+/* Мобильный холст */
+.artboard--mobile {
+  width: var(--canvas-mobile);
+  min-height: 844px;
+}
+
+/* Мобильная шапка */
+.artboard--mobile .topbar {
+  height: var(--topbar-height-mobile);
+  gap: var(--space-4);
+  padding: 0 var(--space-5);
+}
+
+.artboard--mobile .brand {
+  font-size: var(--fs-16);
+}
+
+.artboard--mobile .navigation,
+.artboard--mobile .account,
+.artboard--mobile .top-context,
+.artboard--mobile .topbar .member-nav,
+.artboard--mobile .profile-menu {
+  display: none;
+}
+
+.artboard--mobile .mobile-menu-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  font-size: var(--fs-14);
+  color: var(--text-primary);
+}
+
+/* Мобильное выезжающее меню */
+.artboard--mobile .mobile-sheet {
+  position: relative;
+  z-index: var(--z-header);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-5);
+  background: var(--bg-raised);
+  animation: menu-in var(--dur-base) var(--ease-out) both;
+}
+
+/* Мобильный контент */
+.artboard--mobile .content,
+.artboard--mobile.public .content {
+  padding: var(--space-6) var(--space-5);
+}
+
+.artboard--mobile .content:has(.hero-backdrop) {
+  padding-top: var(--space-6);
+}
+
+.artboard--mobile:not(.public) .app-body {
+  min-height: 0;
+}
+
+.artboard--mobile .sidebar {
+  display: none;
+}
+
+.artboard--mobile .page-head {
+  display: block;
+}
+
+.artboard--mobile .top-actions {
+  margin-top: var(--space-5);
+}
+
+.artboard--mobile h1 {
+  font-size: var(--fs-24);
+  line-height: var(--lh-24);
+}
+
+.artboard--mobile h2 {
+  font-size: var(--fs-20);
+  line-height: var(--lh-20);
+}
+
+.artboard--mobile .content-page {
+  width: 100%;
+}
+
+.artboard--mobile .content-page > .panel {
+  margin-bottom: var(--space-4);
+}
+
+/* Одноколоточные сетки на мобильных */
+.artboard--mobile .grid-main,
+.artboard--mobile .grid2,
+.artboard--mobile .grid3,
+.artboard--mobile .battle-grid,
+.artboard--mobile .settings-layout {
+  grid-template-columns: 1fr;
+}
+
+.artboard--mobile .panel,
+.artboard--mobile .demo-level {
+  padding: var(--space-5);
+}
+
+.artboard--mobile .stats {
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  padding: var(--space-5);
+}
+
+.artboard--mobile .stat strong {
+  font-size: var(--fs-24);
+  line-height: var(--lh-24);
+}
+
+.artboard--mobile .reward-grid {
+  gap: var(--space-3);
+}
+
+.artboard--mobile .reward-stat {
+  padding: var(--space-3);
+}
+
+.artboard--mobile .reward-stat strong {
+  font-size: var(--fs-24);
+  line-height: var(--lh-24);
+}
+
+.artboard--mobile .pet-panel {
+  margin-top: 0;
+}
+
+.artboard--mobile .pet-mini {
+  font-size: var(--fs-12);
+}
+
+.artboard--mobile .theme-meta {
+  gap: var(--space-3);
+}
+
+.artboard--mobile .topic-row {
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.artboard--mobile .panel .topic-row {
+  padding: var(--space-4);
+}
+
+.artboard--mobile .topic-aside {
+  grid-column: 2;
+  text-align: left;
+}
+
+/* Мобильный герой */
+.artboard--mobile .landing-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-6);
+  padding: var(--space-4) 0 var(--space-7);
+}
+
+.artboard--mobile .landing-hero h1 {
+  max-width: 17ch;
+  font-size: var(--fs-36);
+  line-height: var(--lh-36);
+}
+
+.artboard--mobile .landing-hero p {
+  font-size: var(--fs-16);
+  line-height: var(--lh-16);
+}
+
+.artboard--mobile .hero-backdrop {
+  display: none;
+}
+
+.artboard--mobile .circuit {
+  gap: var(--space-3);
+  font-size: var(--fs-18);
+}
+
+.artboard--mobile .circuit-node {
+  padding: var(--space-2);
+  font-size: var(--fs-14);
+}
+
+/* Мобильная авторизация */
+.artboard--mobile .auth-layout {
+  display: block;
+  gap: var(--space-7);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  margin: 0;
+}
+
+.artboard--mobile .auth-story {
+  padding: 0 0 var(--space-6);
+}
+
+.artboard--mobile .auth-story h1 {
+  font-size: var(--fs-28);
+  line-height: var(--lh-28);
+}
+
+.artboard--mobile .auth-story > .character-img {
+  display: none;
+}
+
+.artboard--mobile .auth-card {
+  gap: var(--space-6);
+  padding: var(--space-6);
+}
+
+/* Мобильный выбор персонажа */
+.artboard--mobile .character-choice {
+  gap: var(--space-4);
+}
+
+.artboard--mobile .character-card {
+  padding: var(--space-3);
+}
+
+.artboard--mobile .character-card.selected {
+  padding: 11px;
+}
+
+.artboard--mobile .character-card > .character-img {
+  width: 104px !important;
+  height: 256px !important;
+}
+
+.artboard--mobile .character-card h2 {
+  font-size: var(--fs-16);
+}
+
+.artboard--mobile .character-card .small {
+  font-size: var(--fs-12);
+}
+
+.artboard--mobile .character-art {
+  min-height: 252px;
+}
+
+.artboard--mobile .character-art > .character-img {
+  width: 96px !important;
+  height: 224px !important;
+}
+
+.artboard--mobile .character-name {
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.artboard--mobile .character-name h2 {
+  font-size: var(--fs-14);
+  line-height: 20px;
+}
+
+.artboard--mobile .character-name .checkbox {
+  width: 16px;
+  height: 16px;
+}
+
+.artboard--mobile .character-actions {
+  flex-wrap: wrap;
+}
+
+/* Мобильная битва */
+.artboard--mobile .battle-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.artboard--mobile .battle-grid > .panel:first-child {
+  order: 2;
+}
+
+.artboard--mobile .battle-grid > .panel:last-child {
+  order: 1;
+}
+
+.artboard--mobile .battle-grid .media {
+  height: 120px;
+}
+
+/* Мобильный HUD */
+.artboard--mobile .timer-hud {
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.artboard--mobile .hud-value {
+  font-size: var(--fs-24);
+  line-height: var(--lh-24);
+}
+
+.artboard--mobile .answer-result {
+  white-space: normal;
+}
+
+/* Мобильные настройки */
+.artboard--mobile .settings-side {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.artboard--mobile .settings-item {
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Мобильные модальные окна */
+.artboard--mobile .modal-layer {
+  inset: var(--topbar-height-mobile) 0 0;
+  align-items: flex-start;
+  padding: var(--space-5);
+}
+
+.artboard--mobile .modal {
+  margin-top: var(--space-7);
+  padding: var(--space-6);
+}
+
+.artboard--mobile .modal h2 {
+  font-size: var(--fs-24);
+  line-height: var(--lh-24);
+}
+
+.artboard--mobile .history-table th,
+.artboard--mobile .history-table td {
+  font-size: var(--fs-12);
+}
+
+.artboard--mobile .frame-footer {
+  display: block;
+}
+
+.artboard--mobile .frame-footer > span {
+  display: block;
+  margin-top: var(--space-3);
+}
+
+/* Спрайт авторизации */
+.auth-sprite {
+  display: block;
+  width: 112px;
+  height: 284px;
+  margin-top: 32px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+}
+
+/* Примечание авторизации */
+.auth-note {
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--ink-muted);
+  margin: 0;
+}
+
+/* Адаптив для спрайтов авторизации */
+@media (max-width: 700px) {
+  .auth-sprite {
+    display: none;
+  }
+  .sprite-img {
+    width: 104px;
+    height: 256px;
+  }
+}

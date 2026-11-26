@@ -1,0 +1,517 @@
+/* css/views.css — Темы, ответы, фидбэк, статистика, математика, лекции, схемы, модалки */
+/* Источник: style.css разделы 5, 7 (кроме анимаций) */
+
+/* ======================
+   5. ТЕМЫ, ОТВЕТЫ, ФИДБЭК, СТАТИСТИКА
+   ====================== */
+
+/* Переключатель (toggle) */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: none;
+  width: 40px;
+  height: 24px;
+  padding: var(--space-1);
+  background: var(--border-strong);
+  border-radius: var(--radius-sm);
+  transition: background-color 180ms var(--ease-out);
+}
+
+.toggle > span {
+  width: 16px;
+  height: 16px;
+  background: var(--text-secondary);
+  border-radius: var(--radius-xs);
+  transition: transform 180ms var(--ease-out), background-color 180ms var(--ease-out);
+}
+
+.toggle.on {
+  background: var(--accent-blue);
+}
+
+.toggle.on > span {
+  background: var(--text-primary);
+  transform: translateX(16px);
+}
+
+.toggle:hover:not(:disabled):not(.is-disabled) {
+  transform: scale(1.04);
+}
+
+.toggle:active:not(:disabled):not(.is-disabled) {
+  transform: translateY(2px) scale(.98);
+}
+
+/* Строка настроек */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-solid);
+}
+
+.settings-row:last-child {
+  border: 0;
+}
+
+.settings-row p {
+  font-size: var(--fs-14);
+  color: var(--text-secondary);
+}
+
+/* Подпись переключателя */
+.switch-label {
+  font-size: var(--fs-14);
+}
+
+/* Боковая навигация настроек */
+.settings-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Элемент настроек */
+.settings-item {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  color: var(--text-primary);
+}
+
+.settings-item.selected {
+  background: var(--bg-raised);
+}
+
+.settings-item.selected .action-link {
+  border-bottom: 1px solid var(--accent-pink);
+  text-decoration: none;
+}
+
+/* Выпадающее меню профиля */
+.profile-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: var(--z-menu);
+  width: 240px;
+  padding: var(--space-2);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dashed);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-menu);
+}
+
+/* Элемент меню профиля */
+.profile-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+  font-family: var(--font-sans);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.profile-item:hover {
+  background: var(--bg-sunken);
+}
+
+.profile-item .icon {
+  color: var(--text-secondary);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.profile-item:hover .icon {
+  color: var(--text-primary);
+}
+
+/* Разделитель меню */
+.menu-separator {
+  height: 1px;
+  margin: var(--space-2) var(--space-3);
+  background: var(--border-solid);
+}
+
+/* Слой модального окна */
+.modal-layer {
+  position: absolute;
+  inset: var(--topbar-height) 0 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  background: var(--overlay-scrim);
+}
+
+/* Модальное окно */
+.modal,
+.modal-layer .modal {
+  width: 600px;
+  max-width: 100%;
+  padding: var(--space-7);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dashed);
+  color: var(--text-primary);
+}
+
+.modal.wide {
+  width: 800px;
+}
+
+.modal h2,
+.modal-layer .modal h2 {
+  margin-bottom: var(--space-5);
+  font-size: var(--fs-28);
+  line-height: var(--lh-28);
+}
+
+.modal p,
+.modal-layer .modal p {
+  margin-bottom: var(--space-4);
+  font-size: var(--fs-16);
+  color: var(--text-secondary);
+}
+
+.modal .field {
+  margin-bottom: var(--space-6);
+}
+
+/* Таблица истории */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-14);
+}
+
+.history-table th {
+  padding: var(--space-3) 0;
+  font-size: var(--fs-12);
+  font-weight: 400;
+  text-align: left;
+  color: var(--text-secondary);
+}
+
+.history-table td {
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-solid);
+}
+
+.history-table th:last-child,
+.history-table td:last-child {
+  text-align: right;
+}
+
+/* Мета-тема */
+.theme-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+  font-size: var(--fs-12);
+  color: var(--text-secondary);
+}
+
+/* Копия документа */
+.doc-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  font-size: var(--fs-14);
+  line-height: var(--lh-14);
+}
+
+.doc-copy h2 {
+  font-size: var(--fs-18);
+  line-height: var(--lh-18);
+}
+
+.doc-copy p {
+  color: var(--text-secondary);
+}
+
+.doc-copy ul {
+  padding-left: var(--space-5);
+}
+
+/* Примечание о разрешениях */
+.permission-note {
+  margin-top: var(--space-3);
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--text-secondary);
+}
+
+/* Надпись над оверлеем */
+.overlay-label {
+  margin-bottom: var(--space-4);
+  font-size: var(--fs-12);
+  color: var(--text-secondary);
+}
+
+/* Таймер HUD */
+.timer-hud {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  margin-bottom: var(--space-6);
+  background: var(--bg-surface);
+}
+
+.hud-label {
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--text-secondary);
+}
+
+.hud-value {
+  margin-top: var(--space-1);
+  font: var(--fs-28) / var(--lh-28) var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-hud .bar {
+  margin-top: var(--space-2);
+}
+
+/* Строка подсказки */
+.hint-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+/* Нижнее уведомление */
+.bottom-notice {
+  margin-top: var(--space-6);
+}
+
+/* ======================
+   7. МАТЕМАТИКА, ЛЕКЦИИ, СХЕМЫ ЦЕПЕЙ
+   ====================== */
+
+/* Математические формулы */
+.math {
+  font-family: "Cambria Math", "Times New Roman", Georgia, serif;
+}
+
+.math-inline {
+  white-space: nowrap;
+}
+
+.math-block,
+.math-display {
+  display: block;
+  text-align: center;
+  margin: 20px 0;
+  font-size: 1.12em;
+}
+
+/* Дробь */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  text-align: center;
+  margin: 0 .28em;
+}
+
+.frac .num {
+  border-bottom: 1px solid currentColor;
+  padding: 0 .35em;
+}
+
+.frac .den {
+  padding: 0 .35em;
+}
+
+/* Курсив и прямой шрифт в формулах */
+.math i {
+  font-style: italic;
+}
+
+.upright,
+.mtext,
+.sym {
+  font-style: normal;
+}
+
+.sqrt .radic {
+  border-top: 1px solid currentColor;
+  padding: 0 .2em;
+}
+
+/* Контент лекции: списки */
+.lesson-content ul,
+.lesson-content ol {
+  margin: 16px 0 16px 20px;
+}
+
+.lesson-content li {
+  margin-bottom: 8px;
+}
+
+/* Контент лекции: цитата */
+.lesson-content blockquote {
+  margin: 16px 0;
+  padding: 12px 20px;
+  border-left: 4px solid var(--blue);
+  background: var(--surface-2);
+  color: var(--ink-muted);
+}
+
+/* Контент лекции: разделитель */
+.lesson-content hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 24px 0;
+}
+
+/* Контент лекции: подзаголовок */
+.lesson-content h4 {
+  margin: 20px 0 8px;
+}
+
+/* Контент лекции: код */
+.lesson-content code {
+  font-family: var(--mono);
+  font-size: 14px;
+  background: var(--surface-2);
+  padding: 2px 5px;
+}
+
+/* Контент лекции: таблица */
+.lesson-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+.lesson-content th,
+.lesson-content td {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 0;
+  text-align: left;
+}
+
+/* Тело модального окна */
+.modal-body {
+  color: var(--ink-muted);
+  font-size: 16px;
+}
+
+.modal-body p {
+  margin-bottom: 16px;
+}
+
+/* Сравнение */
+.compare {
+  display: grid;
+  gap: 16px;
+}
+
+.compare h3 {
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.compare p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+/* Вариант ответа */
+.answer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 56px;
+  padding: var(--space-4);
+  background: var(--bg-raised);
+  border: 1px dashed var(--border-dashed);
+  font-size: var(--fs-14);
+}
+
+.answer.selected {
+  padding: 15px;
+  border: 2px solid var(--accent-blue);
+}
+
+.answer.correct,
+.answer.wrong {
+  padding: 15px;
+  border: 2px solid var(--accent-pink);
+}
+
+.answer.disabled,
+.answer:disabled {
+  border-color: #777;
+  color: var(--text-secondary);
+}
+
+.answer .answer-result {
+  margin-left: auto;
+  font-size: var(--fs-12);
+  white-space: nowrap;
+}
+
+/* Строка ленты */
+.feed-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-solid);
+}
+
+.feed-row:first-child {
+  padding-top: 0;
+}
+
+.feed-row:last-child {
+  padding-bottom: 0;
+  border: 0;
+}
+
+.feed-row .num {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* Строка разбора */
+.review-row {
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-solid);
+}
+
+.review-row:last-child {
+  border: 0;
+}
+
+.review-row h3 {
+  margin-bottom: var(--space-2);
+  font-size: var(--fs-16);
+}
+
+.review-row p {
+  font-size: var(--fs-14);
+  color: var(--text-secondary);
+}

@@ -1,26 +1,12 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
-import { element, escapeHtml as e } from "../ui.js";
-import { fullAsset, heroCharacter } from "../assets.js";
+import { element, escapeHtml as e, render } from "../ui.js";
+import { heroCard } from "../components/cards.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { buttonEdge } from "../components/button.js";
 
 const HERO_LABELS = { phase: "Мужской персонаж", ampere: "Женский персонаж" };
-
-function heroCard(hero, checked) {
-  const character = heroCharacter(hero);
-  const label = HERO_LABELS[hero.key] ?? hero.name;
-  return `
-    <section class="character-card${checked ? " selected" : ""}" data-hero="${e(hero.key)}" role="radio" aria-checked="${checked ? "true" : "false"}" tabindex="0">
-      <input type="radio" name="hero" value="${e(hero.key)}" ${checked ? "checked" : ""}" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">
-      <div class="character-art ${character}">
-        <img class="character-img character-full" src="${e(fullAsset(character, "front"))}" alt="${e(label)}" width="152" height="360">
-      </div>
-      <div class="between character-name">
-        <h2>${e(HERO_LABELS[hero.key] ?? hero.name)}</h2>
-        <span class="checkbox${checked ? " checked" : ""}">${checked ? "✓" : ""}</span>
-      </div>
-      <span class="small" data-state>${checked ? "Выбран" : "Выбрать персонажа"}</span>
-    </section>`;
-}
 
 export async function renderCharacter(options = {}) {
   const first = Boolean(options.first);
@@ -45,21 +31,20 @@ export async function renderCharacter(options = {}) {
 
     <div class="gap"></div>
 
-    <header class="page-head character-head">
-      <div>
-        <h1>${first ? "Кем будете играть?" : "Сменить персонажа"}</h1>
-        <p>Персонаж сопровождает в курсе и объясняет экран. Выбор не меняет задания или награды.</p>
-      </div>
-    </header>
+    ${pageHead({
+      title: first ? "Кем будете играть?" : "Сменить персонажа",
+      description: "Персонаж сопровождает в курсе и объясняет экран. Выбор не меняет задания или награды.",
+      className: "character-head"
+    })}
 
     <p data-error class="error" role="alert" hidden></p>
 
     <div class="character-choice">
-      ${heroes.map(hero => heroCard(hero, hero.key === selected)).join("")}
+      ${heroes.map(hero => heroCard({ hero, checked: hero.key === selected, labels: HERO_LABELS })).join("")}
     </div>
 
     <div class="character-actions">
-      <button type="button" class="button${selected ? "" : " is-disabled"}" data-save ${selected ? "" : "disabled"}><span class="button-edge" aria-hidden="true"></span><span class="button-label">${first ? "Подтвердить выбор" : "Сохранить выбор"}</span></button>
+      ${buttonAction({ label: first ? "Подтвердить выбор" : "Сохранить выбор", kind: selected ? "" : "is-disabled", disabled: !selected, dataset: { save: "" } })}
       ${first ? `<a class="link action-link" href="#/">Выбрать позже</a>` : `<a class="link action-link" href="#/profile">Отмена</a>`}
     </div>
   `);
@@ -114,7 +99,7 @@ export async function renderCharacter(options = {}) {
   };
 
   if (!heroes.length) {
-    root.querySelector(".character-choice").innerHTML = `<section class="panel"><p class="muted">Персонажи пока не настроены на сервере.</p></section>`;
+    render(root.querySelector(".character-choice"), panel({ children: `<p class="muted">Персонажи пока не настроены на сервере.</p>` }));
     save.disabled = true;
     save.classList.toggle("is-disabled", true);
   }

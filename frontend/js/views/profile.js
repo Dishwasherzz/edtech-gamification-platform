@@ -1,38 +1,14 @@
 import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { element, escapeHtml as e, progressBar, statusName, dateShort, shortModeName } from "../ui.js";
+import { statsGrid } from "../components/stats-grid.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { actions } from "../components/actions.js";
+import { historyTable } from "../components/history-table.js";
+import { buttonEdge, buttonLink } from "../components/button.js";
 import { mascotMini } from "../mascot.js";
 import { companionCharacter, fullAsset, skinAsset } from "../assets.js";
-
-function historyTable(history) {
-  if (!history.length) {
-    return `<p class="muted">Пока нет завершенных попыток.</p>
-      <div class="actions"><a class="button outline" href="#/topics"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Открыть первую тему</span></a></div>`;
-  }
-  return `
-    <table class="history-table">
-      <thead><tr><th>Тема и испытание</th><th>Результат</th><th>Награда</th></tr></thead>
-      <tbody>
-        ${history.map(attempt => {
-          const result = attempt.status === "Passed" ? "Победа"
-            : attempt.status === "Failed" ? "Поражение"
-              : attempt.status === "Abandoned" ? "Прервана" : "В процессе";
-          const reward = attempt.xp || attempt.coins
-            ? `+${attempt.xp} XP<br>+${attempt.coins} монет`
-            : "—";
-          return `
-            <tr>
-              <td>
-                <a class="link" href="#/attempt/${e(attempt.id)}">${e(attempt.topicTitle)}</a><br>
-                <span class="small">${e(shortModeName(attempt.mode))} · ${e(dateShort(attempt.startedAt))}</span>
-              </td>
-              <td>${e(result)}</td>
-              <td class="num">${reward}</td>
-            </tr>`;
-        }).join("")}
-      </tbody>
-    </table>`;
-}
 
 export async function renderProfile(page = 1) {
   const active = await api.active();
@@ -61,55 +37,59 @@ export async function renderProfile(page = 1) {
   const heroImage = skinImage ?? fullAsset(character, "front");
 
   const root = element(`
-    <header class="page-head">
-      <div>
-        <h1>Профиль</h1>
-        <p>${e(user.displayName)}${user.email ? ` · ${e(user.email)}` : ""}</p>
-      </div>
-      <div class="top-actions">
-        <a class="button outline" href="#/settings"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Настройки профиля</span></a>
-        <a class="button" href="${nextCourse ? "#/" : "#/instructions"}"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Продолжить обучение</span></a>
-      </div>
-    </header>
+    ${pageHead({
+      title: "Профиль",
+      description: `${e(user.displayName)}${user.email ? ` · ${e(user.email)}` : ""}`,
+      actions: `${buttonLink({ href: "#/settings", label: "Настройки профиля", kind: "outline" })}
+        ${buttonLink({ href: nextCourse ? "#/" : "#/instructions", label: "Продолжить обучение" })}`
+    })}
 
     <div class="grid-main">
       <div class="stack">
-        <section class="panel">
-          <div class="row">
-            <div class="character-art ${character}">
-              <img class="character-img character-full" src="${e(heroImage)}" alt="${e(user.displayName)}" width="80" height="88">
+        ${panel({
+          children: `
+            <div class="row">
+              <div class="character-art ${character}">
+                <img class="character-img character-full" src="${e(heroImage)}" alt="${e(user.displayName)}" width="80" height="88">
+              </div>
+              <div>
+                <h2 style="margin-bottom:4px">${e(user.displayName)}</h2>
+                <p class="small">${e(user.email ?? "")}</p>
+              </div>
             </div>
-            <div>
-              <h2 style="margin-bottom:4px">${e(user.displayName)}</h2>
-              <p class="small">${e(user.email ?? "")}</p>
-            </div>
-          </div>
-          <div class="gap"></div>
-          <div class="stats">
-            <div class="stat"><span>Прогресс курса</span><strong>${percent} <span class="unit">%</span></strong></div>
-            <div class="stat"><span>Текущий разряд</span><strong>${user.rank} <span class="unit">${ranks ? `из ${ranks}` : ""}</span></strong></div>
-            <div class="stat"><span>Опыт</span><strong>${user.totalXp} <span class="unit">XP</span></strong></div>
-            <div class="stat"><span>Баланс</span><strong>${user.coinsBalance} <span class="unit">монет</span></strong></div>
-          </div>
-        </section>
+            <div class="gap"></div>
+            ${statsGrid({
+              items: [
+                { label: "Прогресс курса", value: percent, unit: "%" },
+                { label: "Текущий разряд", value: user.rank, unit: ranks ? `из ${ranks}` : "" },
+                { label: "Опыт", value: user.totalXp, unit: "XP" },
+                { label: "Баланс", value: user.coinsBalance, unit: "монет" }
+              ]
+            })}
+          `
+        })}
 
-        <section class="panel">
-          <h2>История испытаний</h2>
-          ${historyTable(history)}
-          ${page > 1 || history.length === 20 ? `<div class="actions">
-            ${page > 1 ? `<a class="button outline" href="#/profile?page=${page - 1}"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Назад</span></a>` : ""}
-            ${history.length === 20 ? `<a class="button outline" href="#/profile?page=${page + 1}"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Дальше</span></a>` : ""}
-          </div>` : ""}
-        </section>
+        ${panel({
+          title: "История испытаний",
+          children: `
+            ${historyTable(history)}
+            ${page > 1 || history.length === 20 ? `${actions({ children: `
+              ${page > 1 ? buttonLink({ href: `#/profile?page=${page - 1}`, label: "Назад", kind: "outline" }) : ""}
+              ${history.length === 20 ? buttonLink({ href: `#/profile?page=${page + 1}`, label: "Дальше", kind: "outline" }) : ""}
+            ` })}` : ""}
+          `
+        })}
       </div>
 
       <div class="stack">
-        ${user.nextRankXp ? `<section class="panel">
-          <h2>До следующего разряда</h2>
-          <div class="between"><span>Разряд ${user.rank + 1}</span><strong class="num">${user.xpToNextRank ?? 0} XP</strong></div>
-          ${progressBar(user.rankProgressPercent, "Прогресс до следующего разряда")}
-          <p class="small" style="margin-top:12px">${user.totalXp} XP · следующий порог ${user.nextRankXp} XP</p>
-        </section>` : ""}
+        ${user.nextRankXp ? panel({
+          title: "До следующего разряда",
+          children: `
+            <div class="between"><span>Разряд ${user.rank + 1}</span><strong class="num">${user.xpToNextRank ?? 0} XP</strong></div>
+            ${progressBar(user.rankProgressPercent, "Прогресс до следующего разряда")}
+            <p class="small" style="margin-top:12px">${user.totalXp} XP · следующий порог ${user.nextRankXp} XP</p>
+          `
+        }) : ""}
 
         <div class="mascot-column"></div>
       </div>

@@ -1,0 +1,70 @@
+/* css/utilities.css — Утилиты: сетки, флекс, отступы */
+/* Источник: style.css раздел 2 */
+
+/* Пустой блок для отступа по высоте */
+.gap {
+  height: var(--space-6);
+}
+
+/* Вертикальная колонка с отступом между элементами */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Вертикальная колонка с маленьким отступом */
+.tight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Горизонтальная строка по центру */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Строка с распределением по краям */
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+/* Перенос элементов на новую строку */
+.wrap {
+  flex-wrap: wrap;
+}
+
+/* Двухколоточная сетка */
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+
+/* Трёхколоточная сетка */
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+/* Основная сетка с областью для спутника */
+.grid-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--companion-rail);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* Горизонтальная разделительная линия */
+.rule {
+  height: 1px;
+  margin: var(--space-6) 0;
+  background: var(--border-solid);
+}

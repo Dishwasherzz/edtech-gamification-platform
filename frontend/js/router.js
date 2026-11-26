@@ -15,6 +15,7 @@ import { renderCompletion } from "./views/completion.js";
 import { renderDemo } from "./views/demo.js";
 import { renderSessionExpired } from "./views/session.js";
 import { state, setContext } from "./state.js";
+import { render } from "./ui.js";
 
 let version = 0;
 let dispose = () => {};
@@ -140,7 +141,7 @@ export async function handleRoute() {
     if (currentVersion !== version) return;
     const box = document.createElement("div"); box.className = "card";
     const message = document.createElement("p"); message.className = "error"; message.setAttribute("role", "alert"); message.textContent = error.message;
-    const retry = document.createElement("button"); retry.className = "button outline"; retry.innerHTML = '<span class="button-edge" aria-hidden="true"></span><span class="button-label">Повторить</span>'; retry.onclick = handleRoute;
+    const retry = document.createElement("button"); retry.className = "button outline"; render(retry, '<span class="button-edge" aria-hidden="true"></span><span class="button-label">Повторить</span>'); retry.onclick = handleRoute;
     box.append(message, retry); app.replaceChildren(box);
   } finally { if (currentVersion === version) app.removeAttribute("aria-busy"); }
 }

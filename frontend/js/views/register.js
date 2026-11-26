@@ -2,6 +2,7 @@ import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { escapeHtml as e, askDialog, errorNotice } from "../ui.js";
 import { authLayout, field, passwordField, consentField, bindForm } from "./auth-layout.js";
+import { buttonAction } from "../components/button.js";
 
 export async function renderRegister() {
   const config = await api.registration();
@@ -57,7 +58,7 @@ export async function renderRegister() {
 
 
 
-          <button type="submit" class="button${unavailable || consentRequired ? " is-disabled" : ""}"${unavailable || consentRequired ? " disabled" : ""}><span class="button-edge" aria-hidden="true"></span><span class="button-label">Создать аккаунт</span></button>
+          ${buttonAction({ label: "Создать аккаунт", type: "submit", kind: unavailable || consentRequired ? "is-disabled" : "", disabled: unavailable || consentRequired })}
         </fieldset>
       </form>
     `,

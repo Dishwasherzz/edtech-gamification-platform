@@ -1,4 +1,7 @@
 import { element, escapeHtml as e, progressBar } from "../ui.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { buttonAction } from "../components/button.js";
 
 // Демонстрационный уровень для гостя: показывает механику босса без аккаунта,
 // прогресса и начислений. Данные задачи заданы в макете.
@@ -19,44 +22,46 @@ export function renderDemo() {
   const root = element(`
     <a class="back-link" href="#/">← На главную</a>
 
-    <header class="page-head">
-      <div>
-        <h1>Пример уровня</h1>
-        <p>Демонстрационная задача · без аккаунта и наград</p>
-      </div>
-    </header>
+    ${pageHead({
+      title: "Пример уровня",
+      description: "Демонстрационная задача · без аккаунта и наград"
+    })}
 
     <div class="grid-main">
       <div class="stack">
-        <section class="panel">
-          <h2>${e(DEMO.title)}</h2>
-          <div class="circuit" aria-label="Пример цепи: источник 12 вольт и сопротивление 6 ом">
-            ${DEMO.formula.map(part => `<span class="circuit-node">${e(part.value)}</span>`).join('<span aria-hidden="true">──</span>')}
-          </div>
+        ${panel({
+          title: DEMO.title,
+          children: `
+            <div class="circuit" aria-label="Пример цепи: источник 12 вольт и сопротивление 6 ом">
+              ${DEMO.formula.map(part => `<span class="circuit-node">${e(part.value)}</span>`).join('<span aria-hidden="true">──</span>')}
+            </div>
 
-          <p class="question-prompt">${e(DEMO.prompt)}</p>
-          <div class="answers">
-            ${DEMO.options.map(option => `<button class="answer" data-option="${e(option.key)}"><span class="num">${e(option.key)}</span><span>${e(option.text)}</span></button>`).join("")}
-          </div>
+            <p class="question-prompt">${e(DEMO.prompt)}</p>
+            <div class="answers">
+              ${DEMO.options.map(option => `<button class="answer" data-option="${e(option.key)}"><span class="num">${e(option.key)}</span><span>${e(option.text)}</span></button>`).join("")}
+            </div>
 
-          <p class="feedback" data-feedback role="status"></p>
-        </section>
+            <p class="feedback" data-feedback role="status"></p>
+          `
+        })}
       </div>
 
       <div class="stack">
-        <section class="panel">
-          <h2>Демо-показатели</h2>
-          <div class="metric-list">
-            <div class="metric-row"><span>HP босса</span><strong class="num" data-hp>100%</strong></div>
-          </div>
-          ${progressBar(100, "HP босса")}
-          <p class="small" style="margin-top:12px">Демо не записывается в прогресс и не начисляет XP или монеты.</p>
-          <div class="actions">
-            <button type="button" class="button blue" data-reveal><span class="button-edge" aria-hidden="true"></span><span class="button-label">Показать ответ</span></button>
-            <a class="link action-link" href="#/auth/register">Зарегистрироваться</a>
-            <a class="link action-link" href="#/">На главную</a>
-          </div>
-        </section>
+        ${panel({
+          title: "Демо-показатели",
+          children: `
+            <div class="metric-list">
+              <div class="metric-row"><span>HP босса</span><strong class="num" data-hp>100%</strong></div>
+            </div>
+            ${progressBar(100, "HP босса")}
+            <p class="small" style="margin-top:12px">Демо не записывается в прогресс и не начисляет XP или монеты.</p>
+            <div class="actions">
+              ${buttonAction({ label: "Показать ответ", kind: "blue", dataset: { reveal: "" } })}
+              <a class="link action-link" href="#/auth/register">Зарегистрироваться</a>
+              <a class="link action-link" href="#/">На главную</a>
+            </div>
+          `
+        })}
       </div>
     </div>
   `);

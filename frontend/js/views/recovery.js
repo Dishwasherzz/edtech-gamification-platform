@@ -1,6 +1,9 @@
 import { api } from "../api.js";
 import { element, errorNotice } from "../ui.js";
 import { authLayout, field, passwordField, bindForm } from "./auth-layout.js";
+import { pageHead } from "../components/page-head.js";
+import { panel } from "../components/panel.js";
+import { buttonAction, buttonLink } from "../components/button.js";
 
 const AUTH_TABS = `<a href="#/auth">Вход</a><a href="#/auth/register">Регистрация</a>`;
 
@@ -25,7 +28,7 @@ export function renderForgot() {
             max: 256
           })}
           <p class="small">Укажите почту, с которой регистрировались.</p>
-          <button type="submit" class="button"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Отправить ссылку</span></button>
+          ${buttonAction({ label: "Отправить ссылку", type: "submit" })}
         </fieldset>
       </form>
     `,
@@ -41,18 +44,18 @@ export function renderForgot() {
 // Письмо отправлено. Ответ не раскрывает, зарегистрирован ли адрес.
 export function renderRecoverySent() {
   return element(`
-    <header class="page-head">
-      <div><h1>Проверьте почту</h1><p>Письмо для восстановления</p></div>
-    </header>
+    ${pageHead({ title: "Проверьте почту", description: "Письмо для восстановления" })}
 
-    <section class="panel">
-      <h2>Письмо для восстановления</h2>
-      <p class="muted">Если на этот адрес зарегистрирован аккаунт, придёт письмо со ссылкой для смены пароля. Проверьте также папку «Спам».</p>
-      <div class="actions">
-        <a class="button" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Ко входу</span></a>
-        <a class="button outline" href="#/auth/forgot"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Отправить ещё раз</span></a>
-      </div>
-    </section>
+    ${panel({
+      title: "Письмо для восстановления",
+      children: `
+        <p class="muted">Если на этот адрес зарегистрирован аккаунт, придёт письмо со ссылкой для смены пароля. Проверьте также папку «Спам».</p>
+        <div class="actions">
+          ${buttonLink({ href: "#/auth", label: "Ко входу" })}
+          ${buttonLink({ href: "#/auth/forgot", label: "Отправить ещё раз", kind: "outline" })}
+        </div>
+      `
+    })}
   `);
 }
 
@@ -81,7 +84,7 @@ export function renderReset(userId, token) {
             hint: "От 8 символов, строчная и заглавная буквы, цифра."
           })}
           <p class="small">Создайте новый пароль для входа в аккаунт.</p>
-          <button type="submit" class="button"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Сохранить пароль</span></button>
+          ${buttonAction({ label: "Сохранить пароль", type: "submit" })}
         </fieldset>
       </form>
     `,
@@ -104,31 +107,31 @@ export function renderReset(userId, token) {
 
 export function renderResetDone() {
   return element(`
-    <header class="page-head">
-      <div><h1>Пароль изменён</h1><p>Войдите заново</p></div>
-    </header>
+    ${pageHead({ title: "Пароль изменён", description: "Войдите заново" })}
 
-    <section class="panel">
-      <h2>Войдите заново</h2>
-      <p class="muted">Используйте новый пароль для входа в аккаунт.</p>
-      <div class="actions"><a class="button" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Перейти ко входу</span></a></div>
-    </section>
+    ${panel({
+      title: "Войдите заново",
+      children: `
+        <p class="muted">Используйте новый пароль для входа в аккаунт.</p>
+        <div class="actions">${buttonLink({ href: "#/auth", label: "Перейти ко входу" })}</div>
+      `
+    })}
   `);
 }
 
 export function renderResetInvalid() {
   return element(`
-    <header class="page-head">
-      <div><h1>Ссылка недействительна</h1><p>Запросите новую ссылку</p></div>
-    </header>
+    ${pageHead({ title: "Ссылка недействительна", description: "Запросите новую ссылку" })}
 
-    <section class="panel">
-      <h2>Запросите новую ссылку</h2>
-      <p class="muted">Текущая ссылка уже использована или срок её действия истёк.</p>
-      <div class="actions">
-        <a class="button" href="#/auth/forgot"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Запросить ссылку</span></a>
-        <a class="button outline" href="#/auth"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Войти</span></a>
-      </div>
-    </section>
+    ${panel({
+      title: "Запросите новую ссылку",
+      children: `
+        <p class="muted">Текущая ссылка уже использована или срок её действия истёк.</p>
+        <div class="actions">
+          ${buttonLink({ href: "#/auth/forgot", label: "Запросить ссылку" })}
+          ${buttonLink({ href: "#/auth", label: "Войти", kind: "outline" })}
+        </div>
+      `
+    })}
   `);
 }

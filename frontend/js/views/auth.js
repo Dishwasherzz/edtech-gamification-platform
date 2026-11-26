@@ -2,6 +2,7 @@ import { api } from "../api.js";
 import { refreshProfile } from "../state.js";
 import { errorNotice } from "../ui.js";
 import { authLayout, field, passwordField, bindForm } from "./auth-layout.js";
+import { buttonAction } from "../components/button.js";
 
 export function renderAuth() {
   const root = authLayout({
@@ -18,7 +19,7 @@ export function renderAuth() {
           ${field({ label: "Электронная почта", name: "email", type: "email", autocomplete: "username", placeholder: "name@example.com" })}
           ${passwordField({ label: "Пароль", name: "password", autocomplete: "current-password", placeholder: "Введите пароль" })}
 
-          <button type="submit" class="button"><span class="button-edge" aria-hidden="true"></span><span class="button-label">Войти</span></button>
+          ${buttonAction({ label: "Войти", type: "submit" })}
         </fieldset>
       </form>
     `,
