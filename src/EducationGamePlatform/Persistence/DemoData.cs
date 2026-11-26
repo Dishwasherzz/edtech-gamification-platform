@@ -49,6 +49,7 @@ public static class DemoData
         {
             await AnalystCourseContent.SeedAsync(database, cancellationToken);
             await AdditionalLectureContent.SeedAsync(database, cancellationToken);
+            await AdditionalTrialContent.SeedAsync(database, cancellationToken);
         }
         await transaction.CommitAsync(cancellationToken);
     }

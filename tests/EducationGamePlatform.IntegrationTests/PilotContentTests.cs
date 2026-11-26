@@ -69,7 +69,8 @@ public sealed class PilotContentTests(ApiFixture fixture)
         var versionCount = await database.AssessmentVersions.CountAsync();
         await DemoData.SeedAsync(database, includeAnalyst: true);
         await DemoData.SeedAsync(database, includeAnalyst: true);
-        Assert.Equal(versionCount + 6, await database.AssessmentVersions.CountAsync());
+        // Two assessment versions per topic for the five topics with trials; repeated imports add no duplicates.
+        Assert.Equal(versionCount + 10, await database.AssessmentVersions.CountAsync());
         for (var order = 1; order <= 3; order++)
         {
             var topicBossId = DemoGameContent.BossId(order);

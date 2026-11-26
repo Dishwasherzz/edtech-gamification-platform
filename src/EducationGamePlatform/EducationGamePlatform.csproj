@@ -22,6 +22,8 @@
         <Content Update="appsettings.Local.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
         <Content Remove="Persistence/Content/AnalystCourse.json" />
         <EmbeddedResource Include="Persistence/Content/AnalystCourse.json" LogicalName="AnalystCourse.json" />
+        <Content Remove="Persistence/Content/AdditionalTrials.json" />
+        <EmbeddedResource Include="Persistence/Content/AdditionalTrials.json" LogicalName="AdditionalTrials.json" />
         <Content Remove="Persistence/Content/Lectures/*.md" />
         <EmbeddedResource Include="Persistence/Content/Lectures/*.md" LogicalName="Lectures.%(Filename)%(Extension)" />
         <Content Include="../../frontend/**/*" Link="wwwroot/%(RecursiveDir)%(Filename)%(Extension)"
