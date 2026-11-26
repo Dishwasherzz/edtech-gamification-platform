@@ -161,7 +161,7 @@ export async function renderDashboard() {
               <span>Следующая тема</span>
             </div>
             <div class="gap"></div>
-            ${topics.length ? `<div class="tight">${topics.map(topicRow).join("")}</div>`
+            ${topics.length ? `<div class="tight">${topics.map((topic, index) => topicRow(topic, index, { statusName })).join("")}</div>`
               : `<p class="muted">Пока нет опубликованных тем.</p>`}
           `
         })}

@@ -21,6 +21,20 @@ test("topicRow renders locked topic without link", () => {
   assert.ok(html.includes('aria-disabled="true"'));
   assert.ok(!html.includes('href="#/topic/t2"'));
   assert.ok(html.includes("Закрыта"));
+  assert.ok(html.includes("button small-button is-disabled"));
+  assert.ok(html.includes("Недоступно"));
+});
+
+test("topicRow defaults statusName when mapped directly", () => {
+  const list = [
+    { id: "t1", title: "Тема 1", status: "Completed" },
+    { id: "t2", title: "Тема 2", status: "Available" },
+    { id: "t3", title: "Тема 3", status: "Locked" }
+  ];
+  const html = list.map(topicRow).join("");
+  assert.ok(html.includes("Пройдена"));
+  assert.ok(html.includes("Доступна"));
+  assert.ok(html.includes("Закрыта"));
 });
 
 test("topicRow renders completed topic with repeat link", () => {

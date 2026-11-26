@@ -57,6 +57,9 @@
   .checkbox,
   .toggle,
   .account-toggle,
+  .account-name,
+  .account-name .avatar-dot,
+  .account-chevron,
   .topic-row-link {
     transition: color var(--dur-fast), background-color var(--dur-fast), border-color var(--dur-fast) !important;
   }
@@ -66,7 +69,11 @@
   }
 
   .nav-item:hover,
-  .action-link:hover {
+  .action-link:hover,
+  .account-name:hover,
+  .account-name:hover .avatar-dot,
+  .account-name[aria-expanded="true"] .avatar-dot,
+  .account-name:hover .account-chevron {
     transform: none;
   }
 
@@ -98,6 +105,7 @@
   .checkbox:active:not(:disabled):not(.is-disabled),
   .toggle:active:not(:disabled):not(.is-disabled),
   .account-toggle:active:not(:disabled):not(.is-disabled),
+  .account-name:active:not(:disabled):not(.is-disabled),
   .topic-row-link:active:not(:disabled):not(.is-disabled) {
     transform: none;
   }

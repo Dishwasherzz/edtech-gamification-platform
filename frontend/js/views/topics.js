@@ -40,7 +40,7 @@ export async function renderTopics() {
             <p class="muted">${e(course.description)}</p>
             ${progressBar(course.progressPercent, `Прогресс курса ${course.title}`)}
             <p class="small">Тем пройдено: ${course.completedTopics} из ${course.totalTopics}</p>
-            <div class="tight">${lists[index].map(topicRow).join("")}</div>
+            <div class="tight">${lists[index].map((topic, itemIndex) => topicRow(topic, itemIndex, { statusName })).join("")}</div>
           </section>`).join("")
 
           : panel({ title: "", children: `<p class="muted">Пока нет опубликованных тем.</p>` })}

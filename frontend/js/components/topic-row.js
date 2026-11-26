@@ -1,8 +1,9 @@
-import { escapeHtml as e } from "../ui.js";
+import { escapeHtml as e, statusName as defaultStatusName } from "../ui.js";
+import { buttonAction } from "./button.js";
 
 // Строка темы в маршруте курса: номер, название, статус и действие справа.
 // Общая для dashboard.js и topics.js: раньше дублировалась в обоих файлах.
-export function topicRow(topic, index, { statusName } = {}) {
+export function topicRow(topic, index, { statusName = defaultStatusName } = {}) {
   const status = topic.status ?? "Available";
   const locked = status === "Locked";
   const action = status === "Completed" ? "Повторить тему"
@@ -14,7 +15,8 @@ export function topicRow(topic, index, { statusName } = {}) {
   const href = `#/topic/${e(topic.id)}`;
   const statusText = statusName ? statusName(status) : status;
   const aside = locked
-    ? `<span class="status">${e(statusText)}</span><span class="status">Недоступно</span>`
+    ? `<span class="status">${e(statusText)}</span>
+       ${buttonAction({ label: action, kind: "small-button", disabled: true })}`
     : `<span class="status strong">${e(statusText)}</span>
        <a class="link action-link" href="${href}">${e(action)}</a>`;
   const title = locked

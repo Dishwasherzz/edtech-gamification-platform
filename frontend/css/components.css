@@ -111,6 +111,7 @@
   background: #777;
   color: var(--text-secondary);
   border: 0;
+  cursor: not-allowed;
 }
 
 .button.is-disabled .button-edge {
@@ -903,6 +904,19 @@ p.error {
   font-size: var(--fs-18);
   line-height: var(--lh-18);
   overflow-wrap: anywhere;
+}
+
+.topic-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  text-align: right;
+}
+
+.topic-aside .action-link {
+  position: relative;
+  z-index: 1;
 }
 
 .topic-aside .button {

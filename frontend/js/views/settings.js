@@ -52,7 +52,6 @@ export async function renderSettings(tab = "account") {
           <h2>Персонаж</h2>
           <div class="settings-row">
             <p>Сейчас: ${e(user.hero?.name ?? "не выбран")}. Выбор не меняет задания или награды.</p>
-            <a class="link action-link" href="#/character">Сменить персонажа</a>
           </div>
         </section>
 
@@ -101,7 +100,6 @@ export async function renderSettings(tab = "account") {
           <h2>Персонаж</h2>
           <div class="settings-row">
             <p>Внешность не меняет механику курса. Сейчас: ${e(user.hero?.name ?? "не выбран")}.</p>
-            <a class="link action-link" href="#/character">Сменить персонажа</a>
           </div>
 
           <div class="rule"></div>
