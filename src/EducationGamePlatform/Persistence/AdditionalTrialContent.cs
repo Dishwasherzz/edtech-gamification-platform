@@ -15,18 +15,18 @@ internal static class AdditionalTrialContent
     public static async Task SeedAsync(AppDbContext database, CancellationToken token)
     {
         using var stream = typeof(AdditionalTrialContent).Assembly.GetManifestResourceStream("AdditionalTrials.json")
-            ?? throw new InvalidOperationException("Не найден пакет испытаний тем 4–5.");
+            ?? throw new InvalidOperationException("Не найден пакет испытаний тем 4–7.");
         var package = await JsonSerializer.DeserializeAsync<Package>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web), token)
             ?? throw new InvalidOperationException("Пакет испытаний пуст.");
         static bool Valid(Item item, int count) => !string.IsNullOrWhiteSpace(item.Prompt) &&
             !string.IsNullOrWhiteSpace(item.Explanation) && item.Options.Length == count &&
             item.Options.All(option => !string.IsNullOrWhiteSpace(option)) &&
             item.Options.Distinct().Count() == count && item.CorrectIndex >= 0 && item.CorrectIndex < count;
-        if (package.BossSeconds is < 45 or > 60 || !package.Topics.Select(topic => topic.Order).Order().SequenceEqual([4, 5]) ||
+        if (package.BossSeconds is < 45 or > 60 || !package.Topics.Select(topic => topic.Order).Order().SequenceEqual([4, 5, 6, 7]) ||
             package.Topics.Any(topic => topic.Boss.Length != 14 || topic.Boss.Any(item => !Valid(item, 4)) ||
                 topic.Scenarios.Length != 3 || topic.Scenarios.Any(scenario => string.IsNullOrWhiteSpace(scenario.Title) ||
                     string.IsNullOrWhiteSpace(scenario.Introduction) || scenario.Steps.Length != 4 || scenario.Steps.Any(item => !Valid(item, 3)))))
-            throw new InvalidOperationException("Неверный формат испытаний тем 4–5.");
+            throw new InvalidOperationException("Неверный формат испытаний тем 4–7.");
 
         foreach (var material in package.Topics)
         {
@@ -54,7 +54,11 @@ internal static class AdditionalTrialContent
                     RequiredCorrectAnswers = mode == AssessmentMode.Boss ? 5 : 4,
                     BossMaxHp = mode == AssessmentMode.Boss ? 100 : 0, DamagePerCorrectAnswer = mode == AssessmentMode.Boss ? 20 : 0,
                     XpReward = 100, CoinsReward = 30,
-                    BossName = material.Order == 4 ? "Синусоидальный ток" : "Комплексная мощность",
+                    BossName = material.Order switch
+                    {
+                        4 => "Синусоидальный ток", 5 => "Комплексная мощность",
+                        6 => "Резонанс", 7 => "Магнитная связь", _ => topic.Title
+                    },
                     BossIntro = "Решите расчётные задачи по теме.", BossIcon = "⚡"
                 };
                 if (mode == AssessmentMode.Boss)
